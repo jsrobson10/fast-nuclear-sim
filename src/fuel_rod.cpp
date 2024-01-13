@@ -13,7 +13,7 @@ void fuel_rod::update(double secs)
 	double n = fuel.extract_fast_neutrons();
 	double n_slow = n * 0.5 * reactivity;
 	fuel.add_slow_neutrons(n_slow);
-	neutrons_absorbed += n_slow;
+	neutrons_absorbed += n * 0.5 * (1 - reactivity);
 	neutrons_free += n_slow;
 	
 	fuel.update(secs);
