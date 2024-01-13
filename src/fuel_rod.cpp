@@ -22,6 +22,11 @@ void fuel_rod::update(double secs)
 	temperature += fuel.extract_energy() / fuel.get_mass();
 }
 
+void fuel_rod::add_neutrons(double amount)
+{
+	fuel.add_slow_neutrons(amount);
+}
+
 double fuel_rod::extract_free_neutrons()
 {
 	double v = neutrons_free;
@@ -50,7 +55,7 @@ void fuel_rod::display(std::ostream& o) const
 {
 	o << "Temperature: " << temperature << "\n";
 	o << "Reactivity: " << reactivity << "\n";
+	o << "Fuel: " << fuel.get_fuel() << " / " << fuel.get_mass() << "\n";
 	o << "Neutrons:\n  Absorbed: " << neutrons_absorbed << "\n  Free: " << neutrons_free << "\n";
-	o << fuel;
 }
 

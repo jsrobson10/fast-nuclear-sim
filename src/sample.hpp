@@ -33,8 +33,10 @@ public:
 	double extract_fast_neutrons();
 	void add_slow_neutrons(double a);
 	
+	constexpr double get_fuel() const { return fuel; }
+	constexpr double get_mass() const { return mass; }
+
 	double get_volume() const;
-	double get_mass() const;
 
 	friend std::ostream& operator<<(std::ostream& o, const sample& s)
 	{

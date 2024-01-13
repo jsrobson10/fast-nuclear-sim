@@ -38,34 +38,32 @@ void sample::update(double secs)
 	
 	// absorb neutrons
 	double volume = get_volume();
-	double neutrons = (slow_neutrons + NEUTRON_BG * secs) * (fuel / volume);
+	double neutrons = slow_neutrons + NEUTRON_BG * secs;
+	double neutrons_fuel = neutrons * (fuel / volume);
+	double neutrons_iodine = neutrons * (i_135 / volume);
+	double neutrons_xenon = neutrons * ((xe_135 * Xe_135_M) / volume);
 	slow_neutrons = 0;
 
-	// deal with this edge case
-	if(neutrons > fuel)
-	{
-		slow_neutrons = neutrons - fuel;
-		neutrons = fuel;
-	}
+	// deal with these edge cases
+	if(neutrons_fuel > fuel) neutrons_fuel = fuel;
+	if(neutrons_xenon > xe_135) neutrons_xenon = xe_135;
+	if(neutrons_iodine > i_135) neutrons_iodine = i_135;
 
 	// simulate fuel use
-	fuel -= neutrons;
-	energy += neutrons;
-	fast_neutrons += neutrons * 3;
-	waste.add_fissile(neutrons * 2);
+	fuel -= neutrons_fuel;
+	energy += neutrons_fuel;
+	fast_neutrons += neutrons_fuel * 3;
+	waste.add_fissile(neutrons_fuel * 2);
 
-	// add the poison
-	te_135 += neutrons;
+	// do the poison
+	te_135 += neutrons_fuel * (1.0 / 8.0);
+	xe_135 -= neutrons_xenon;
+	i_135 -= neutrons_iodine;
 }
 
 double sample::get_volume() const
 {
 	return mass + xe_135 * Xe_135_M;
-}
-
-double sample::get_mass() const
-{
-	return mass;
 }
 
 double sample::extract_energy()

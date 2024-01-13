@@ -24,6 +24,7 @@ public:
 
 	void update(double secs);
 	void set_reactivity(double amount);
+	void add_neutrons(double amount);
 	void add_heat(double amount);
 
 	constexpr double get_temperature() const { return temperature; }

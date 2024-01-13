@@ -2,59 +2,46 @@
 #include "reactor.hpp"
 
 #include <iostream>
+#include <iomanip>
 
 using namespace sim;
 
 reactor::reactor(int size, fuel_rod fr)
 {
 	this->size = size;
+	rods.resize(size * size, fr);
 
-	for(int y = 0; y < size; y++)
-	for(int x = 0; x < size; x++)
-	{
-		rods.push_back({fr, x, y});
-	}
+	rods[2].set_reactivity(1);
 }
 
-static const double HEAT_K = 1.0/2.0;
+static const double HEAT_K = 1.0/64.0;
 
 void reactor::update(double secs)
 {
-	update_count++;
-	
-	static const int C[8][2] = {
-		{0, -1},
-		{0, 1},
-		{-1, 0},
-		{1, 0},
-		{0, -1},
-		{0, 1},
-		{-1, 0},
-		{1, 0}
-	};
-
-	const int C_OFF = update_count % 4;
-	double heat_add[rods.size()] = {0};
-	
-	for(rod_t& r : rods)
+	for(int y = 0; y < size; y++)
+	for(int x = 0; x < size; x++)
 	{
-		r.fr.update(secs);
+		fuel_rod& fr = rods[get_id(x, y)];
+		fr.update(secs);
 
-		for(int i = 0; i < 4; i++)
+		const int id_os[] = {
+			get_id(x - 1, y),
+			get_id(x, y - 1),
+			get_id(x + 1, y),
+			get_id(x, y + 1)
+		};
+		
+		const double neutrons = fr.extract_free_neutrons();
+
+		for(const int id_o : id_os)
 		{
-			const auto [cx, cy] = C[C_OFF + i];
-			int id_o = get_id(r.x + cx, r.y + cy);
-
 			if(id_o == -1) continue;
 
-			rod_t& r_o = rods[id_o];
-			heat_add[id_o] += r.fr.extract_heat(HEAT_K, r_o.fr.get_temperature());
-		}
-	}
 
-	for(int i = 0; i < rods.size(); i++)
-	{
-		rods[i].fr.add_heat(heat_add[i]);
+			fuel_rod& fr_o = rods[id_o];
+			fr_o.add_heat(fr.extract_heat(HEAT_K * secs, fr_o.get_temperature()));
+			fr_o.add_neutrons(neutrons / 4);
+		}
 	}
 }
 
@@ -64,22 +51,8 @@ int reactor::get_id(int x, int y) const
 	return y * size + x;
 }
 
-void reactor::display(std::ostream& o) const
+void reactor::display(std::ostream& o, int x, int y) const
 {
-	for(int y = -1; y <= size; y++)
-	{
-		for(int x = -1; x <= size; x++)
-		{
-			int id = get_id(x, y);
-
-			o << "\t";
-
-			if(id == -1) continue;
-
-			o << rods[id].fr.get_temperature();
-		}
-
-		o << "\n";
-	}
+	o << rods[get_id(x, y)];
 }
 
