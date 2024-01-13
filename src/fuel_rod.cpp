@@ -36,6 +36,11 @@ double fuel_rod::extract_heat(double k, double o)
 	return v;
 }
 
+void fuel_rod::add_heat(double amount)
+{
+	temperature += amount;
+}
+
 void fuel_rod::set_reactivity(double v)
 {
 	reactivity = v;

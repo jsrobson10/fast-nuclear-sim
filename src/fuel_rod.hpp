@@ -20,9 +20,14 @@ class fuel_rod
 public:
 
 	fuel_rod(double fuel, double mass);
+	fuel_rod() : fuel_rod(0, 0) {};
 
 	void update(double secs);
 	void set_reactivity(double amount);
+	void add_heat(double amount);
+
+	constexpr double get_temperature() const { return temperature; }
+	constexpr double get_reactivity() const { return reactivity; }
 
 	double extract_free_neutrons();
 	double extract_heat(double k, double o);

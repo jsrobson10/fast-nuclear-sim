@@ -1,5 +1,5 @@
 
-#include "fuel_rod.hpp"
+#include "reactor.hpp"
 
 #include <iostream>
 
@@ -7,18 +7,18 @@
 
 int main()
 {
-	sim::fuel_rod fr(100, 200);
+	sim::reactor reactor(5, {100, 200});
 
-	fr.set_reactivity(0);
+//	react.set_reactivity(0);
 
 	for(;;)
 	{
-		for(int i = 0; i < 1e4; i++)
+		for(int i = 0; i < 1e3; i++)
 		{
-			fr.update(1e-4);
+			reactor.update(1e-3);
 		}
 
-		std::cout << "\nFuel Rod:\n\n" << fr << "\n\n";
+		std::cout << "\n\nShow:\n\n" << reactor << "\n";
 	}
 
 	return 0;
