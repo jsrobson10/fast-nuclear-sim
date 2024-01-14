@@ -25,11 +25,17 @@ public:
 	virtual double extract(val_t type, double k, double o);
 	virtual double get(val_t type) const;
 
+	virtual bool should_select() const { return false; }
+	virtual void update_selected(double a) { }
+	
+	constexpr void toggle_selected() { selected = !selected; }
+	constexpr bool is_selected() { return selected; }
+
 	friend std::ostream& operator<<(std::ostream& o, const rod& r)
 	{
 		if(!r.should_display()) return o;
 
-		o << "Name: " << r.get_name() << "\n";
+		o << r.get_name() << "\n";
 		r.display(o);
 		o << "Heat: " << r.get(val_t::HEAT) << "\n";
 		o << "Fast: " << r.get(val_t::N_FAST) << "\n";
@@ -42,6 +48,7 @@ protected:
 
 	double vals_in[VAL_N] = {0};
 	double vals[VAL_N] = {0};
+	bool selected = false;
 
 	virtual void display(std::ostream& o) const { };
 	virtual double get_k(val_t type) const { return 0; }

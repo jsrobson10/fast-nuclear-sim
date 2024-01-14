@@ -16,6 +16,9 @@ struct reactor
 	
 	std::array<std::array<rod*, H>, W> rods;
 
+	int cursor_x = 0;
+	int cursor_y = 0;
+
 	reactor(std::array<rod*, W * H> rods)
 	{
 		for(int y = 0; y < H; y++)
@@ -51,6 +54,56 @@ struct reactor
 		for(int x = 0; x < W; x++)
 		{
 			rods[x][y]->update(secs);
+		}
+	}
+
+	void update_selected(double v)
+	{
+		for(int y = 0; y < H; y++)
+		for(int x = 0; x < W; x++)
+		if(rods[x][y]->is_selected())
+		{
+			rods[x][y]->update_selected(v);
+		}
+	}
+
+	void move_cursor(int d)
+	{
+		for(;;)
+		{
+			cursor_x += d;
+
+			while(cursor_x >= W)
+			{
+				cursor_x -= W;
+				cursor_y += 1;
+			}
+
+			while(cursor_x < 0)
+			{
+				cursor_x += W;
+				cursor_y -= 1;
+			}
+
+			cursor_y %= H;
+
+			if(cursor_y < 0)
+			{
+				cursor_y += H;
+			}
+
+			if(rods[cursor_x][cursor_y]->should_select())
+			{
+				return;
+			}
+		}
+	}
+
+	void toggle_selected()
+	{
+		if(rods[cursor_x][cursor_y]->should_select())
+		{
+			rods[cursor_x][cursor_y]->toggle_selected();
 		}
 	}
 };

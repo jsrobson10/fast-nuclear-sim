@@ -43,16 +43,48 @@ int main()
 		for(int y = 0; y < reactor.height; y++)
 		{
 			std::stringstream ss;
-			ss << *reactor.rods[x][y];
+			sim::reactor::rod* r = reactor.rods[x][y];
+			ss << *r;
 			
 			int px = X + (H - 1) * y;
 			int py = Y + (W - 1) * x;
 
 			display::draw_text(px + 1, py + 2, ss.str().c_str());
 			display::draw_box(px, py, H, W);
+
+			if(r->should_select() && x == reactor.cursor_x && y == reactor.cursor_y)
+			{
+				display::draw_text(px + 1, py + W - 5, "[ ]");
+			}
+
+			if(r->is_selected())
+			{
+				display::draw_text(px + 1, py + W - 4, "#");
+			}
 		}
 
 		refresh();
+
+		int c = getch();
+
+		switch(c)
+		{
+		case KEY_LEFT:
+			reactor.move_cursor(-1);
+			break;
+		case KEY_RIGHT:
+			reactor.move_cursor(1);
+			break;
+		case KEY_UP:
+			reactor.update_selected(0.001);
+			break;
+		case KEY_DOWN:
+			reactor.update_selected(-0.001);
+			break;
+		case ' ':
+			reactor.toggle_selected();
+			break;
+		}
 	}
 
 	return 0;

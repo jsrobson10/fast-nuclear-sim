@@ -47,3 +47,11 @@ void control_rod::update(double secs)
 	absorbed += r_fast + r_slow;
 }
 
+void control_rod::update_selected(double a)
+{
+	inserted += a;
+
+	if(inserted > 1) inserted = 1;
+	if(inserted < 0) inserted = 0;
+}
+

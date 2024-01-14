@@ -24,6 +24,9 @@ public:
 
 	virtual void update(double secs);
 	void set_reactivity(double a);
+	
+	virtual bool should_select() const { return true; }
+	virtual void update_selected(double a);
 };
 
 }

@@ -22,7 +22,7 @@ void pipe::update(double secs)
 {
 	update_rod();
 
-	double v = vals[val_t::N_FAST] * 0.25;
+	double v = vals[val_t::N_FAST];
 	vals[val_t::N_FAST] -= v;
 	vals[val_t::N_SLOW] += v;
 }
