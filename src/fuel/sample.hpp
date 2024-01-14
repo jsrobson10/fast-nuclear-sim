@@ -5,12 +5,12 @@
 
 #include <ostream>
 
-namespace sim
+namespace sim::fuel
 {
 
 class sample
 {
-	sim::waste waste;
+	sim::fuel::waste waste;
 	
 	double fuel = 0;
 	double i_135 = 0;
@@ -35,6 +35,7 @@ public:
 	
 	constexpr double get_fuel() const { return fuel; }
 	constexpr double get_mass() const { return mass; }
+	constexpr double get_energy() const { return energy; }
 
 	double get_volume() const;
 
@@ -44,7 +45,6 @@ public:
 		return o;
 	}
 };
-
 
 }
 

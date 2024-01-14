@@ -1,30 +1,58 @@
 
 #pragma once
 
-#include "fuel_rod.hpp"
+#include "rod.hpp"
 
-#include <vector>
+#include <array>
 
 namespace sim
 {
 
-class reactor
+template <int W, int H>
+struct reactor
 {
-	std::vector<fuel_rod> rods;
+	const static int width = W;
+	const static int height = H;
+	
+	std::array<std::array<sim::rod*, H>, W> rods;
 
-	int size;
-	long update_count = 0;
+	reactor(std::array<sim::rod*, W * H> rods)
+	{
+		for(int y = 0; y < H; y++)
+		for(int x = 0; x < W; x++)
+		{
+			this->rods[x][y] = rods[y * W + x];
+		}
+	}
 
-	int get_id(int x, int y) const;
+	void update(double secs)
+	{
+		// do interactions
+		for(int x = 1; x < W; x++)
+		{
+			rods[x][0]->interact(rods[x - 1][0]);
+		}
 
-public:
+		for(int y = 1; y < H; y++)
+		{
+			rods[0][y]->interact(rods[0][y - 1]);
+		}
 
-	reactor(int radius, fuel_rod fr);
+		for(int y = 1; y < H; y++)
+		for(int x = 1; x < W; x++)
+		{
+			rod* r = rods[x][y];
+			r->interact(rods[x - 1][y]);
+			r->interact(rods[x][y - 1]);
+		}
 
-	void update(double secs);
-	void display(std::ostream& o, int x, int y) const;
-
-	constexpr int get_size() const { return size; }
+		// do updates
+		for(int y = 0; y < H; y++)
+		for(int x = 0; x < W; x++)
+		{
+			rods[x][y]->update(secs);
+		}
+	}
 };
 
 }

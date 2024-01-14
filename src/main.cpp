@@ -1,54 +1,13 @@
 
 #include "reactor.hpp"
+#include "control/control_rod.hpp"
+#include "fuel/fuel_rod.hpp"
+#include "coolant/pipe.hpp"
+#include "display.hpp"
 
 #include <sstream>
 #include <unistd.h>
 #include <curses.h>
-
-void draw_text(int x, int y, const char* str)
-{
-	for(int i = 0;; i++)
-	{
-		const char* start = str;
-		char c = (str++)[0];
-
-		while(c != '\n' && c != '\0')
-		{
-			c = (str++)[0];
-		}
-
-		mvaddnstr(x + i, y, start, (size_t)(str - start));
-
-		if(c == '\0') return;
-	}
-}
-
-void draw_box(int x, int y, int h, int w)
-{
-	mvaddch(x, y, '+');
-
-	for(int i = 0; i < w - 2; i++)
-	{
-		addch('-');
-	}
-
-	addch('+');
-
-	for(int i = 0; i < h - 2; i++)
-	{
-		mvaddch(x + i + 1, y, '|');
-		mvaddch(x + i + 1, y + w - 1, '|');
-	}
-	
-	mvaddch(x + h - 1, y, '+');
-
-	for(int i = 0; i < w - 2; i++)
-	{
-		addch('-');
-	}
-
-	addch('+');
-}
 
 int main()
 {
@@ -59,7 +18,12 @@ int main()
 	nodelay(stdscr, TRUE);
 	curs_set(0);
 	
-	sim::reactor reactor(5, {100, 200});
+	sim::reactor<2, 2> reactor({
+		new sim::fuel::fuel_rod(100, 400),		new sim::fuel::fuel_rod(100, 400),
+		new sim::control::control_rod(1000),	new sim::coolant::pipe()
+	});
+
+	((sim::control::control_rod*)reactor.rods[0][1])->set_reactivity(0.99);
 
 	for(;;)
 	{
@@ -69,22 +33,22 @@ int main()
 		}
 
 		erase();
-		draw_text(1, 0, "Reactor Core:");
+		display::draw_text(1, 0, "Reactor Core:");
 
 		const int X = 3, Y = 4;
 		const int W = 32, H = 8;
 
-		for(int x = 0; x < reactor.get_size(); x++)
-		for(int y = 0; y < reactor.get_size(); y++)
+		for(int x = 0; x < reactor.width; x++)
+		for(int y = 0; y < reactor.height; y++)
 		{
 			std::stringstream ss;
-			reactor.display(ss, x, y);
+			ss << *reactor.rods[x][y];
 			
 			int px = X + (H - 1) * y;
 			int py = Y + (W - 1) * x;
 
-			draw_text(px + 1, py + 2, ss.str().c_str());
-			draw_box(px, py, H, W);
+			display::draw_text(px + 1, py + 2, ss.str().c_str());
+			display::draw_box(px, py, H, W);
 		}
 
 		refresh();

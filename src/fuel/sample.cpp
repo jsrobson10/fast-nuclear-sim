@@ -2,7 +2,7 @@
 #include "sample.hpp"
 #include "half_life.hpp"
 
-using namespace sim;
+using namespace sim::fuel;
 
 static const double Xe_135_M = 1e4;
 static const double NEUTRON_BG = 1e-10;
@@ -17,7 +17,7 @@ void sample::update(double secs)
 {
 	double m;
 
-	// simulate waste and extract products
+	// sim::fuelulate waste and extract products
 	waste.update(secs);
 	fast_neutrons += waste.extract_neutrons();
 	energy += waste.extract_energy();
@@ -49,7 +49,7 @@ void sample::update(double secs)
 	if(neutrons_xenon > xe_135) neutrons_xenon = xe_135;
 	if(neutrons_iodine > i_135) neutrons_iodine = i_135;
 
-	// simulate fuel use
+	// sim::fuelulate fuel use
 	fuel -= neutrons_fuel;
 	energy += neutrons_fuel;
 	fast_neutrons += neutrons_fuel * 3;
