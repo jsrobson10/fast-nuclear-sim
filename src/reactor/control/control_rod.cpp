@@ -8,11 +8,6 @@ control_rod::control_rod(double limit)
 	this->limit = limit;
 }
 
-const char* control_rod::get_name() const
-{
-	return "Control Rod";
-}
-
 void control_rod::display(std::ostream& o) const
 {
 	o << "Inserted: " << (inserted * 100) << "%\n";

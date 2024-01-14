@@ -14,11 +14,6 @@ void fuel_rod::display(std::ostream& o) const
 	o << "Energy: " << s.get_energy() << "\n";
 }
 
-const char* fuel_rod::get_name() const
-{
-	return "Fuel";
-}
-
 double fuel_rod::get_k(val_t type) const
 {
 	switch(type)

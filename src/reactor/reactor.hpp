@@ -30,20 +30,20 @@ struct reactor
 		// do interactions
 		for(int x = 1; x < W; x++)
 		{
-			rods[x][0]->interact(rods[x - 1][0]);
+			rods[x][0]->interact(rods[x - 1][0], secs);
 		}
 
 		for(int y = 1; y < H; y++)
 		{
-			rods[0][y]->interact(rods[0][y - 1]);
+			rods[0][y]->interact(rods[0][y - 1], secs);
 		}
 
 		for(int y = 1; y < H; y++)
 		for(int x = 1; x < W; x++)
 		{
 			rod* r = rods[x][y];
-			r->interact(rods[x - 1][y]);
-			r->interact(rods[x][y - 1]);
+			r->interact(rods[x - 1][y], secs);
+			r->interact(rods[x][y - 1], secs);
 		}
 
 		// do updates

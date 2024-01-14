@@ -12,9 +12,11 @@ class control_rod : public sim::reactor::rod
 	double absorbed = 0;
 	double limit;
 	
-	virtual const char* get_name() const;
 	virtual double get_k(sim::reactor::rod::val_t type) const;
 	virtual void display(std::ostream& o) const;
+
+	virtual const char* get_name() const { return "Control Rod"; }
+	virtual bool should_display() const { return true; }
 
 public:
 

@@ -3,11 +3,6 @@
 
 using namespace sim::reactor::coolant;
 
-const char* pipe::get_name() const
-{
-	return "Coolant Pipe";
-}
-
 double pipe::get_k(val_t type) const
 {
 	switch(type)

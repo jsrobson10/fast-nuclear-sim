@@ -1,5 +1,5 @@
 
-#include "reactor/reactor.hpp"
+#include "reactor/builder.hpp"
 #include "reactor/control/control_rod.hpp"
 #include "reactor/fuel/fuel_rod.hpp"
 #include "reactor/coolant/pipe.hpp"
@@ -18,19 +18,20 @@ int main()
 	nodelay(stdscr, TRUE);
 	curs_set(0);
 	
-	sim::reactor::reactor<2, 2> reactor({
-		new sim::reactor::fuel::fuel_rod(100, 400),		new sim::reactor::fuel::fuel_rod(100, 400),
-		new sim::reactor::control::control_rod(1000),	new sim::reactor::coolant::pipe()
-	});
-
-	((sim::reactor::control::control_rod*)reactor.rods[0][1])->set_reactivity(0.99);
+	sim::reactor::reactor<5, 5> reactor = sim::reactor::builder<5, 5>(
+		sim::reactor::fuel::fuel_rod(100, 400),
+		sim::reactor::control::control_rod(1000),
+		sim::reactor::coolant::pipe(), {
+			"  P  ",
+			" FCF ",
+			"PCPCP",
+			" FCF ",
+			"  P  "
+		});
 
 	for(;;)
 	{
-		for(int i = 0; i < 1e3; i++)
-		{
-			reactor.update(1e-3);
-		}
+		reactor.update(1);
 
 		erase();
 		display::draw_text(1, 0, "Reactor Core:");

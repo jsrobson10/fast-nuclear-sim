@@ -20,12 +20,12 @@ double rod::extract(val_t type, double k, double o)
 	return v;
 }
 
-void rod::interact(rod* o)
+void rod::interact(rod* o, double secs)
 {
 	for(int i = 0; i < rod::VAL_N; i++)
 	{
 		val_t v = (val_t)i;
-		add(v, o->extract(v, get_k(v), get(v)));
+		add(v, o->extract(v, secs * get_k(v), get(v)));
 	}
 }
 
@@ -37,10 +37,5 @@ void rod::update_rod()
 		vals[v] += vals_in[v];
 		vals_in[v] = 0;
 	}
-}
-
-void rod::display(std::ostream& o) const
-{
-
 }
 
