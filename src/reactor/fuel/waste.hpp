@@ -1,7 +1,7 @@
 
 #pragma once
 
-namespace sim::fuel
+namespace sim::reactor::fuel
 {
 
 class waste

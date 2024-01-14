@@ -1,7 +1,7 @@
 
 #include "control_rod.hpp"
 
-using namespace sim::control;
+using namespace sim::reactor::control;
 
 control_rod::control_rod(double limit)
 {

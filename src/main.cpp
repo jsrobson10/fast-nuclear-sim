@@ -1,8 +1,8 @@
 
-#include "reactor.hpp"
-#include "control/control_rod.hpp"
-#include "fuel/fuel_rod.hpp"
-#include "coolant/pipe.hpp"
+#include "reactor/reactor.hpp"
+#include "reactor/control/control_rod.hpp"
+#include "reactor/fuel/fuel_rod.hpp"
+#include "reactor/coolant/pipe.hpp"
 #include "display.hpp"
 
 #include <sstream>
@@ -18,12 +18,12 @@ int main()
 	nodelay(stdscr, TRUE);
 	curs_set(0);
 	
-	sim::reactor<2, 2> reactor({
-		new sim::fuel::fuel_rod(100, 400),		new sim::fuel::fuel_rod(100, 400),
-		new sim::control::control_rod(1000),	new sim::coolant::pipe()
+	sim::reactor::reactor<2, 2> reactor({
+		new sim::reactor::fuel::fuel_rod(100, 400),		new sim::reactor::fuel::fuel_rod(100, 400),
+		new sim::reactor::control::control_rod(1000),	new sim::reactor::coolant::pipe()
 	});
 
-	((sim::control::control_rod*)reactor.rods[0][1])->set_reactivity(0.99);
+	((sim::reactor::control::control_rod*)reactor.rods[0][1])->set_reactivity(0.99);
 
 	for(;;)
 	{

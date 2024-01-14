@@ -3,7 +3,7 @@
 
 #include <ostream>
 
-namespace sim
+namespace sim::reactor
 {
 
 class rod

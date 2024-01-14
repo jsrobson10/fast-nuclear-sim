@@ -1,7 +1,7 @@
 
 #include "fuel_rod.hpp"
 
-using namespace sim::fuel;
+using namespace sim::reactor::fuel;
 
 fuel_rod::fuel_rod(double fuel, double mass) : s(fuel, mass)
 {
@@ -19,7 +19,7 @@ const char* fuel_rod::get_name() const
 	return "Fuel";
 }
 
-double fuel_rod::get_k(sim::rod::val_t type) const
+double fuel_rod::get_k(val_t type) const
 {
 	switch(type)
 	{

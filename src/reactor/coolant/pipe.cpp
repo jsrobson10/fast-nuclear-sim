@@ -1,14 +1,14 @@
 
 #include "pipe.hpp"
 
-using namespace sim::coolant;
+using namespace sim::reactor::coolant;
 
 const char* pipe::get_name() const
 {
 	return "Coolant Pipe";
 }
 
-double pipe::get_k(sim::rod::val_t type) const
+double pipe::get_k(val_t type) const
 {
 	switch(type)
 	{

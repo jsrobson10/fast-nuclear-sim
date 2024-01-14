@@ -2,7 +2,7 @@
 #include "waste.hpp"
 #include "half_life.hpp"
 
-using namespace sim::fuel;
+using namespace sim::reactor::fuel;
 
 void waste::update(double secs)
 {

@@ -5,12 +5,12 @@
 
 #include <ostream>
 
-namespace sim::fuel
+namespace sim::reactor::fuel
 {
 
 class sample
 {
-	sim::fuel::waste waste;
+	sim::reactor::fuel::waste waste;
 	
 	double fuel = 0;
 	double i_135 = 0;

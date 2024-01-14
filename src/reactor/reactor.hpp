@@ -5,7 +5,7 @@
 
 #include <array>
 
-namespace sim
+namespace sim::reactor
 {
 
 template <int W, int H>
@@ -14,9 +14,9 @@ struct reactor
 	const static int width = W;
 	const static int height = H;
 	
-	std::array<std::array<sim::rod*, H>, W> rods;
+	std::array<std::array<rod*, H>, W> rods;
 
-	reactor(std::array<sim::rod*, W * H> rods)
+	reactor(std::array<rod*, W * H> rods)
 	{
 		for(int y = 0; y < H; y++)
 		for(int x = 0; x < W; x++)

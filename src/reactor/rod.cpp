@@ -1,7 +1,7 @@
 
 #include "rod.hpp"
 
-using namespace sim;
+using namespace sim::reactor;
 
 double rod::get(val_t type) const
 {
