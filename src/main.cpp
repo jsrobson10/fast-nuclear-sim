@@ -20,21 +20,28 @@ int main()
 	
 	sim::reactor::reactor<5, 5> reactor = sim::reactor::builder<5, 5>(
 		sim::reactor::fuel::fuel_rod(100, 400),
-		sim::reactor::control::control_rod(1000),
+		sim::reactor::control::control_rod(1000, 0.1),
 		sim::reactor::coolant::pipe(), {
-			"  P  ",
-			" FCF ",
+			" PPP ",
+			"PFCFP",
 			"PCPCP",
-			" FCF ",
-			"  P  "
+			"PFCFP",
+			" PPP "
 		});
+
+	double secs = 0;
 
 	for(;;)
 	{
-		reactor.update(1);
+		reactor.update(0.01);
+
+		std::stringstream ss;
+		ss << "Reactor Core: " << secs << " s\n";
+
+		secs += 0.01;
 
 		erase();
-		display::draw_text(1, 0, "Reactor Core:");
+		display::draw_text(1, 0, ss.str().c_str());
 
 		const int X = 3, Y = 4;
 		const int W = 32, H = 8;
@@ -76,10 +83,10 @@ int main()
 			reactor.move_cursor(1);
 			break;
 		case KEY_UP:
-			reactor.update_selected(0.001);
+			reactor.update_selected(0.01);
 			break;
 		case KEY_DOWN:
-			reactor.update_selected(-0.001);
+			reactor.update_selected(-0.01);
 			break;
 		case ' ':
 			reactor.toggle_selected();

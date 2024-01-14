@@ -11,6 +11,7 @@ class control_rod : public sim::reactor::rod
 	double inserted = 1;
 	double absorbed = 0;
 	double limit;
+	double max;
 	
 	virtual double get_k(sim::reactor::rod::val_t type) const;
 	virtual void display(std::ostream& o) const;
@@ -20,7 +21,7 @@ class control_rod : public sim::reactor::rod
 
 public:
 
-	control_rod(double limit);
+	control_rod(double limit, double max);
 
 	virtual void update(double secs);
 	void set_reactivity(double a);

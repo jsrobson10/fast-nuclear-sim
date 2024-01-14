@@ -4,7 +4,6 @@
 
 using namespace sim::reactor::fuel;
 
-static const double Xe_135_M = 1e4;
 static const double NEUTRON_BG = 1e-10;
 
 sample::sample(double fuel, double mass)
@@ -45,25 +44,34 @@ void sample::update(double secs)
 	slow_neutrons = 0;
 
 	// deal with these edge cases
-	if(neutrons_fuel > fuel) neutrons_fuel = fuel;
-	if(neutrons_xenon > xe_135) neutrons_xenon = xe_135;
-	if(neutrons_iodine > i_135) neutrons_iodine = i_135;
+	
+	if(neutrons_fuel > fuel)
+	{
+		slow_neutrons += neutrons_fuel - fuel;
+		neutrons_fuel = fuel;
+	}
+
+	if(neutrons_xenon > xe_135)
+	{
+		slow_neutrons += neutrons_xenon - xe_135;
+		neutrons_xenon = xe_135;
+	}
+	
+	if(neutrons_iodine > i_135)
+	{
+		slow_neutrons += neutrons_iodine - i_135;
+		neutrons_iodine = i_135;
+	}
 
 	// sim::reactor::fuelulate fuel use
 	fuel -= neutrons_fuel;
 	energy += neutrons_fuel;
-	fast_neutrons += neutrons_fuel * 3;
 	waste.add_fissile(neutrons_fuel * 2);
 
 	// do the poison
 	te_135 += neutrons_fuel * (1.0 / 8.0);
 	xe_135 -= neutrons_xenon;
 	i_135 -= neutrons_iodine;
-}
-
-double sample::get_volume() const
-{
-	return mass + xe_135 * Xe_135_M;
 }
 
 double sample::extract_energy()

@@ -4,10 +4,13 @@
 
 using namespace sim::reactor::fuel;
 
+static const double SLOWDOWN_M = 1.0 / 4.0;
+
 void waste::update(double secs)
 {
 	double hl = 1;
-	double next[waste::N - 1] = {0};
+	double next_h[waste::N - 1] = {0};
+	double next_l[waste::N - 1] = {0};
 
 	for(int i = 0; i < waste::N - 1; i++)
 	{
@@ -15,7 +18,8 @@ void waste::update(double secs)
 		double h = high[i] * m;
 		double l = low[i] * m;
 
-		next[i] += h + l;
+		next_h[i] += h * (1 - SLOWDOWN_M);
+		next_l[i] += l + h * SLOWDOWN_M;
 		high[i] -= h;
 		low[i] -= l;
 
@@ -26,7 +30,8 @@ void waste::update(double secs)
 
 	for(int i = 0; i < waste::N - 1; i++)
 	{
-		low[i + 1] += next[i];
+		high[i + 1] += next_h[i];
+		low[i + 1] += next_l[i];
 	}
 }
 

@@ -1,11 +1,14 @@
 
 #include "control_rod.hpp"
 
+#include <cmath>
+
 using namespace sim::reactor::control;
 
-control_rod::control_rod(double limit)
+control_rod::control_rod(double limit, double max)
 {
 	this->limit = limit;
+	this->max = max;
 }
 
 void control_rod::display(std::ostream& o) const
@@ -38,7 +41,7 @@ void control_rod::update(double secs)
 {
 	update_rod();
 	
-	double m = (1 - absorbed / limit) * inserted;
+	double m = 1 - std::pow(0.5, (1 - absorbed / limit) * inserted * max);
 	double r_fast = vals[val_t::N_FAST] * m;
 	double r_slow = vals[val_t::N_SLOW] * m;
 

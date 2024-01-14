@@ -10,6 +10,8 @@ namespace sim::reactor::fuel
 
 class sample
 {
+	constexpr static const double Xe_135_M = 1e3;
+
 	sim::reactor::fuel::waste waste;
 	
 	double fuel = 0;
@@ -36,8 +38,8 @@ public:
 	constexpr double get_fuel() const { return fuel; }
 	constexpr double get_mass() const { return mass; }
 	constexpr double get_energy() const { return energy; }
-
-	double get_volume() const;
+	constexpr double get_volume() const { return mass + xe_135 * Xe_135_M; }
+	constexpr double get_efficiency() const { return fuel / get_volume(); }
 
 	friend std::ostream& operator<<(std::ostream& o, const sample& s)
 	{
