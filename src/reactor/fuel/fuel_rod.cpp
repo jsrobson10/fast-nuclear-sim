@@ -12,7 +12,7 @@ void fuel_rod::display(std::ostream& o) const
 {
 	o << "Fuel: " << s.get_fuel() << " / " << s.get_mass() << "\n";
 	o << "Efficiency: " << s.get_efficiency() << "\n";
-	o << "Energy: " << s.get_energy() << "\n";
+	o << "Energy: +" << s.get_energy() << "\n";
 }
 
 double fuel_rod::get_k(val_t type) const
@@ -36,7 +36,7 @@ void fuel_rod::update(double secs)
 	
 	s.add_slow_neutrons(vals[val_t::N_SLOW]);
 
-	vals[val_t::HEAT] += s.extract_energy() / s.get_mass();
+	vals[val_t::HEAT] += s.extract_energy();
 	vals[val_t::N_FAST] += s.extract_fast_neutrons();
 	vals[val_t::N_SLOW] = 0;
 	

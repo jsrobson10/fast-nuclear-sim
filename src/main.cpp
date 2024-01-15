@@ -3,8 +3,10 @@
 #include "reactor/control/control_rod.hpp"
 #include "reactor/fuel/fuel_rod.hpp"
 #include "reactor/coolant/pipe.hpp"
+#include "reactor/coolant/vessel.hpp"
 #include "display.hpp"
 
+#include <cmath>
 #include <sstream>
 #include <unistd.h>
 #include <curses.h>
@@ -18,33 +20,60 @@ int main()
 	nodelay(stdscr, TRUE);
 	curs_set(0);
 	
+	sim::reactor::coolant::vessel vessel(100, 400);
 	sim::reactor::reactor<5, 5> reactor = sim::reactor::builder<5, 5>(
 		sim::reactor::fuel::fuel_rod(100, 400),
-		sim::reactor::control::control_rod(1000, 0.1),
-		sim::reactor::coolant::pipe(), {
-			" PPP ",
-			"PFCFP",
-			"PCPCP",
-			"PFCFP",
-			" PPP "
+		sim::reactor::control::control_rod(1000, 1),
+		sim::reactor::coolant::pipe(vessel), {
+			"## ##",
+			"#FCF#",
+			" C C ",
+			"#FCF#",
+			"## ##"
 		});
 
 	double secs = 0;
 
 	for(;;)
 	{
-		reactor.update(0.01);
 
 		std::stringstream ss;
-		ss << "Reactor Core: " << secs << " s\n";
+		ss << "Reactor Core\n\n";
 
-		secs += 0.01;
+		{
+			long mins = secs / 60;
+			double s = fmod(secs, 60);
+
+			long hours = mins / 60;
+			mins %= 60;
+
+			long days = hours / 24;
+			hours %= 24;
+
+			long years = days / 365;
+			days %= 365;
+
+			ss << "Time:\n";
+
+			if(years > 0) ss << years << "y ";
+			if(days > 0) ss << days << "d ";
+			if(hours > 0) ss << hours << "h ";
+			if(mins > 0) ss << mins << "m ";
+			
+			ss << s << "s\n\n";
+		}
+
+		reactor.update(1);
+		vessel.update();
+		secs += 1;
+		
+		ss << "Vessel\n" << vessel << "\n";
 
 		erase();
 		display::draw_text(1, 0, ss.str().c_str());
 
-		const int X = 3, Y = 4;
-		const int W = 32, H = 8;
+		const int X = 2, Y = 40;
+		const int W = 32, H = 10;
 
 		for(int x = 0; x < reactor.width; x++)
 		for(int y = 0; y < reactor.height; y++)

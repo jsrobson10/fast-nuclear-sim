@@ -29,10 +29,10 @@ reactor<W, H> builder(fuel::fuel_rod fr, control::control_rod cr, coolant::pipe 
 		case 'C':
 			r = new control::control_rod(cr);
 			break;
-		case 'P':
+		case ' ':
 			r = new coolant::pipe(p);
 			break;
-		default:
+		case '#':
 			r = new rod();
 		}
 
