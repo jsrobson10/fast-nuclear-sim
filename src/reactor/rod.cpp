@@ -17,7 +17,16 @@ void rod::add(val_t type, double v)
 
 double rod::extract(val_t type, double s, double k, double o)
 {
-	double v = (1 - std::pow(0.5, s * -std::log2(1 - k * get_k(type)))) * 0.5 * (get(type) - o);
+	k *= get_k(type);
+
+	double m = 1;
+
+	if(k < 1)
+	{
+		m = 1 - std::pow(0.5, s * -std::log2(1 - k * get_k(type)));
+	}
+	
+	double v = m * 0.5 * (get(type) - o);
 	vals_in[type] -= v;
 	return v;
 }
