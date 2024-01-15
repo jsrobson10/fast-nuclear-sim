@@ -1,6 +1,8 @@
 
 #include "rod.hpp"
 
+#include <cmath>
+
 using namespace sim::reactor;
 
 double rod::get(val_t type) const
@@ -15,7 +17,7 @@ void rod::add(val_t type, double v)
 
 double rod::extract(val_t type, double k, double o)
 {
-	double v = k * get_k(type) * 0.5 * (get(type) - o);
+	double v = (1 - std::pow(0.5, k * get_k(type))) * 0.5 * (get(type) - o);
 	vals_in[type] -= v;
 	return v;
 }

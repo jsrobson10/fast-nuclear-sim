@@ -49,8 +49,14 @@ int main()
 		for(int x = 0; x < reactor.width; x++)
 		for(int y = 0; y < reactor.height; y++)
 		{
-			std::stringstream ss;
 			sim::reactor::rod* r = reactor.rods[x][y];
+
+			if(!r->should_display())
+			{
+				continue;
+			}
+
+			std::stringstream ss;
 			ss << *r;
 			
 			int px = X + (H - 1) * y;
