@@ -23,7 +23,7 @@ void pipe::update(double secs)
 {
 	double v;
 	
-	update_rod();
+	update_rod(secs);
 	
 	v = vessel->add_steam(vals[val_t::HEAT]);
 	steam = vals[val_t::HEAT] - v;

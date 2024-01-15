@@ -39,7 +39,7 @@ void control_rod::set_reactivity(double a)
 
 void control_rod::update(double secs)
 {
-	update_rod();
+	update_rod(secs);
 	
 	double m = 1 - std::pow(0.5, (1 - absorbed / limit) * inserted * max);
 	double r_fast = vals[val_t::N_FAST] * m;

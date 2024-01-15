@@ -22,7 +22,7 @@ public:
 	virtual void interact(rod* o, double secs);
 	virtual void update(double secs) { };
 	virtual void add(val_t type, double v);
-	virtual double extract(val_t type, double k, double o);
+	virtual double extract(val_t type, double s, double k, double o);
 	virtual double get(val_t type) const;
 
 	virtual bool should_display() const { return false; }
@@ -55,7 +55,7 @@ protected:
 	virtual double get_k(val_t type) const { return 0; }
 	virtual const char* get_name() const { return "Empty"; }
 
-	void update_rod();
+	void update_rod(double secs);
 };
 
 }

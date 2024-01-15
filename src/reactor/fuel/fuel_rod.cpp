@@ -32,7 +32,7 @@ double fuel_rod::get_k(val_t type) const
 
 void fuel_rod::update(double secs)
 {
-	update_rod();
+	update_rod(secs);
 	
 	s.add_slow_neutrons(vals[val_t::N_SLOW]);
 

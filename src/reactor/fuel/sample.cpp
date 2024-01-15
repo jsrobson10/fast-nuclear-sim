@@ -66,7 +66,7 @@ void sample::update(double secs)
 	// sim::reactor::fuelulate fuel use
 	fuel -= neutrons_fuel;
 	energy += neutrons_fuel;
-	waste.add_fissile(neutrons_fuel * 2);
+	waste.add_fissile(neutrons_fuel * 5);
 
 	// do the poison
 	te_135 += neutrons_fuel * (1.0 / 8.0);
