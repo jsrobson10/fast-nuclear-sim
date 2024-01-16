@@ -4,6 +4,7 @@
 #include "reactor/fuel/fuel_rod.hpp"
 #include "reactor/coolant/pipe.hpp"
 #include "reactor/coolant/vessel.hpp"
+#include "coolant/fluid_t.hpp"
 #include "display.hpp"
 
 #include <cmath>
@@ -20,10 +21,10 @@ int main()
 	nodelay(stdscr, TRUE);
 	curs_set(0);
 	
-	sim::reactor::coolant::vessel vessel(100, 400);
+	sim::reactor::coolant::vessel vessel(200, 400, sim::coolant::WATER);
 	sim::reactor::reactor<5, 5> reactor = sim::reactor::builder<5, 5>(
-		sim::reactor::fuel::fuel_rod(100, 400),
-		sim::reactor::control::control_rod(1000, 1),
+		sim::reactor::fuel::fuel_rod(1000, 4000),
+		sim::reactor::control::control_rod(10000, 1),
 		sim::reactor::coolant::pipe(vessel), {
 			"## ##",
 			"#FCF#",

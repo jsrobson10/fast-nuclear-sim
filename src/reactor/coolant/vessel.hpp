@@ -3,38 +3,36 @@
 
 #include <ostream>
 
+#include "../../coolant/fluid_t.hpp"
+
 namespace sim::reactor::coolant
 {
 
 class vessel
 {
-	double volume;
-	double level;
-	
-	double steam = 0;
-	double level_in = 0;
-	double steam_in = 0;
-
-	void display(std::ostream& o) const;
+	double level; // litres
+	double heat = 0; // celcius
+	double steam = 0; // moles
 
 public:
+	
+	const double volume; //litres
+	const sim::coolant::fluid_t fluid;
 
-	vessel(double level, double volume);
+	vessel(double level, double volume, sim::coolant::fluid_t fluid);
 
 	void update();
-	double add_steam(double amount);
+	double add_heat(double amount);
 
 	constexpr double get_volume() const { return volume; }
 	constexpr double get_level() const { return level; }
+	constexpr double get_heat() const { return heat; }
 	constexpr double get_steam() const { return steam; }
-	constexpr double get_pressure() const { return steam / (volume - level); }
-
-	friend std::ostream& operator<<(std::ostream& o, const vessel& v)
-	{
-		v.display(o);
-		return o;
-	}
+	
+	double get_pressure() const;
 };
 
 }
+
+std::ostream& operator<<(std::ostream& o, const sim::reactor::coolant::vessel& v);
 

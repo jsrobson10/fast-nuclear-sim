@@ -9,11 +9,6 @@ pipe::pipe(coolant::vessel& v)
 	this->steam = 0;
 }
 
-void pipe::display(std::ostream& o) const
-{
-	o << "Steam: +" << steam  << "\n";
-}
-
 double pipe::get_k(val_t type) const
 {
 	return vessel->get_level() / vessel->get_volume();
@@ -25,7 +20,7 @@ void pipe::update(double secs)
 	
 	update_rod(secs);
 	
-	v = vessel->add_steam(vals[val_t::HEAT]);
+	v = vessel->add_heat(vals[val_t::HEAT]);
 	steam = vals[val_t::HEAT] - v;
 	vals[val_t::HEAT] = v;
 
