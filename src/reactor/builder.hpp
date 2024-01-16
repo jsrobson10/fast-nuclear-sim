@@ -5,6 +5,7 @@
 #include "fuel/fuel_rod.hpp"
 #include "control/control_rod.hpp"
 #include "coolant/pipe.hpp"
+#include "coolant/heater.hpp"
 #include "reactor.hpp"
 
 namespace sim::reactor
@@ -28,6 +29,9 @@ reactor<W, H> builder(fuel::fuel_rod fr, control::control_rod cr, coolant::pipe 
 			break;
 		case 'C':
 			r = new control::control_rod(cr);
+			break;
+		case 'H':
+			r = new coolant::heater();
 			break;
 		case ' ':
 			r = new coolant::pipe(p);

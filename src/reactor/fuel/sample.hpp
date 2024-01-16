@@ -10,7 +10,7 @@ namespace sim::reactor::fuel
 
 class sample
 {
-	constexpr static const double Xe_135_M = 1e4;
+	constexpr static const double Xe_135_M = 1e3;
 
 	sim::reactor::fuel::waste waste;
 	

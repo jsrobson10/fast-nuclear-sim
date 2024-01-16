@@ -3,6 +3,7 @@
 #include "reactor/control/control_rod.hpp"
 #include "reactor/fuel/fuel_rod.hpp"
 #include "reactor/coolant/pipe.hpp"
+#include "reactor/coolant/heater.hpp"
 #include "reactor/coolant/vessel.hpp"
 #include "coolant/fluid_t.hpp"
 #include "display.hpp"
@@ -26,11 +27,11 @@ int main()
 		sim::reactor::fuel::fuel_rod(1000, 4000),
 		sim::reactor::control::control_rod(10000, 1),
 		sim::reactor::coolant::pipe(vessel), {
-			"## ##",
-			"#FCF#",
+			"#   #",
+			" FCF ",
 			" C C ",
-			"#FCF#",
-			"## ##"
+			" FCF ",
+			"#   #"
 		});
 
 	double secs = 0;

@@ -12,7 +12,7 @@ class vessel
 {
 	double level; // litres
 	double heat = 0; // celcius
-	double steam = 0; // moles
+	double steam = 0; // grams
 
 public:
 	
