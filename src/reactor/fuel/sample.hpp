@@ -26,7 +26,6 @@ class sample
 	double efficiency = 0;
 	
 	void display(std::ostream& o) const;
-	void absorb_fast_neutrons();
 	void absorb_slow_neutrons();
 
 public:
