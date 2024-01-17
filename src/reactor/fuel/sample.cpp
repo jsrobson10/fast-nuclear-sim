@@ -12,6 +12,53 @@ sample::sample(double fuel, double mass)
 	this->mass = mass;
 }
 
+void sample::absorb_fast_neutrons()
+{
+	double volume = get_volume();
+	double neutrons = fast_neutrons;
+	double neutrons_iodine = neutrons * (i_135 / volume);
+	double neutrons_xenon = neutrons * ((xe_135 * Xe_135_M) / volume);
+	double used_total = neutrons * (i_135 + xe_135 * Xe_135_M) / volume;
+	fast_neutrons -= used_total;
+
+	// deal with these edge cases
+	if(xe_135 < 0) { fast_neutrons -= xe_135; xe_135 = 0; }
+	if(i_135 < 0) { fast_neutrons -= i_135; i_135 = 0; }
+}
+
+void sample::absorb_slow_neutrons()
+{
+	// absorb neutrons
+	double volume = get_volume();
+	double neutrons = slow_neutrons;
+	double neutrons_fuel = neutrons * (fuel / volume);
+	double neutrons_iodine = neutrons * (i_135 / volume);
+	double neutrons_xenon = neutrons * ((xe_135 * Xe_135_M) / volume);
+	double neutrons_total = neutrons;
+	slow_neutrons = 0;
+	
+	xe_135 -= neutrons_xenon;
+	i_135 -= neutrons_iodine;
+	fuel -= neutrons_fuel;
+
+	// do the poison
+	te_135 += neutrons_fuel * (1.0 / 50.0);
+	xe_135 -= neutrons_xenon;
+	i_135 -= neutrons_iodine;
+	
+	// deal with these edge cases
+	if(xe_135 < 0) { slow_neutrons -= xe_135; xe_135 = 0; }
+	if(i_135 < 0) { slow_neutrons -= i_135; i_135 = 0; }
+	if(fuel < 0) { slow_neutrons -= fuel; fuel = 0; }
+
+	efficiency = neutrons_fuel / neutrons_total;
+	
+	// simulate fuel use
+	energy += neutrons_fuel;
+	waste.add_fissile(neutrons_fuel * 6);
+
+}
+
 void sample::update(double secs)
 {
 	double m;
@@ -34,44 +81,10 @@ void sample::update(double secs)
 	m = half_life::get(secs, half_life::Te_135);
 	i_135 += te_135 * (1 - m);
 	te_135 *= m;
-	
+
 	// absorb neutrons
-	double volume = get_volume();
-	double neutrons = slow_neutrons + NEUTRON_BG * secs;
-	double neutrons_fuel = neutrons * (fuel / volume);
-	double neutrons_iodine = neutrons * (i_135 / volume);
-	double neutrons_xenon = neutrons * ((xe_135 * Xe_135_M) / volume);
-	slow_neutrons = 0;
-
-	// deal with these edge cases
-	
-	if(neutrons_fuel > fuel)
-	{
-		slow_neutrons += neutrons_fuel - fuel;
-		neutrons_fuel = fuel;
-	}
-
-	if(neutrons_xenon > xe_135)
-	{
-		slow_neutrons += neutrons_xenon - xe_135;
-		neutrons_xenon = xe_135;
-	}
-	
-	if(neutrons_iodine > i_135)
-	{
-		slow_neutrons += neutrons_iodine - i_135;
-		neutrons_iodine = i_135;
-	}
-
-	// sim::reactor::fuelulate fuel use
-	fuel -= neutrons_fuel;
-	energy += neutrons_fuel;
-	waste.add_fissile(neutrons_fuel * 6);
-
-	// do the poison
-	te_135 += neutrons_fuel * (1.0 / 8.0);
-	xe_135 -= neutrons_xenon;
-	i_135 -= neutrons_iodine;
+	slow_neutrons += NEUTRON_BG * secs;
+	absorb_slow_neutrons();
 }
 
 double sample::extract_energy()

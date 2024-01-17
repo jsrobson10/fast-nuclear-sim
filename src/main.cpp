@@ -35,15 +35,20 @@ int main()
 		sim::reactor::fuel::fuel_rod(2000, 4000),
 		sim::reactor::control::control_rod(10000, 1),
 		sim::reactor::coolant::pipe(vessel), {
-			"#   #",
-			" FCF ",
+			"#  ##",
+			"#FCF ",
 			" C C ",
-			" FCF ",
-			"#   #"
+			" FCF#",
+			"##  #"
 		});
 
 	double secs = 0;
 	long clock = get_now();
+	double speed = 10000;
+	int framerate = 100;
+	int extra = 100;
+
+	speed /= extra;
 
 	for(;;)
 	{
@@ -53,30 +58,36 @@ int main()
 
 		{
 			long mins = secs / 60;
+			long hours = mins / 60;
+			long days = hours / 24;
+			long years = days / 365;
 			double s = fmod(secs, 60);
 
-			long hours = mins / 60;
 			mins %= 60;
-
-			long days = hours / 24;
 			hours %= 24;
-
-			long years = days / 365;
 			days %= 365;
 
 			ss << "Time:\n";
 
-			if(years > 0) ss << years << "y ";
-			if(days > 0) ss << days << "d ";
-			if(hours > 0) ss << hours << "h ";
-			if(mins > 0) ss << mins << "m ";
-			
-			ss << s << "s\n\n";
+			if(years > 0) goto years;
+			if(days > 0)  goto days;
+			if(hours > 0) goto hours;
+			if(mins > 0)  goto mins;
+			goto secs;
+
+years:		ss << years << "y ";
+days:		ss << days << "d ";
+hours:		ss << hours << "h ";
+mins:		ss << mins << "m ";
+secs:		ss << s << "s\n\n";
 		}
 
-		reactor.update(0.01);
-		vessel.update();
-		secs += 0.01;
+		for(int i = 0; i < extra; i++)
+		{
+			reactor.update(speed / framerate);
+			vessel.update();
+			secs += speed / framerate;
+		}
 		
 		ss << "Vessel\n" << vessel << "\n";
 
@@ -84,7 +95,7 @@ int main()
 		display::draw_text(1, 0, ss.str().c_str());
 
 		const int X = 1, Y = 30;
-		const int W = 36, H = 10;
+		const int W = 36, H = 11;
 
 		for(int x = 0; x < reactor.width; x++)
 		for(int y = 0; y < reactor.height; y++)
@@ -141,13 +152,13 @@ int main()
 
 		long now = get_now();
 
-		while(clock + 10000 > now)
+		while(clock + 1e6 / framerate > now)
 		{
-			usleep(clock + 10000 - now);
+			usleep(clock + 1e6 / framerate - now);
 			now = get_now();
 		}
 
-		clock += 10000;
+		clock += 1e6 / framerate;
 	}
 
 	return 0;

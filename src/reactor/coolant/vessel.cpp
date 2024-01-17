@@ -33,7 +33,7 @@ double vessel::add_heat(double t1)
 {
 	double t2 = get_heat();
 	double t = t1 - t2;
-	double m1 = 1;
+	double m1 = 1000;
 	double m2 = level + fluid.g_to_l(steam);
 	double m = m1 + m2;
 	

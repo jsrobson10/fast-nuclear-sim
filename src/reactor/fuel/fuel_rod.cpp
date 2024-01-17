@@ -13,6 +13,8 @@ void fuel_rod::display(std::ostream& o) const
 	o << "Fuel: " << s.get_fuel() << " / " << s.get_mass() << " mol\n";
 	o << "Efficiency: " << (s.get_efficiency() * 100) << " %\n";
 	o << "Energy: +" << s.get_energy() << " C\n";
+	o << "Iodine: " << s.get_i_135() << " mol\n";
+	o << "Xenon: " << s.get_xe_135() << " mol\n";
 }
 
 double fuel_rod::get_k(val_t type) const
