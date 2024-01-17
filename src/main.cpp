@@ -12,6 +12,14 @@
 #include <sstream>
 #include <unistd.h>
 #include <curses.h>
+#include <sys/time.h>
+
+unsigned long get_now()
+{
+	struct timeval tv;
+	gettimeofday(&tv, nullptr);
+	return (unsigned long)tv.tv_sec * 1000000 + tv.tv_usec;
+}
 
 int main()
 {
@@ -24,7 +32,7 @@ int main()
 	
 	sim::reactor::coolant::vessel vessel(200, 400, sim::coolant::WATER);
 	sim::reactor::reactor<5, 5> reactor = sim::reactor::builder<5, 5>(
-		sim::reactor::fuel::fuel_rod(1000, 4000),
+		sim::reactor::fuel::fuel_rod(2000, 4000),
 		sim::reactor::control::control_rod(10000, 1),
 		sim::reactor::coolant::pipe(vessel), {
 			"#   #",
@@ -35,6 +43,7 @@ int main()
 		});
 
 	double secs = 0;
+	long clock = get_now();
 
 	for(;;)
 	{
@@ -65,9 +74,9 @@ int main()
 			ss << s << "s\n\n";
 		}
 
-		reactor.update(1);
+		reactor.update(0.01);
 		vessel.update();
-		secs += 1;
+		secs += 0.01;
 		
 		ss << "Vessel\n" << vessel << "\n";
 
@@ -129,6 +138,16 @@ int main()
 			reactor.toggle_selected();
 			break;
 		}
+
+		long now = get_now();
+
+		while(clock + 10000 > now)
+		{
+			usleep(clock + 10000 - now);
+			now = get_now();
+		}
+
+		clock += 10000;
 	}
 
 	return 0;

@@ -7,7 +7,7 @@ void heater::update(double secs)
 {
 	update_rod(secs);
 
-	vals[val_t::HEAT] += rate * secs;
+	vals_in[val_t::HEAT] += rate * secs;
 }
 
 void heater::update_selected(double a)

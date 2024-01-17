@@ -25,7 +25,7 @@ void pipe::update(double secs)
 	vals[val_t::HEAT] = v;
 
 	v = vals[val_t::N_FAST];
-	vals[val_t::N_FAST] -= v;
-	vals[val_t::N_SLOW] += v;
+	vals_in[val_t::N_FAST] -= v;
+	vals_in[val_t::N_SLOW] += v;
 }
 

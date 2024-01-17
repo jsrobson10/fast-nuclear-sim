@@ -19,17 +19,7 @@ void control_rod::display(std::ostream& o) const
 
 double control_rod::get_k(val_t type) const
 {
-	switch(type)
-	{
-	case val_t::HEAT:
-		return 1.0 / 16.0;
-	case val_t::N_SLOW:
-		return 1.0 / 4.0;
-	case val_t::N_FAST:
-		return 1.0 / 2.0;
-	}
-
-	return 0;
+	return 0.5;
 }
 
 void control_rod::set_reactivity(double a)

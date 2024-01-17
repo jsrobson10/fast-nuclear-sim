@@ -17,17 +17,7 @@ void fuel_rod::display(std::ostream& o) const
 
 double fuel_rod::get_k(val_t type) const
 {
-	switch(type)
-	{
-	case val_t::HEAT:
-		return 1.0 / 16.0;
-	case val_t::N_SLOW:
-		return 1.0 / 4.0;
-	case val_t::N_FAST:
-		return 1.0 / 2.0;
-	}
-
-	return 0;
+	return 0.5;
 }
 
 void fuel_rod::update(double secs)
@@ -36,9 +26,9 @@ void fuel_rod::update(double secs)
 	
 	s.add_slow_neutrons(vals[val_t::N_SLOW]);
 
-	vals[val_t::HEAT] += s.extract_energy();
-	vals[val_t::N_FAST] += s.extract_fast_neutrons();
-	vals[val_t::N_SLOW] = 0;
+	vals_in[val_t::HEAT] += s.extract_energy();
+	vals_in[val_t::N_FAST] += s.extract_fast_neutrons();
+	vals_in[val_t::N_SLOW] -= vals[val_t::N_SLOW];
 	
 	s.update(secs);
 }

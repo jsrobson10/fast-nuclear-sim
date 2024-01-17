@@ -56,7 +56,6 @@ std::ostream& operator<<(std::ostream& o, const vessel& v)
 	o << "Steam: " << v.get_steam() << " g\n";
 	o << "Heat: " << v.get_heat() << " C\n";
 	o << "Pressure: " << v.get_pressure() << " Pa\n";
-	o << "Vapor Pressure: " << v.fluid.vapor_pressure.calc_p(v.get_heat()) << " Pa\n";
 
 	return o;
 }
