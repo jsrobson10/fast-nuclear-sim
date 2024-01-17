@@ -14,7 +14,7 @@ control_rod::control_rod(double limit, double max)
 void control_rod::display(std::ostream& o) const
 {
 	o << "Inserted: " << (inserted * 100) << "%\n";
-	o << "Absorbed: " << absorbed << " / " << limit << "\n";
+	o << "Use: " << absorbed << " / " << limit << " mol\n";
 };
 
 double control_rod::get_k(val_t type) const

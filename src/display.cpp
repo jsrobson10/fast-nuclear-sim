@@ -2,22 +2,27 @@
 #include "display.hpp"
 
 #include <curses.h>
+#include <string.h>
+#include <stdlib.h>
 
-void display::draw_text(int x, int y, const char* str)
+void display::draw_text(int x, int y, const char* at)
 {
 	for(int i = 0;; i++)
 	{
-		const char* start = str;
-		char c = (str++)[0];
+		const char* start = at;
+		char c = (at++)[0];
 
 		while(c != '\n' && c != '\0')
 		{
-			c = (str++)[0];
+			c = (at++)[0];
 		}
 
-		mvaddnstr(x + i, y, start, (size_t)(str - start));
+		mvaddnstr(x + i, y, start, (size_t)(at - start));
 
-		if(c == '\0') return;
+		if(c == '\0')
+		{
+			return;
+		}
 	}
 }
 

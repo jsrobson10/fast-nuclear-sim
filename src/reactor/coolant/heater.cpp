@@ -22,6 +22,6 @@ double heater::get_k(sim::reactor::rod::val_t type) const
 
 void heater::display(std::ostream& o) const
 {
-	o << "Rate: " << rate << "\n";
+	o << "Rate: " << rate << " C/s\n";
 }
 

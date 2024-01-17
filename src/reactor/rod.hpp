@@ -38,9 +38,9 @@ public:
 
 		o << r.get_name() << "\n";
 		r.display(o);
-		o << "Heat: " << r.get(val_t::HEAT) << "\n";
-		o << "Fast: " << r.get(val_t::N_FAST) << "\n";
-		o << "Slow: " << r.get(val_t::N_SLOW) << "\n";
+		o << "Heat: " << r.get(val_t::HEAT) << " C\n";
+		o << "Fast: " << r.get(val_t::N_FAST) << " mol\n";
+		o << "Slow: " << r.get(val_t::N_SLOW) << " mol\n";
 
 		return o;
 	}

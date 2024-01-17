@@ -10,9 +10,9 @@ fuel_rod::fuel_rod(double fuel, double mass) : s(fuel, mass)
 
 void fuel_rod::display(std::ostream& o) const
 {
-	o << "Fuel: " << s.get_fuel() << " / " << s.get_mass() << "\n";
+	o << "Fuel: " << s.get_fuel() << " / " << s.get_mass() << " mol\n";
 	o << "Efficiency: " << s.get_efficiency() << "\n";
-	o << "Energy: +" << s.get_energy() << "\n";
+	o << "Energy: +" << s.get_energy() << " C\n";
 }
 
 double fuel_rod::get_k(val_t type) const
