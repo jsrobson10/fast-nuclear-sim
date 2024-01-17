@@ -37,7 +37,7 @@ int main()
 		sim::reactor::coolant::pipe(vessel), {
 			"#  ##",
 			"#FCF ",
-			" C C ",
+			" CHC ",
 			" FCF#",
 			"##  #"
 		});
@@ -89,8 +89,12 @@ secs:		ss << s << "s\n";
 
 		for(int i = 0; i < skip; i++)
 		{
-			reactor.update(speed / framerate / skip);
+			double dt = speed / framerate / skip;
+
+			reactor.update(dt);
 			vessel.update();
+
+			vessel.extract_steam(dt, 0.01, 101000);
 		}
 		
 		secs += speed / framerate;

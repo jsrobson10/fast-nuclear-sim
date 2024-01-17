@@ -23,6 +23,7 @@ public:
 
 	void update();
 	double add_heat(double amount);
+	double extract_steam(double dt, double a, double p2);
 
 	constexpr double get_volume() const { return volume; }
 	constexpr double get_level() const { return level; }
