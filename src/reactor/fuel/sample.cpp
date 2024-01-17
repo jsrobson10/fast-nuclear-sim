@@ -12,20 +12,6 @@ sample::sample(double fuel, double mass)
 	this->mass = mass;
 }
 
-void sample::absorb_fast_neutrons()
-{
-	double volume = get_volume();
-	double neutrons = fast_neutrons;
-	double neutrons_iodine = neutrons * (i_135 / volume);
-	double neutrons_xenon = neutrons * ((xe_135 * Xe_135_M) / volume);
-	double used_total = neutrons * (i_135 + xe_135 * Xe_135_M) / volume;
-	fast_neutrons -= used_total;
-
-	// deal with these edge cases
-	if(xe_135 < 0) { fast_neutrons -= xe_135; xe_135 = 0; }
-	if(i_135 < 0) { fast_neutrons -= i_135; i_135 = 0; }
-}
-
 void sample::absorb_slow_neutrons()
 {
 	// absorb neutrons
