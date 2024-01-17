@@ -44,15 +44,11 @@ int main()
 
 	double secs = 0;
 	long clock = get_now();
-	double speed = 10000;
+	double speed = 1;
 	int framerate = 100;
-	int extra = 100;
-
-	speed /= extra;
 
 	for(;;)
 	{
-
 		std::stringstream ss;
 		ss << "Reactor Core\n\n";
 
@@ -79,15 +75,25 @@ years:		ss << years << "y ";
 days:		ss << days << "d ";
 hours:		ss << hours << "h ";
 mins:		ss << mins << "m ";
-secs:		ss << s << "s\n\n";
+secs:		ss << s << "s\n";
+
+			ss << "Speed: " << speed << "x\n\n";
 		}
 
-		for(int i = 0; i < extra; i++)
+		int skip = 1;
+
+		while(speed / framerate / skip > 1)
 		{
-			reactor.update(speed / framerate);
-			vessel.update();
-			secs += speed / framerate;
+			skip *= 2;
 		}
+
+		for(int i = 0; i < skip; i++)
+		{
+			reactor.update(speed / framerate / skip);
+			vessel.update();
+		}
+		
+		secs += speed / framerate;
 		
 		ss << "Vessel\n" << vessel << "\n";
 
@@ -147,6 +153,12 @@ secs:		ss << s << "s\n\n";
 			break;
 		case ' ':
 			reactor.toggle_selected();
+			break;
+		case 't':
+			speed *= 10;
+			break;
+		case 'g':
+			speed /= 10;
 			break;
 		}
 

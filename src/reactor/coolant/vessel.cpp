@@ -55,7 +55,7 @@ std::ostream& operator<<(std::ostream& o, const vessel& v)
 	o << "Level: " << v.get_level() << " L\n";
 	o << "Steam: " << v.get_steam() << " g\n";
 	o << "Heat: " << v.get_heat() << " C\n";
-	o << "Pressure: " << v.get_pressure() << " Pa\n";
+	o << "Pressure: " << (v.get_pressure() * 0.001) << " kPa\n";
 
 	return o;
 }

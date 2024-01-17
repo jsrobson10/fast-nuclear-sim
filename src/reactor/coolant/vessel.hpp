@@ -16,7 +16,7 @@ class vessel
 
 public:
 	
-	const double volume; //litres
+	const double volume; // litres
 	const sim::coolant::fluid_t fluid;
 
 	vessel(double level, double volume, sim::coolant::fluid_t fluid);
