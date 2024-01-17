@@ -83,8 +83,8 @@ int main()
 		erase();
 		display::draw_text(1, 0, ss.str().c_str());
 
-		const int X = 2, Y = 40;
-		const int W = 32, H = 10;
+		const int X = 1, Y = 30;
+		const int W = 36, H = 10;
 
 		for(int x = 0; x < reactor.width; x++)
 		for(int y = 0; y < reactor.height; y++)
