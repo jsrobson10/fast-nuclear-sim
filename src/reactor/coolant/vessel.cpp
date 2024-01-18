@@ -52,11 +52,29 @@ double vessel::add_heat(double t1)
 {
 	double t2 = get_heat();
 	double t = t1 - t2;
-	double m1 = 1000000;
+	double m1 = 1e6;
 	double m2 = (fluid.l_to_g(level) + steam) * fluid.jPgk;
 	double m = m1 + m2;
 	
    	return heat = t1 - t * m2 / m;
+}
+
+double vessel::add_fluid(double m2, double t2)
+{
+	double m1 = get_mass();
+	double t1 = get_heat();
+	double t = t1 - t2;
+
+	m2 = fluid.g_to_l(m2);
+
+	if(level + m2 > volume)
+	{
+		m2 = volume - level;
+	}
+
+	heat = t1 - t * m2 / (m1 + m2);
+	level += m2;
+	return m2;
 }
 
 double vessel::extract_steam(double dt, double a, double p2)

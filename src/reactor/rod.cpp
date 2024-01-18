@@ -45,7 +45,7 @@ void rod::interact(rod* o, double secs)
 double rod::get_speed() const
 {
 	int m = motion < 0 ? -1 : 1;
-	return motion == 0 ? 0 : (std::pow(10, std::abs(motion)) * 1e-10 * m);
+	return motion == 0 ? 0 : (std::pow(10, std::abs(motion)) * 1e-6 * m);
 }
 
 void rod::update_rod(double secs)
@@ -70,7 +70,7 @@ void rod::update_rod_selected(int m)
 {
 	motion += m;
 
-	if(motion > 10) motion = 10;
-	if(motion < -10) motion = -10;
+	if(motion > 5) motion = 5;
+	if(motion < -5) motion = -5;
 }
 

@@ -7,6 +7,7 @@
 #include "reactor/coolant/vessel.hpp"
 #include "coolant/fluid_t.hpp"
 #include "coolant/valve.hpp"
+#include "coolant/pump.hpp"
 #include "display.hpp"
 
 #include <cmath>
@@ -52,7 +53,8 @@ int main()
 			"#C#C#"
 		});
 
-	sim::coolant::valve<sim::reactor::coolant::vessel> valve(vessel, 1, 101000);
+	sim::coolant::valve<sim::reactor::coolant::vessel> valve(vessel, 1, 500);
+	sim::coolant::pump<sim::reactor::coolant::vessel> pump(vessel, 1e4, 15);
 
 	double secs = 0;
 	long clock = get_now();
@@ -97,13 +99,15 @@ secs:		ss << s << "s\n";
 		{
 			double dt = speed / framerate / steps_extra;
 			reactor.update(rand, dt);
-			vessel.update();
+			pump.update(dt);
 			valve.update(dt);
+			vessel.update();
 			secs += dt;
 		}
 		
 		ss << "Vessel\n" << vessel << "\n";
 		ss << "Steam Valve\n" << valve << "\n";
+		ss << "Coolant Pump\n" << pump << "\n";
 
 		if(do_graphics)
 		{
@@ -184,6 +188,12 @@ secs:		ss << s << "s\n";
 			break;
 		case 'f':
 			valve.open(-0.001);
+			break;
+		case 'e':
+			pump.change_speed(0.01);
+			break;
+		case 'd':
+			pump.change_speed(-0.01);
 			break;
 		}
 
