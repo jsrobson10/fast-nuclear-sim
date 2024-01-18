@@ -4,6 +4,9 @@
 #include "rod.hpp"
 
 #include <array>
+#include <random>
+#include <algorithm>
+#include <iostream>
 
 namespace sim::reactor
 {
@@ -11,99 +14,113 @@ namespace sim::reactor
 template <int W, int H>
 struct reactor
 {
-	const static int width = W;
-	const static int height = H;
+	constexpr const static int width = W;
+	constexpr const static int height = H;
+	constexpr const static int size = W*H;
 	
-	std::array<std::array<rod*, H>, W> rods;
+	rod* rods[size];
 
-	int cursor_x = 0;
-	int cursor_y = 0;
+	int cursor = 0;
 
-	reactor(std::array<rod*, W * H> rods)
+	reactor(std::array<rod*, size> rods)
 	{
-		for(int y = 0; y < H; y++)
-		for(int x = 0; x < W; x++)
+		for(int i = 0; i < size; i++)
 		{
-			this->rods[x][y] = rods[y * W + x];
+			this->rods[i] = rods[i];
 		}
 	}
 
-	void update(double secs)
+	void update(std::mt19937& rand, double secs)
 	{
-		// do interactions
-		for(int x = 1; x < W; x++)
+		int rods_lookup[size];
+
+		for(int i = 0; i < size; i++)
 		{
-			rods[x][0]->interact(rods[x - 1][0], secs);
+			rods_lookup[i] = i;
 		}
 
-		for(int y = 1; y < H; y++)
+		for(int i = 0; i < size; i++)
 		{
-			rods[0][y]->interact(rods[0][y - 1], secs);
+			rods[i]->update(secs);
 		}
 
-		for(int y = 1; y < H; y++)
-		for(int x = 1; x < W; x++)
-		{
-			rod* r = rods[x][y];
-			r->interact(rods[x - 1][y], secs);
-			r->interact(rods[x][y - 1], secs);
-		}
+		update_interactions(rand, rods_lookup, secs / 2);
+	}
 
-		// do updates
-		for(int y = 0; y < H; y++)
-		for(int x = 0; x < W; x++)
+	void update_selected(int v)
+	{
+		for(int i = 0; i < size; i++)
 		{
-			rods[x][y]->update(secs);
+			rod* r = rods[i];
+
+			if(r->is_selected())
+			{
+				r->update_rod_selected(v);
+			}
 		}
 	}
 
-	void update_selected(double v)
+	int move_cursor(int d)
 	{
-		for(int y = 0; y < H; y++)
-		for(int x = 0; x < W; x++)
-		if(rods[x][y]->is_selected())
+		for(int i = 0; i < size; i++)
 		{
-			rods[x][y]->update_selected(v);
-		}
-	}
-
-	void move_cursor(int d)
-	{
-		for(;;)
-		{
-			cursor_x += d;
-
-			while(cursor_x >= W)
+			cursor = (cursor + d) % size;
+			
+			if(cursor < 0)
 			{
-				cursor_x -= W;
-				cursor_y += 1;
+				cursor += size;
 			}
 
-			while(cursor_x < 0)
+			if(rods[cursor]->should_select())
 			{
-				cursor_x += W;
-				cursor_y -= 1;
-			}
-
-			cursor_y %= H;
-
-			if(cursor_y < 0)
-			{
-				cursor_y += H;
-			}
-
-			if(rods[cursor_x][cursor_y]->should_select())
-			{
-				return;
+				return cursor;
 			}
 		}
+
+		return 0;
 	}
 
 	void toggle_selected()
 	{
-		if(rods[cursor_x][cursor_y]->should_select())
+		if(rods[cursor]->should_select())
 		{
-			rods[cursor_x][cursor_y]->toggle_selected();
+			rods[cursor]->toggle_selected();
+		}
+	}
+
+private:
+
+	void update_tile(std::mt19937& rand, double secs, int i, int x, int y)
+	{
+		std::array<int, 2> nb_lookup[4] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+		std::shuffle(nb_lookup, &nb_lookup[3], rand);
+
+		for(int j = 0; j < 4; j++)
+		{
+			int xp = x + nb_lookup[j][0];
+			int yp = y + nb_lookup[j][1];
+			
+			if(xp >= 0 && yp >= 0 && xp < width && yp < height)
+			{
+				rods[i]->interact(rods[yp * width + xp], secs / 2);
+			}
+		}
+	}
+
+	void update_interactions(std::mt19937& rand, int* rods_lookup, double secs)
+	{
+		std::shuffle(rods_lookup, &rods_lookup[size - 1], rand);
+
+		for(int id = 0; id < size; id++)
+		{
+			int i = rods_lookup[id];
+			int x = i % width;
+			int y = i / width;
+
+			for(int j = 0; j < 4; j++)
+			{
+				update_tile(rand, secs, i, x, y);
+			}
 		}
 	}
 };

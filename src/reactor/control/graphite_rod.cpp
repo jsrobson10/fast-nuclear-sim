@@ -26,9 +26,8 @@ void graphite_rod::update(double secs)
 {
 	update_rod(secs);
 	
-	double v = vals[val_t::N_FAST];
-	vals_in[val_t::N_FAST] -= v;
-	vals_in[val_t::N_SLOW] += v;
+	vals[val_t::N_SLOW] = vals[val_t::N_FAST];
+	vals[val_t::N_FAST] = 0;
 }
 
 void graphite_rod::update_selected(double a)

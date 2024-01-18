@@ -6,10 +6,10 @@ using namespace sim::reactor::fuel;
 
 void waste::update(double secs)
 {
-	double hl = 1;
 	double next[waste::N - 1] = {0};
+	double hl = 1;
 
-	for(int i = 0; i < waste::N - 1; i++)
+	for(int i = 0; i < waste::N - 1; hl *= 2, i++)
 	{
 		double m = 1 - half_life::get(secs, hl);
 		double h = high[i] * m;
@@ -21,7 +21,6 @@ void waste::update(double secs)
 
 		neutrons += h;
 		energy += h + l;
-		hl *= 2;
 	}
 
 	for(int i = 0; i < waste::N - 1; i++)

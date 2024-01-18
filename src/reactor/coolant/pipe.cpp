@@ -16,16 +16,14 @@ double pipe::get_k(val_t type) const
 
 void pipe::update(double secs)
 {
-	double v;
-	
 	update_rod(secs);
-	
-	v = vessel->add_heat(vals[val_t::HEAT]);
-	steam = vals[val_t::HEAT] - v;
-	vals[val_t::HEAT] = v;
+	update_pipe(secs);
+}
 
-	v = vals[val_t::N_FAST];
-	vals_in[val_t::N_FAST] -= v;
-	vals_in[val_t::N_SLOW] += v;
+void pipe::update_pipe(double secs)
+{
+	vals[val_t::HEAT] = vessel->add_heat(vals[val_t::HEAT]);
+	vals[val_t::N_SLOW] += vals[val_t::N_FAST];
+	vals[val_t::N_FAST] = 0;
 }
 

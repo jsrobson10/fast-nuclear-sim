@@ -10,10 +10,10 @@ class heater : public sim::reactor::rod
 {
 	double rate = 0;
 
-	virtual double get_k(sim::reactor::rod::val_t type) const;
 	virtual void display(std::ostream& o) const;
 
 	virtual const char* get_name() const { return "Heater"; }
+	virtual double get_k(val_t type) const { return 0.5; }
 
 public:
 

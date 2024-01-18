@@ -5,10 +5,9 @@
 
 using namespace sim::reactor::control;
 
-control_rod::control_rod(double limit, double max)
+control_rod::control_rod(coolant::vessel& v, double limit, double max) : coolant::pipe(v), limit(limit), max(max)
 {
-	this->limit = limit;
-	this->max = max;
+	
 }
 
 void control_rod::display(std::ostream& o) const
@@ -16,11 +15,6 @@ void control_rod::display(std::ostream& o) const
 	o << "Inserted: " << (inserted * 100) << "%\n";
 	o << "Use: " << absorbed << " / " << limit << " mol\n";
 };
-
-double control_rod::get_k(val_t type) const
-{
-	return 0.5;
-}
 
 void control_rod::set_reactivity(double a)
 {
@@ -30,14 +24,17 @@ void control_rod::set_reactivity(double a)
 void control_rod::update(double secs)
 {
 	update_rod(secs);
-	
-	double m = 1 - std::pow(0.5, (1 - absorbed / limit) * inserted * max);
+
+	double k = (1 - absorbed / limit) * inserted * max;
+	double m = 1 - std::pow(0.5, secs * -std::log2(1 - k));
 	double r_fast = vals[val_t::N_FAST] * m;
 	double r_slow = vals[val_t::N_SLOW] * m;
 
 	vals[val_t::N_FAST] -= r_fast;
 	vals[val_t::N_SLOW] -= r_slow;
 	absorbed += r_fast + r_slow;
+	
+	update_pipe(secs);
 }
 
 void control_rod::update_selected(double a)

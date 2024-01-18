@@ -10,10 +10,10 @@ class graphite_rod : public sim::reactor::rod
 {
 	double inserted = 0;
 	
-	virtual double get_k(sim::reactor::rod::val_t type) const;
 	virtual void display(std::ostream& o) const;
 
 	virtual const char* get_name() const { return "Graphite Rod"; }
+	virtual double get_k(val_t type) const;
 
 public:
 

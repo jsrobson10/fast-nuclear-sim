@@ -11,7 +11,7 @@ class fuel_rod : public sim::reactor::rod
 {
 	sample s;
 	
-	virtual double get_k(sim::reactor::rod::val_t type) const;
+	virtual double get_k(val_t type) const { return 0.5; }
 	virtual void display(std::ostream& o) const;
 	
 	virtual const char* get_name() const { return "Fuel"; }

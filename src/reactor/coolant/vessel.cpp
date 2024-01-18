@@ -21,6 +21,7 @@ void vessel::update()
 
 	double s = steam + n;
 	double l = fluid.l_to_g(level) - n;
+	double v = fluid.l_to_g(volume);
 
 	if(l < 0)
 	{
@@ -28,10 +29,16 @@ void vessel::update()
 		l = 0;
 	}
 
-	if(fluid.g_to_l(s) > volume)
+	if(s > v)
 	{
-		s = fluid.l_to_g(volume);
+		s = v;
 		l = 0;
+	}
+
+	if(l > v)
+	{
+		l = v;
+		s = 0;
 	}
 
 	double diff = s - steam;
@@ -56,33 +63,22 @@ double vessel::extract_steam(double dt, double a, double p2)
 {
 	// calculate the mass moved
 	double p1 = get_pressure();
-	double p = p1 - p2;
-	double m = 1;
+	double p = (p1 - p2) * 0.001; // mPa or g/m/s^2
 
 	if(p == 0)
 	{
 		return 0;
 	}
 
-	if(p < 0)
-	{
-		m = -1;
-		p = -p;
+	double V = (volume - level) * 0.001; // m^3
+	double mass = std::min(dt * a * p / std::sqrt( V * std::abs(p) / steam ), steam);
 
+	if(std::isnan(mass))
+	{
 		return 0;
 	}
 
-	double V = (volume - level) * 0.001;
-	double v = std::sqrt( V * p / steam );
-	double mass = m * dt * a * p / v;
-
-	if(mass > steam)
-	{
-		mass = steam;
-	}
-
 	steam -= mass;
-
 	return mass;
 }
 

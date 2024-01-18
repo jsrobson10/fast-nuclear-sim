@@ -6,6 +6,7 @@
 #include "reactor/coolant/heater.hpp"
 #include "reactor/coolant/vessel.hpp"
 #include "coolant/fluid_t.hpp"
+#include "coolant/valve.hpp"
 #include "display.hpp"
 
 #include <cmath>
@@ -13,6 +14,9 @@
 #include <unistd.h>
 #include <curses.h>
 #include <sys/time.h>
+
+const bool do_graphics = true;
+const bool do_clock = true;
 
 unsigned long get_now()
 {
@@ -23,29 +27,38 @@ unsigned long get_now()
 
 int main()
 {
-	initscr();
-	cbreak();
-	noecho();
-	keypad(stdscr, TRUE);
-	nodelay(stdscr, TRUE);
-	curs_set(0);
+	std::random_device rd;
+	std::mt19937 rand(rd());
+	
+	if(do_graphics)
+	{
+		initscr();
+		cbreak();
+		noecho();
+		keypad(stdscr, TRUE);
+		nodelay(stdscr, TRUE);
+		curs_set(0);
+	}
 	
 	sim::reactor::coolant::vessel vessel(200, 400, sim::coolant::WATER);
 	sim::reactor::reactor<5, 5> reactor = sim::reactor::builder<5, 5>(
 		sim::reactor::fuel::fuel_rod(2000, 4000),
-		sim::reactor::control::control_rod(10000, 1),
+		sim::reactor::control::control_rod(vessel, 10000, 1),
 		sim::reactor::coolant::pipe(vessel), {
-			"#  ##",
-			"#FCF ",
-			" CHC ",
-			" FCF#",
-			"##  #"
+			"#C#C#",
+			"CFCFC",
+			"#C#C#",
+			"CFCFC",
+			"#C#C#"
 		});
+
+	sim::coolant::valve<sim::reactor::coolant::vessel> valve(vessel, 1, 101000);
 
 	double secs = 0;
 	long clock = get_now();
 	double speed = 1;
 	int framerate = 100;
+	int steps_extra = 1;
 
 	for(;;)
 	{
@@ -80,29 +93,23 @@ secs:		ss << s << "s\n";
 			ss << "Speed: " << speed << "x\n\n";
 		}
 
-		int skip = 1;
-
-		while(speed / framerate / skip > 1)
+		for(int i = 0; i < steps_extra; i++)
 		{
-			skip *= 2;
-		}
-
-		for(int i = 0; i < skip; i++)
-		{
-			double dt = speed / framerate / skip;
-
-			reactor.update(dt);
+			double dt = speed / framerate / steps_extra;
+			reactor.update(rand, dt);
 			vessel.update();
-
-			vessel.extract_steam(dt, 0.01, 101000);
+			valve.update(dt);
+			secs += dt;
 		}
-		
-		secs += speed / framerate;
 		
 		ss << "Vessel\n" << vessel << "\n";
+		ss << "Steam Valve\n" << valve << "\n";
 
-		erase();
-		display::draw_text(1, 0, ss.str().c_str());
+		if(do_graphics)
+		{
+			erase();
+			display::draw_text(1, 0, ss.str().c_str());
+		}
 
 		const int X = 1, Y = 30;
 		const int W = 36, H = 11;
@@ -110,7 +117,8 @@ secs:		ss << s << "s\n";
 		for(int x = 0; x < reactor.width; x++)
 		for(int y = 0; y < reactor.height; y++)
 		{
-			sim::reactor::rod* r = reactor.rods[x][y];
+			int id = y * reactor.width + x;
+			sim::reactor::rod* r = reactor.rods[id];
 
 			if(!r->should_display())
 			{
@@ -123,23 +131,30 @@ secs:		ss << s << "s\n";
 			int px = X + (H - 1) * y;
 			int py = Y + (W - 1) * x;
 
-			display::draw_text(px + 1, py + 2, ss.str().c_str());
-			display::draw_box(px, py, H, W);
+			if(do_graphics)
+			{
+				display::draw_text(px + 1, py + 2, ss.str().c_str());
+				display::draw_box(px, py, H, W);
+			}
 
-			if(r->should_select() && x == reactor.cursor_x && y == reactor.cursor_y)
+			if(do_graphics && r->should_select() && id == reactor.cursor)
 			{
 				display::draw_text(px + 1, py + W - 5, "[ ]");
 			}
 
-			if(r->is_selected())
+			if(do_graphics && r->is_selected())
 			{
 				display::draw_text(px + 1, py + W - 4, "#");
 			}
 		}
 
-		refresh();
+		int c = 0;
 
-		int c = getch();
+		if(do_graphics)
+		{
+			refresh();
+			c = getch();
+		}
 
 		switch(c)
 		{
@@ -150,10 +165,10 @@ secs:		ss << s << "s\n";
 			reactor.move_cursor(1);
 			break;
 		case KEY_UP:
-			reactor.update_selected(0.01);
+			reactor.update_selected(1);
 			break;
 		case KEY_DOWN:
-			reactor.update_selected(-0.01);
+			reactor.update_selected(-1);
 			break;
 		case ' ':
 			reactor.toggle_selected();
@@ -164,17 +179,26 @@ secs:		ss << s << "s\n";
 		case 'g':
 			speed /= 10;
 			break;
+		case 'r':
+			valve.open(0.001);
+			break;
+		case 'f':
+			valve.open(-0.001);
+			break;
 		}
 
-		long now = get_now();
-
-		while(clock + 1e6 / framerate > now)
+		if(do_clock)
 		{
-			usleep(clock + 1e6 / framerate - now);
-			now = get_now();
-		}
+			long now = get_now();
 
-		clock += 1e6 / framerate;
+			while(clock + 1e6 / framerate > now)
+			{
+				usleep(clock + 1e6 / framerate - now);
+				now = get_now();
+			}
+
+			clock += 1e6 / framerate;
+		}
 	}
 
 	return 0;
