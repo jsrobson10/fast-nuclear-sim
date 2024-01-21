@@ -38,14 +38,21 @@ in vec2 texPos;
 
 out vec4 FragColour;
 
+uniform bool do_tex;
+uniform mat4 tex_mat;
+
 void main()
 {
-	FragColour = vec4(1) * texture2D(tex, texPos);
+	vec4 texdata = do_tex ? texture2D(tex, texPos) : vec4(1);
+	FragColour = tex_mat * texdata;
 }
 
 )";
 
 static unsigned int prog_id;
+
+int shader::gl_tex_mat;
+int shader::gl_do_tex;
 
 static int load_shader(const char** src, int type)
 {
@@ -77,6 +84,9 @@ unsigned int shader::init_program()
 		window::close();
 		return 0;
 	}
+	
+	gl_tex_mat = glGetUniformLocation(prog_id, "tex_mat");
+	gl_do_tex = glGetUniformLocation(prog_id, "do_tex");
 
 	glUseProgram(prog_id);
 	glDeleteShader(vsh_id);

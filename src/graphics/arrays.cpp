@@ -2,6 +2,8 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include <assimp/Importer.hpp>
+
 #include "arrays.hpp"
 #include "font.hpp"
 
@@ -14,10 +16,23 @@ static void* ptr_diff(void* a, void* b)
 	return (void*)((size_t)a - (size_t)b);
 }
 
+void processNode(aiNode *node, const aiScene *scene)
+{
+	
+}
+
+Mesh processMesh(aiMesh *mesh, const aiScene *scene)
+{
+	
+}
+
 unsigned int arrays::init()
 {
 	vertex v;
 	unsigned long handle = font::chars['*'].handle;
+
+	Assimp::Importer importer;
+	const aiScene *scene = importer.ReadFile("monkey.obj", aiProcess_Triangulate | aiProcess_FlipUVs);
 
 	arrays::vertex vertices[4] = {
 		{handle, {0.0f, 1.0f}, {-0.5f, -0.5f, 0.0f}},

@@ -2,6 +2,8 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include <glm/matrix.hpp>
+
 #include <iostream>
 
 #include "arrays.hpp"
@@ -27,7 +29,7 @@ void window::create()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-//	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 
 	win = glfwCreateWindow(800, 600, "FastNuclearSim", nullptr, nullptr);
@@ -45,6 +47,10 @@ void window::create()
 
 	glEnable(GL_DEBUG_OUTPUT);
 	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDebugMessageCallback(cb_debug_message, nullptr);
 
 	keyboard::init();
@@ -59,8 +65,19 @@ void window::create()
 
 void window::loop()
 {
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearColor(0.2f, 0.3f, 0.5f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glm::mat4 m = {
+		1, 1, 1, 1,
+		0, 0, 0, 0,
+		0, 0, 0, 0,
+		0, 0, 0, 0
+	};
+
+	glUniformMatrix4fv(shader::gl_tex_mat, 1, false, &m[0][0]);
+	glUniform1i(shader::gl_do_tex, 1);
+	
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 	glfwSwapBuffers(win);
