@@ -2,17 +2,31 @@
 #include "vessel.hpp"
 #include "../../constants.hpp"
 #include "../../conversions/temperature.hpp"
+#include "../fuel/half_life.hpp"
 
 #include <cmath>
 
 using namespace sim::reactor::coolant;
 
-vessel::vessel(double level, double volume, sim::coolant::fluid_t fluid) : volume(volume), fluid(fluid)
+constexpr static double calc_cylinder(double h, double d)
 {
-	this->level = level;
+	double r = d / 2;
+	
+	return M_PI * r * r * h;
 }
 
-void vessel::update()
+vessel::vessel(double height, double diameter, double level, sim::coolant::fluid_t fluid) :
+		height(height),
+		diameter(diameter),
+		volume(calc_cylinder(height, diameter)),
+		fluid(fluid),
+		level(level),
+		bubble_hl(height * 0.5 / fluid.bubble_speed)
+{
+	
+}
+
+void vessel::update(double secs)
 {
 	double V = (volume - level) * 0.001;
 	double P = fluid.vapor_pressure.calc_p(heat);
@@ -46,6 +60,9 @@ void vessel::update()
 	steam = s;
 	level = fluid.g_to_l(l);
 	heat -= diff * fluid.jPg / (fluid.l_to_g(level) + steam) / fluid.jPgk;
+
+	if(diff > 0) steam_suspended += diff;
+	steam_suspended *= fuel::half_life::get(secs, bubble_hl);
 }
 
 double vessel::add_heat(double t1)
@@ -116,6 +133,7 @@ std::ostream& operator<<(std::ostream& o, const vessel& v)
 	o << "Steam: " << v.get_steam() << " g\n";
 	o << "Heat: " << v.get_heat() << " C\n";
 	o << "Pressure: " << (v.get_pressure() * 0.001) << " kPa\n";
+	o << "Void Ratio: " << (v.get_void_ratio() * 100) << " %\n";
 
 	return o;
 }

@@ -41,7 +41,7 @@ int main()
 		curs_set(0);
 	}
 	
-	sim::reactor::coolant::vessel vessel(200, 400, sim::coolant::WATER);
+	sim::reactor::coolant::vessel vessel(8, 10, 300, sim::coolant::WATER);
 	sim::reactor::reactor<5, 5> reactor = sim::reactor::builder<5, 5>(
 		sim::reactor::fuel::fuel_rod(2000, 4000),
 		sim::reactor::control::control_rod(vessel, 10000, 1),
@@ -101,7 +101,7 @@ secs:		ss << s << "s\n";
 			reactor.update(rand, dt);
 			pump.update(dt);
 			valve.update(dt);
-			vessel.update();
+			vessel.update(dt);
 			secs += dt;
 		}
 		
