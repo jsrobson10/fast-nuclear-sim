@@ -3,9 +3,12 @@
 #include <GLFW/glfw3.h>
 
 #include <glm/matrix.hpp>
+#include <glm/ext/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale
+#include <glm/ext/matrix_clip_space.hpp> // glm::perspective
 
 #include <iostream>
 
+#include "model.hpp"
 #include "arrays.hpp"
 #include "keyboard.hpp"
 #include "resize.hpp"
@@ -17,6 +20,7 @@ using namespace sim::graphics;
 
 static GLFWwindow* win;
 static bool win_should_close = false;
+static model Model;
 
 void GLAPIENTRY cb_debug_message(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
 {
@@ -56,29 +60,41 @@ void window::create()
 	keyboard::init();
 	resize::init();
 	font::init();
-
 	shader::init_program();
-	arrays::init();
+
+	Model.alloc();
+	Model.load("monkey.obj");
 
 	glViewport(0, 0, 800, 600);
 }
 
 void window::loop()
 {
-	glClearColor(0.2f, 0.3f, 0.5f, 1.0f);
+	glClearColor(0, 0, 0, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glm::mat4 m = {
+	glm::mat4 mat_colour = {
 		1, 1, 1, 1,
 		0, 0, 0, 0,
 		0, 0, 0, 0,
 		0, 0, 0, 0
 	};
 
-	glUniformMatrix4fv(shader::gl_tex_mat, 1, false, &m[0][0]);
-	glUniform1i(shader::gl_do_tex, 1);
+	glm::mat4 mat_model = glm::mat4(1.0f);
 	
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	mat_model = glm::translate(mat_model, glm::vec3(0.0f, 0.0f, -5.0f));
+//	mat_model = glm::scale(mat_model, glm::vec3(1.0f) * 0.05f);
+	mat_model = glm::rotate(mat_model, float(M_PI * 0.125), glm::vec3(1, 1, 1));
+	
+	glm::mat4 mat_projection = glm::perspective(float(M_PI * 0.25), (float)resize::get_aspect(), 0.1f, 100.f);
+
+	glUniformMatrix4fv(shader::gl_tex_mat, 1, false, &mat_colour[0][0]);
+	glUniformMatrix4fv(shader::gl_projection, 1, false, &mat_projection[0][0]);
+	glUniformMatrix4fv(shader::gl_model, 1, false, &mat_model[0][0]);
+	glUniform1i(shader::gl_do_tex, 0);
+	
+	Model.bind();
+	Model.render();
 
 	glfwSwapBuffers(win);
 	glfwPollEvents();

@@ -8,5 +8,5 @@ set(CMAKE_CXX_FLAGS "-g -lncurses -I/usr/include/freetype2")
 file(GLOB_RECURSE SOURCES src/*.cpp)
 
 add_executable(FastNuclearSim ${SOURCES})
-target_link_libraries(FastNuclearSim PUBLIC stdc++ m GLEW glfw GL freetype)
+target_link_libraries(FastNuclearSim PUBLIC stdc++ m GLEW glfw GL freetype assimp)
 

@@ -17,14 +17,20 @@ layout (location = 0) in sampler2D aTex;
 layout (location = 1) in vec2 aTexPos;
 layout (location = 2) in vec3 aPos;
 
+uniform mat4 model;
+uniform mat4 projection;
+
 out flat sampler2D tex;
 out vec2 texPos;
+out float zVal;
 
 void main()
 {
-	gl_Position = vec4(aPos, 1.0);
+	vec4 pos = model * vec4(aPos, 1.0);
+	gl_Position = projection * pos;
 	texPos = aTexPos;
 	tex = aTex;
+	zVal = 8.0f / (pos.z * pos.z);
 }
 
 )";
@@ -35,6 +41,7 @@ static const char* FRAGMENT_SHADER = R"(
 
 in flat sampler2D tex;
 in vec2 texPos;
+in float zVal;
 
 out vec4 FragColour;
 
@@ -44,7 +51,7 @@ uniform mat4 tex_mat;
 void main()
 {
 	vec4 texdata = do_tex ? texture2D(tex, texPos) : vec4(1);
-	FragColour = tex_mat * texdata;
+	FragColour = tex_mat * texdata * vec4(zVal, zVal, zVal, 1);
 }
 
 )";
@@ -53,6 +60,8 @@ static unsigned int prog_id;
 
 int shader::gl_tex_mat;
 int shader::gl_do_tex;
+int shader::gl_model;
+int shader::gl_projection;
 
 static int load_shader(const char** src, int type)
 {
@@ -87,6 +96,8 @@ unsigned int shader::init_program()
 	
 	gl_tex_mat = glGetUniformLocation(prog_id, "tex_mat");
 	gl_do_tex = glGetUniformLocation(prog_id, "do_tex");
+	gl_model = glGetUniformLocation(prog_id, "model");
+	gl_projection = glGetUniformLocation(prog_id, "projection");
 
 	glUseProgram(prog_id);
 	glDeleteShader(vsh_id);

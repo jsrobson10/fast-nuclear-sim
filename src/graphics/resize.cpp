@@ -17,6 +17,16 @@ static int win_restore_h;
 static int win_restore_x;
 static int win_restore_y;
 
+glm::vec2 resize::get_size()
+{
+	return {win_w, win_h};
+}
+
+double resize::get_aspect()
+{
+	return win_w / win_h;
+}
+
 void resize::toggle_fullscreen()
 {
 	GLFWwindow* win = window::get_window();
