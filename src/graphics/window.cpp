@@ -11,6 +11,8 @@
 #include "model.hpp"
 #include "arrays.hpp"
 #include "keyboard.hpp"
+#include "mouse.hpp"
+#include "camera.hpp"
 #include "resize.hpp"
 #include "window.hpp"
 #include "shader.hpp"
@@ -58,8 +60,10 @@ void window::create()
 	glDebugMessageCallback(cb_debug_message, nullptr);
 
 	keyboard::init();
+	mouse::init();
 	resize::init();
 	font::init();
+
 	shader::init_program();
 
 	Model.alloc();
@@ -80,10 +84,14 @@ void window::loop()
 		0, 0, 0, 0
 	};
 
-	glm::mat4 mat_model = glm::mat4(1.0f);
+	camera::update();
+
+	glm::mat4 mat_model = camera::get();
+
+	double mouse_x, mouse_y;
+	mouse::get(mouse_x, mouse_y);
 	
 	mat_model = glm::translate(mat_model, glm::vec3(0.0f, 0.0f, -5.0f));
-//	mat_model = glm::scale(mat_model, glm::vec3(1.0f) * 0.05f);
 	mat_model = glm::rotate(mat_model, float(M_PI * 0.125), glm::vec3(1, 1, 1));
 	
 	glm::mat4 mat_projection = glm::perspective(float(M_PI * 0.25), (float)resize::get_aspect(), 0.1f, 100.f);
