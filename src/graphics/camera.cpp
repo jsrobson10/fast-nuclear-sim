@@ -16,8 +16,8 @@ static double x = 0, y = 0, z = 0;
 
 void camera::rotate(double y, double p)
 {
-	yaw += y * 0.1;
-	pitch += p * 0.1;
+	yaw += y * 0.05;
+	pitch += p * 0.05;
 
 	if(pitch < -90) pitch = -90;
 	if(pitch > 90) pitch = 90;
@@ -37,34 +37,17 @@ void camera::update()
 	glm::vec<3, double> off(0, 0, 0);
 	
 	if(keyboard::is_pressed(GLFW_KEY_SPACE))
-	{
 		off.y -= 1;
-	}
-
 	if(keyboard::is_pressed(GLFW_KEY_LEFT_SHIFT))
-	{
 		off.y += 1;
-	}
-
 	if(keyboard::is_pressed(GLFW_KEY_W))
-	{
 		off.z += 1;
-	}
-
 	if(keyboard::is_pressed(GLFW_KEY_S))
-	{
 		off.z -= 1;
-	}
-
 	if(keyboard::is_pressed(GLFW_KEY_A))
-	{
 		off.x += 1;
-	}
-
 	if(keyboard::is_pressed(GLFW_KEY_D))
-	{
 		off.x -= 1;
-	}
 
 	double angle = -glm::radians<double>(yaw);
 
@@ -75,12 +58,12 @@ void camera::update()
 	
 	glm::vec<2, double> rotated = glm::vec<2, double>(off.x, off.z) * mat;
 	
-	y += off.y * 0.1;
-	x += rotated.x * 0.1;
-	z += rotated.y * 0.1;
+	y += off.y * 0.05;
+	x += rotated.x * 0.05;
+	z += rotated.y * 0.05;
 }
 
-glm::mat4 camera::get()
+glm::mat4 camera::get_model_matrix()
 {
 	glm::mat4 mat(1);
 

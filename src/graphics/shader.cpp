@@ -16,6 +16,7 @@ static const char* VERTEX_SHADER = R"(
 layout (location = 0) in sampler2D aTex;
 layout (location = 1) in vec2 aTexPos;
 layout (location = 2) in vec3 aPos;
+layout (location = 3) in vec3 aNormal;
 
 uniform mat4 model;
 uniform mat4 projection;
@@ -27,10 +28,16 @@ out float zVal;
 void main()
 {
 	vec4 pos = model * vec4(aPos, 1.0);
+
+	mat3 model_norm = mat3(model);
+	vec3 normal = aNormal;
+	vec3 cNormal = vec3(0.f, 0.f, 1.f) * model_norm;
+
+	zVal = dot(normal, cNormal);// / (length(aNormal) * length(cNormal));
+
 	gl_Position = projection * pos;
 	texPos = aTexPos;
 	tex = aTex;
-	zVal = 8.0f / (pos.z * pos.z);
 }
 
 )";

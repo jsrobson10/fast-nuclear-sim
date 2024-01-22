@@ -8,115 +8,74 @@
 
 #include <vector>
 
+#include "mesh.hpp"
 #include "model.hpp"
 #include "arrays.hpp"
 
 using namespace sim::graphics;
 
-model::model()
+static void proc_mesh(std::vector<mesh>& meshes, aiMesh* mesh, const aiScene* scene)
 {
-	
-}
-
-model::~model()
-{
-	if(vbo) glDeleteBuffers(1, &vbo);
-	if(ebo) glDeleteBuffers(1, &ebo);
-	if(vao) glDeleteVertexArrays(1, &vao);
-}
-
-void model::alloc()
-{
-	glGenVertexArrays(1, &vao);
-	glGenBuffers(1, &vbo);
-	glGenBuffers(1, &ebo);
-
-	glBindVertexArray(vao);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-
-	arrays::vertex_attrib_pointers();
-}
-
-void model::load_vbo(const arrays::vertex* data, size_t size, int mode)
-{
-	glBufferData(GL_ARRAY_BUFFER, size * sizeof(data[0]), data, mode);
-}
-
-void model::load_ebo(const unsigned int* data, size_t size, int mode)
-{
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, size * sizeof(data[0]), data, mode);
-	this->size = size;
-}
-
-struct proc_state
-{
-	size_t at = 0;
 	std::vector<arrays::vertex> vertices;
 	std::vector<unsigned int> indices;
-};
-
-static void proc_mesh(proc_state& state, aiMesh* mesh, const aiScene* scene)
-{
+	
 	for(unsigned int i = 0; i < mesh->mNumVertices; i++)
 	{
 		arrays::vertex vertex;
 
 		vertex.pos = {mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z};
 
-		state.vertices.push_back(vertex);
-	}
+		if(mesh->HasNormals())
+		{
+			vertex.normal = {mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z};
+		}
 
-	unsigned int at = state.at;
+		vertices.push_back(vertex);
+	}
 
 	for(unsigned int i = 0; i < mesh->mNumFaces; i++)
 	{
 		aiFace face = mesh->mFaces[i];
-		unsigned int j;
 		
-		for(j = 0; j < face.mNumIndices; j++)
+		for(unsigned int j = 0; j < face.mNumIndices; j++)
 		{
-			state.indices.push_back(face.mIndices[j] + state.at);
+			indices.push_back(face.mIndices[j]);
 		}
-
-		at += j;
 	}
 
-	state.at = at;
+	sim::graphics::mesh m;
+	m.set_vertices(&vertices[0], vertices.size(), GL_STATIC_DRAW);
+	m.set_indices(&indices[0], indices.size(), GL_STATIC_DRAW);
+	meshes.push_back(std::move(m));
 }
 
-static void proc_node(proc_state& state, aiNode* node, const aiScene* scene)
+static void proc_node(std::vector<mesh>& meshes, aiNode* node, const aiScene* scene)
 {
 	for(size_t i = 0; i < node->mNumMeshes; i++)
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		proc_mesh(state, mesh, scene);
+		proc_mesh(meshes, mesh, scene);
 	}
 
 	for(size_t i = 0; i < node->mNumChildren; i++)
 	{
-		proc_node(state, node->mChildren[i], scene);
+		proc_node(meshes, node->mChildren[i], scene);
 	}
 }
 
 void model::load(const char* path)
 {
-	proc_state state;
 	Assimp::Importer importer;
 	const aiScene *scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
-	proc_node(state, scene->mRootNode, scene);
-
-	load_vbo(&state.vertices[0], state.vertices.size(), GL_STATIC_DRAW);
-	load_ebo(&state.indices[0], state.indices.size(), GL_STATIC_DRAW);
+	proc_node(meshes, scene->mRootNode, scene);
 }
 
-void model::bind()
+void model::render() const
 {
-	glBindVertexArray(vao);
-}
-
-void model::render()
-{
-	glDrawElements(GL_TRIANGLES, size, GL_UNSIGNED_INT, 0);
+	for(const mesh& m : meshes)
+	{
+		m.bind();
+		m.render();
+	}
 }
 
