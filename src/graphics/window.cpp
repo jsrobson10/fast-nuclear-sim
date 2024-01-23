@@ -75,6 +75,7 @@ void window::create()
 	Model.load("../assets/AllPlants", "Plant1.obj", {-2.5, -3.5, 0});
 	Model.load("../assets/AllPlants", "Plant4.obj", {2, -3, 0});
 	Model.load("../assets/AllPlants", "Plant5.obj", {-2, 3, 0});
+	Model.load("../assets/monitor-scp", "Monitor.obj", {-3, 0, -2});
 
 	glViewport(0, 0, 800, 600);
 }
