@@ -23,6 +23,7 @@ struct proc_state
 	std::string base;
 	std::vector<arrays::vertex> vertices;
 	std::vector<unsigned int> indices;
+	glm::vec<3, double> pos;
 };
 
 static unsigned int proc_texture(const proc_state& state, aiMaterial* mat, aiTextureType type)
@@ -52,7 +53,7 @@ static void proc_mesh(proc_state& state, std::vector<mesh>& meshes, aiMesh* mesh
 		arrays::vertex vertex;
 
 		vertex.texid = texid;
-		vertex.pos = {mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z};
+		vertex.pos = state.pos + glm::vec<3, double>(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
 
 		if(mesh->HasNormals())
 		{
@@ -95,9 +96,9 @@ static void proc_node(proc_state& state, std::vector<mesh>& meshes, aiNode* node
 	}
 }
 
-void model::load(std::string base, std::string filename)
+void model::load(std::string base, std::string filename, glm::vec<3, double> pos)
 {
-	proc_state state {.base = base};
+	proc_state state {.base = base, .pos = pos};
 	std::string path = base + "/" + filename;
 	Assimp::Importer importer;
 

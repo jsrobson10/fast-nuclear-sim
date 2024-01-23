@@ -70,8 +70,11 @@ void window::create()
 
 	shader::init_program();
 
-//	Model.load("Minimalistic Modern Office", "Minimalistic Modern Office.fbx");
-	Model.load("../assets", "scene.obj");
+	Model.load("../assets/scene", "scene.obj");
+	Model.load("../assets/AllPlants", "Plant3.obj", {2.5, 3.5, 0});
+	Model.load("../assets/AllPlants", "Plant1.obj", {-2.5, -3.5, 0});
+	Model.load("../assets/AllPlants", "Plant4.obj", {2, -3, 0});
+	Model.load("../assets/AllPlants", "Plant5.obj", {-2, 3, 0});
 
 	glViewport(0, 0, 800, 600);
 }
