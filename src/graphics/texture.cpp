@@ -54,13 +54,13 @@ unsigned int texture::load(std::string path)
 	unsigned int texid;
 
 	glCreateTextures(GL_TEXTURE_2D, 1, &texid);
-	glTextureStorage2D(texid, 1, format_in, width, height);
+	glTextureStorage2D(texid, 8, format_in, width, height);
 	glTextureSubImage2D(texid, 0, 0, 0, width, height, format, GL_UNSIGNED_BYTE, data);
 
 	stbi_image_free(data);
 
-	glTextureParameteri(texid, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTextureParameteri(texid, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTextureParameteri(texid, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTextureParameteri(texid, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTextureParameteri(texid, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTextureParameteri(texid, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glGenerateTextureMipmap(texid);

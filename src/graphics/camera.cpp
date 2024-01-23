@@ -13,7 +13,7 @@
 using namespace sim::graphics;
 
 static double yaw = 0, pitch = 0;
-static glm::vec<3, double> pos(56, 90, 8);
+static glm::vec<3, double> pos(0, 0, 2);
 static glm::vec<3, double> velocity(0);
 
 void camera::rotate(double y, double p)
@@ -35,7 +35,7 @@ void camera::move(double xoff, double yoff, double zoff)
 void camera::update()
 {
 	glm::vec<2, double> off(0, 0);
-	double m = 0.01;
+	double m = 0.002;
 	
 	if(keyboard::is_pressed(GLFW_KEY_W))
 		off.y += 1;
@@ -60,15 +60,15 @@ void camera::update()
 	glm::vec<2, double> rotated = glm::vec<2, double>(off.x, off.y) * mat;
 	bool on_ground = false;
 	
-	velocity.z -= 0.00981;
+	velocity.z -= 0.000981;
 
-	if(pos.z + velocity.z < 3.5)
+	if(pos.z + velocity.z < 1.6)
 	{
 		on_ground = true;
 
 		if(keyboard::is_pressed(GLFW_KEY_SPACE))
 		{
-			velocity.z += 0.4;
+			velocity.z += 0.04;
 		}
 
 		else
@@ -84,6 +84,11 @@ void camera::update()
 	
 	velocity.x += rotated.x * m;
 	velocity.y += rotated.y * m;
+	
+	if(std::abs(pos.x + velocity.x) > 2.9)
+		velocity.x = 0;
+	if(std::abs(pos.y + velocity.y) > 3.9)
+		velocity.y = 0;
 
 	pos += velocity;
 	velocity *= glm::vec<3, double>(on_ground ? 0.9 : 0.9999);

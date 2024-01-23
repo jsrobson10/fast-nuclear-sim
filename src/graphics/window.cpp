@@ -70,7 +70,8 @@ void window::create()
 
 	shader::init_program();
 
-	Model.load("Minimalistic Modern Office", "Minimalistic Modern Office.fbx");
+//	Model.load("Minimalistic Modern Office", "Minimalistic Modern Office.fbx");
+	Model.load("../assets", "scene.obj");
 
 	glViewport(0, 0, 800, 600);
 }
@@ -94,12 +95,7 @@ void window::loop()
 	double mouse_x, mouse_y;
 	mouse::get(mouse_x, mouse_y);
 	
-	mat_model = glm::translate(mat_model, glm::vec3(0, -90, 0));
-//	mat_model = glm::rotate(mat_model, float(M_PI * 0.125), glm::vec3(1, 1, 1));
-	mat_model = glm::scale(mat_model, glm::vec3(15, 60, 15));
-	mat_model = glm::rotate(mat_model, -float(M_PI) / 2, glm::vec3(0, 1, 0));
-	
-	glm::mat4 mat_projection = glm::perspective(glm::radians(90.0f), (float)resize::get_aspect(), 0.1f, 200.f);
+	glm::mat4 mat_projection = glm::perspective(glm::radians(90.0f), (float)resize::get_aspect(), 0.01f, 20.f);
 
 	glUniformMatrix4fv(shader::gl_tex_mat, 1, false, &mat_colour[0][0]);
 	glUniformMatrix4fv(shader::gl_projection, 1, false, &mat_projection[0][0]);
