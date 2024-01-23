@@ -33,8 +33,9 @@ void font::init()
 	FT_Set_Pixel_Sizes(face, 0, 1024);
 
 	GLuint texids[128];
-
+	
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glCreateTextures(GL_TEXTURE_2D, 128, texids);
 
 	for(int i = 0; i < 128; i++)
 	{
@@ -54,7 +55,6 @@ void font::init()
 			continue;
 		}
 
-		glCreateTextures(GL_TEXTURE_2D, 1, &texids[i]);
 		glTextureStorage2D(texids[i], 1, GL_R8, c.size.x, c.size.y);
 		glTextureSubImage2D(texids[i], 0, 0, 0, c.size.x, c.size.y, GL_RED, GL_UNSIGNED_BYTE, face->glyph->bitmap.buffer);
 

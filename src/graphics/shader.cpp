@@ -17,23 +17,23 @@ layout (location = 0) in sampler2D aTex;
 layout (location = 1) in vec2 aTexPos;
 layout (location = 2) in vec3 aPos;
 layout (location = 3) in vec3 aNormal;
+layout (location = 4) in float aDoTex;
 
 uniform mat4 model;
 uniform mat4 projection;
 
+out float do_tex;
+out float brightness;
 out flat sampler2D tex;
 out vec2 texPos;
-out float zVal;
 
 void main()
 {
 	vec4 pos = model * vec4(aPos, 1.0);
+	vec3 cNormal = vec3(0.f, 0.f, 1.f) * mat3(model);
 
-	mat3 model_norm = mat3(model);
-	vec3 normal = aNormal;
-	vec3 cNormal = vec3(0.f, 0.f, 1.f) * model_norm;
-
-	zVal = dot(normal, cNormal);// / (length(aNormal) * length(cNormal));
+	brightness = dot(normalize(aNormal), normalize(cNormal)) * 0.25f + 0.75f;
+	do_tex = aDoTex;
 
 	gl_Position = projection * pos;
 	texPos = aTexPos;
@@ -46,19 +46,19 @@ static const char* FRAGMENT_SHADER = R"(
 #version 460 core
 #extension GL_ARB_bindless_texture : require
 
+in float do_tex;
+in float brightness;
 in flat sampler2D tex;
 in vec2 texPos;
-in float zVal;
 
 out vec4 FragColour;
 
-uniform bool do_tex;
 uniform mat4 tex_mat;
 
 void main()
 {
-	vec4 texdata = do_tex ? texture2D(tex, texPos) : vec4(1);
-	FragColour = tex_mat * texdata * vec4(zVal, zVal, zVal, 1);
+	vec4 texdata = (do_tex > 0.5f) ? texture2D(tex, texPos) : vec4(1);
+	FragColour = tex_mat * texdata * vec4(vec3(brightness), 1);
 }
 
 )";

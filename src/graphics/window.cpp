@@ -35,8 +35,11 @@ void window::create()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
+	
+#ifdef __APPLE__
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
+#endif
 
 	win = glfwCreateWindow(800, 600, "FastNuclearSim", nullptr, nullptr);
 
@@ -53,6 +56,7 @@ void window::create()
 
 	glEnable(GL_DEBUG_OUTPUT);
 	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 
@@ -66,7 +70,7 @@ void window::create()
 
 	shader::init_program();
 
-	Model.load("teapot.obj");
+	Model.load("Minimalistic Modern Office", "Minimalistic Modern Office.fbx");
 
 	glViewport(0, 0, 800, 600);
 }
@@ -77,10 +81,10 @@ void window::loop()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glm::mat4 mat_colour = {
-		1, 1, 1, 1,
-		0, 0, 0, 0,
-		0, 0, 0, 0,
-		0, 0, 0, 0
+		1, 0, 0, 0,
+		0, 1, 0, 0,
+		0, 0, 1, 0,
+		0, 0, 0, 1
 	};
 
 	camera::update();
@@ -90,11 +94,12 @@ void window::loop()
 	double mouse_x, mouse_y;
 	mouse::get(mouse_x, mouse_y);
 	
-	mat_model = glm::translate(mat_model, glm::vec3(0.0f, 0.0f, -5.0f));
-	mat_model = glm::rotate(mat_model, float(M_PI * 0.125), glm::vec3(1, 1, 1));
-	mat_model = glm::scale(mat_model, glm::vec3(1, 1, 1) * 0.2f);
+	mat_model = glm::translate(mat_model, glm::vec3(0, -90, 0));
+//	mat_model = glm::rotate(mat_model, float(M_PI * 0.125), glm::vec3(1, 1, 1));
+	mat_model = glm::scale(mat_model, glm::vec3(15, 60, 15));
+	mat_model = glm::rotate(mat_model, -float(M_PI) / 2, glm::vec3(0, 1, 0));
 	
-	glm::mat4 mat_projection = glm::perspective(float(M_PI * 0.25), (float)resize::get_aspect(), 0.1f, 100.f);
+	glm::mat4 mat_projection = glm::perspective(glm::radians(90.0f), (float)resize::get_aspect(), 0.1f, 200.f);
 
 	glUniformMatrix4fv(shader::gl_tex_mat, 1, false, &mat_colour[0][0]);
 	glUniformMatrix4fv(shader::gl_projection, 1, false, &mat_projection[0][0]);
