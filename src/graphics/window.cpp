@@ -75,13 +75,13 @@ void window::create()
 	MeshScene.load_model("../assets", "scene.obj");
 
 	glm::mat4 mat = glm::mat4(1);
-	mat = glm::translate(mat, glm::vec3(-2.949, -1.7778, 3));
+	mat = glm::translate(mat, glm::vec3(-2.949, -1.7778 + 0.05, 3 - 0.05));
 	mat = glm::rotate(mat, glm::radians<float>(-90), glm::vec3(1, 0, 0));
 	mat = glm::rotate(mat, glm::radians<float>(-90), glm::vec3(0, 1, 0));
 
 	MeshText.model_matrix = mat;
 	MeshText.colour_matrix = {
-		1, 0, 0, 1,
+		1, 1, 1, 1,
 		0, 0, 0, 0,
 		0, 0, 0, 0,
 		0, 0, 0, 0
@@ -93,16 +93,12 @@ void window::create()
 void window::loop()
 {
 	MeshText.bind();
-	font::generate(MeshText, "Hello, World!\nThis is cool!\n=)", 0.2);
+	font::generate(MeshText, "Hello, World!\nThis is cool!\n=)", 0.1);
 
 	glClearColor(0, 0, 0, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	camera::update();
-
-	double mouse_x, mouse_y;
-	mouse::get(mouse_x, mouse_y);
-	
 	glm::mat4 mat_projection = glm::perspective(glm::radians(90.0f), 1.0f, 0.01f, 20.f);
 	glUniformMatrix4fv(shader::gl_projection, 1, false, &mat_projection[0][0]);
 	

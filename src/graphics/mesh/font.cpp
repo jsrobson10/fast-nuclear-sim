@@ -40,7 +40,7 @@ void font::init()
 		return;
 	}
 
-	int size = 1024;
+	int size = 256;
 	float m = 1.0f / size;
 
 	FT_Set_Pixel_Sizes(face, 0, size);
