@@ -11,7 +11,7 @@ pipe::pipe(coolant::vessel& v)
 
 double pipe::get_k(val_t type) const
 {
-	return vessel->get_level() / vessel->get_volume() * 0.5;
+	return vessel->get_level() / vessel->get_volume() * (1 - vessel->get_void_ratio()) * 0.5;
 }
 
 void pipe::update(double secs)

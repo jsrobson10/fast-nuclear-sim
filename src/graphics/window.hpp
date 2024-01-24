@@ -8,7 +8,7 @@ namespace sim::graphics::window
 
 void create();
 bool should_close();
-void loop();
+void loop(const char* str);
 void destroy();
 void close();
 

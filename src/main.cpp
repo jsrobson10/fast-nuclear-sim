@@ -2,7 +2,7 @@
 #include <sys/time.h>
 
 #include <random>
-#include <iostream>
+#include <sstream>
 #include <cmath>
 
 #include "reactor/builder.hpp"
@@ -31,6 +31,21 @@ int main()
 {
 	std::random_device rd;
 	std::mt19937 rand(rd());
+	
+	sim::reactor::coolant::vessel vessel(8, 10, 300, sim::coolant::WATER);
+	sim::reactor::reactor<5, 5> reactor = sim::reactor::builder<5, 5>(
+		sim::reactor::fuel::fuel_rod(2000, 4000),
+		sim::reactor::control::control_rod(vessel, 10000, 1),
+		sim::reactor::coolant::pipe(vessel), {
+			"#C#C#",
+			"CFCFC",
+			"#C#C#",
+			"CFCFC",
+			"#C#C#"
+		});
+	
+	sim::coolant::valve<sim::reactor::coolant::vessel> valve(vessel, 1, 500);
+	sim::coolant::pump<sim::reactor::coolant::vessel> pump(vessel, 1e4, 15);
 
 	graphics::window::create();
 
@@ -42,9 +57,18 @@ int main()
 		long passed = now - clock;
 		double dt = (double)passed / 1e6;
 		clock += passed;
+		
+		std::stringstream ss;
+
+		reactor.update(rand, dt);
+		pump.update(dt);
+		valve.update(dt);
+		vessel.update(dt);
+		
+		ss << "Reactor Vessel\n\n" << vessel;
 
 		graphics::camera::update(dt);
-		graphics::window::loop();
+		graphics::window::loop(ss.str().c_str());
 	}
 
 	graphics::window::destroy();

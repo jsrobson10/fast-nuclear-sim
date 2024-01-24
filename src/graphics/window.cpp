@@ -26,7 +26,10 @@ static mesh MeshScene, MeshText;
 
 void GLAPIENTRY cb_debug_message(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
 {
-	std::cout << "GL CALLBACK: " << message << "\n";
+	if(severity != GL_DEBUG_SEVERITY_NOTIFICATION)
+	{
+		std::cout << "GL CALLBACK: " << message << "\n";
+	}
 }
 
 void window::create()
@@ -90,10 +93,10 @@ void window::create()
 	glViewport(0, 0, 800, 600);
 }
 
-void window::loop()
+void window::loop(const char* str)
 {
 	MeshText.bind();
-	font::generate(MeshText, "Hello, World!\nThis is cool!\n=)", 0.1);
+	font::generate(MeshText, str, 0.1);
 
 	glm::mat4 mat_projection = glm::perspective(glm::radians(90.0f), 1.0f, 0.01f, 20.f);
 	glUniformMatrix4fv(shader::gl_projection, 1, false, &mat_projection[0][0]);
