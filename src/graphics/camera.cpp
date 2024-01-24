@@ -100,8 +100,6 @@ void camera::update()
 	camera_mat = glm::rotate(camera_mat, (float)glm::radians(-pitch), glm::vec3(1, 0, 0));
 	camera_mat = glm::rotate(camera_mat, (float)glm::radians(yaw), glm::vec3(0, 0, 1));
 	camera_mat = glm::translate(camera_mat, glm::vec3(-pos.x, -pos.y, -pos.z));
-
-	std::cout << "at: " << pos << "\n";
 }
 
 glm::mat4 camera::get_matrix()
