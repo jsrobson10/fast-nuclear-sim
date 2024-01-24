@@ -95,12 +95,11 @@ void window::loop()
 	MeshText.bind();
 	font::generate(MeshText, "Hello, World!\nThis is cool!\n=)", 0.1);
 
-	glClearColor(0, 0, 0, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	camera::update();
 	glm::mat4 mat_projection = glm::perspective(glm::radians(90.0f), 1.0f, 0.01f, 20.f);
 	glUniformMatrix4fv(shader::gl_projection, 1, false, &mat_projection[0][0]);
+
+	glClearColor(0, 0, 0, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	MeshScene.bind();
 	MeshScene.render();

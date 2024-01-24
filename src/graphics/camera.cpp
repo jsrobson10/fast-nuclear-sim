@@ -6,6 +6,7 @@
 #include "input/keyboard.hpp"
 #include "../math.hpp"
 
+#include <cmath>
 #include <iostream>
 #include <glm/matrix.hpp>
 #include <glm/vec3.hpp>
@@ -34,10 +35,10 @@ void camera::move(double xoff, double yoff, double zoff)
 	pos.z += zoff;
 }
 
-void camera::update()
+void camera::update(double dt)
 {
 	glm::vec<2, double> off(0, 0);
-	double m = 0.002;
+	double m = 30;
 	
 	if(keyboard::is_pressed(GLFW_KEY_W))
 		off.y += 1;
@@ -50,7 +51,7 @@ void camera::update()
 	if(keyboard::is_pressed(GLFW_KEY_LEFT_SHIFT))
 		m *= 1.5;
 	if(off.x != 0 || off.y != 0)
-		off /= std::sqrt(off.x * off.x + off.y * off.y);
+		off = glm::normalize(off);
 
 	double angle = glm::radians<double>(yaw);
 
@@ -62,15 +63,15 @@ void camera::update()
 	glm::vec<2, double> rotated = glm::vec<2, double>(off.x, off.y) * mat;
 	bool on_ground = false;
 	
-	velocity.z -= 0.000981;
+	velocity.z -= 9.81 * dt;
 
-	if(pos.z + velocity.z < 1.6)
+	if(pos.z + velocity.z * dt < 1.6)
 	{
 		on_ground = true;
 
 		if(keyboard::is_pressed(GLFW_KEY_SPACE))
 		{
-			velocity.z += 0.04;
+			velocity.z = 3.5;
 		}
 
 		else
@@ -85,16 +86,18 @@ void camera::update()
 		m = 0;
 	}
 	
-	velocity.x += rotated.x * m;
-	velocity.y += rotated.y * m;
-	
-	if(std::abs(pos.x + velocity.x) > 2.9)
+	velocity.x += rotated.x * m * dt;
+	velocity.y += rotated.y * m * dt;
+
+	if(std::abs(pos.x + velocity.x * dt) > 2.9)
 		velocity.x = 0;
-	if(std::abs(pos.y + velocity.y) > 3.9)
+	if(std::abs(pos.y + velocity.y * dt) > 3.9)
 		velocity.y = 0;
 
-	pos += velocity;
-	velocity *= glm::vec<3, double>(on_ground ? 0.9 : 0.999);
+	float m2 = std::pow(0.5, dt / (on_ground ? 0.05 : 1));
+
+	pos += velocity * dt;
+	velocity *= m2;
 
 	camera_mat = glm::mat4(1);
 	camera_mat = glm::rotate(camera_mat, (float)glm::radians(-pitch), glm::vec3(1, 0, 0));
