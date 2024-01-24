@@ -3,7 +3,8 @@
 #include <GLFW/glfw3.h>
 
 #include "camera.hpp"
-#include "keyboard.hpp"
+#include "input/keyboard.hpp"
+#include "../math.hpp"
 
 #include <iostream>
 #include <glm/matrix.hpp>
@@ -15,11 +16,12 @@ using namespace sim::graphics;
 static double yaw = 0, pitch = 0;
 static glm::vec<3, double> pos(0, 0, 2);
 static glm::vec<3, double> velocity(0);
+static glm::mat4 camera_mat;
 
 void camera::rotate(double y, double p)
 {
-	yaw -= y * 0.05;
-	pitch += p * 0.05;
+	yaw += y * 0.05;
+	pitch -= p * 0.05;
 
 	if(pitch < 0) pitch = 0;
 	if(pitch > 180) pitch = 180;
@@ -42,9 +44,9 @@ void camera::update()
 	if(keyboard::is_pressed(GLFW_KEY_S))
 		off.y -= 1;
 	if(keyboard::is_pressed(GLFW_KEY_A))
-		off.x += 1;
-	if(keyboard::is_pressed(GLFW_KEY_D))
 		off.x -= 1;
+	if(keyboard::is_pressed(GLFW_KEY_D))
+		off.x += 1;
 	if(keyboard::is_pressed(GLFW_KEY_LEFT_SHIFT))
 		m *= 1.5;
 	if(off.x != 0 || off.y != 0)
@@ -74,6 +76,7 @@ void camera::update()
 		else
 		{
 			velocity.z = 0;
+			pos.z = 1.6;
 		}
 	}
 
@@ -91,17 +94,18 @@ void camera::update()
 		velocity.y = 0;
 
 	pos += velocity;
-	velocity *= glm::vec<3, double>(on_ground ? 0.9 : 0.9999);
+	velocity *= glm::vec<3, double>(on_ground ? 0.9 : 0.999);
+
+	camera_mat = glm::mat4(1);
+	camera_mat = glm::rotate(camera_mat, (float)glm::radians(-pitch), glm::vec3(1, 0, 0));
+	camera_mat = glm::rotate(camera_mat, (float)glm::radians(yaw), glm::vec3(0, 0, 1));
+	camera_mat = glm::translate(camera_mat, glm::vec3(-pos.x, -pos.y, -pos.z));
+
+	std::cout << "at: " << pos << "\n";
 }
 
-glm::mat4 camera::get_model_matrix()
+glm::mat4 camera::get_matrix()
 {
-	glm::mat4 mat(1);
-
-	mat = glm::rotate(mat, (float)glm::radians(pitch), glm::vec3(1, 0, 0));
-	mat = glm::rotate(mat, (float)glm::radians(yaw), glm::vec3(0, 0, 1));
-	mat = glm::translate(mat, glm::vec3(pos.x, pos.y, pos.z));
-
-	return mat;
+	return camera_mat;
 }
 

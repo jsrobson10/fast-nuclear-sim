@@ -4,19 +4,25 @@
 
 #include "mesh.hpp"
 #include "arrays.hpp"
-#include <iostream>
+#include "../shader.hpp"
+#include "../camera.hpp"
 
 using namespace sim::graphics;
 
-mesh::mesh()
+constexpr static void init(mesh* m)
 {
-	glGenVertexArrays(1, &vao);
-	glGenBuffers(1, &vbo);
-	glGenBuffers(1, &ebo);
+	if(m->vao != 0)
+	{
+		return;
+	}
 
-	glBindVertexArray(vao);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	glGenVertexArrays(1, &m->vao);
+	glGenBuffers(1, &m->vbo);
+	glGenBuffers(1, &m->ebo);
+
+	glBindVertexArray(m->vao);
+	glBindBuffer(GL_ARRAY_BUFFER, m->vbo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m->ebo);
 
 	arrays::vertex_attrib_pointers();
 }
@@ -27,6 +33,9 @@ mesh::mesh(mesh&& o)
 	ebo = o.ebo;
 	vao = o.vao;
 	size = o.size;
+	colour_matrix = o.colour_matrix;
+	model_matrix = o.model_matrix;
+
 	o.vbo = 0;
 	o.ebo = 0;
 	o.vao = 0;
@@ -50,12 +59,17 @@ void mesh::set_indices(const unsigned int* data, size_t size, int mode)
 	this->size = size;
 }
 
-void mesh::bind() const
+void mesh::bind()
 {
+	init(this);
+
+	glm::mat4 m = camera::get_matrix() * model_matrix;
+	glUniformMatrix4fv(shader::gl_model, 1, false, &m[0][0]);
+	glUniformMatrix4fv(shader::gl_tex_mat, 1, false, &colour_matrix[0][0]);
 	glBindVertexArray(vao);
 }
 
-void mesh::render() const
+void mesh::render()
 {
 	glDrawElements(GL_TRIANGLES, size, GL_UNSIGNED_INT, 0);
 }

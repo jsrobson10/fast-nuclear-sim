@@ -4,7 +4,7 @@
 
 #include <assimp/Importer.hpp>
 
-#include "shader.hpp"
+#include "../shader.hpp"
 #include "arrays.hpp"
 #include "font.hpp"
 
@@ -32,8 +32,5 @@ void arrays::vertex_attrib_pointers()
 
 	glVertexAttribPointer(3, 3, GL_FLOAT, false, sizeof(v), ptr_diff(&v.normal, &v));
 	glEnableVertexAttribArray(3);
-
-	glVertexAttribPointer(4, 1, GL_FLOAT, false, sizeof(v), ptr_diff(&v.do_tex, &v));
-	glEnableVertexAttribArray(4);
 }
 

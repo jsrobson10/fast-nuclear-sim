@@ -17,12 +17,10 @@ layout (location = 0) in sampler2D aTex;
 layout (location = 1) in vec2 aTexPos;
 layout (location = 2) in vec3 aPos;
 layout (location = 3) in vec3 aNormal;
-layout (location = 4) in float aDoTex;
 
 uniform mat4 model;
 uniform mat4 projection;
 
-out float do_tex;
 out float brightness;
 out flat sampler2D tex;
 out vec2 texPos;
@@ -33,7 +31,6 @@ void main()
 	vec3 cNormal = vec3(0.f, 0.f, 1.f) * mat3(model);
 
 	brightness = dot(normalize(aNormal), normalize(cNormal)) * 0.25f + 0.75f;
-	do_tex = aDoTex;
 
 	gl_Position = projection * pos;
 	texPos = aTexPos;
@@ -46,7 +43,6 @@ static const char* FRAGMENT_SHADER = R"(
 #version 460 core
 #extension GL_ARB_bindless_texture : require
 
-in float do_tex;
 in float brightness;
 in flat sampler2D tex;
 in vec2 texPos;
@@ -57,8 +53,10 @@ uniform mat4 tex_mat;
 
 void main()
 {
-	vec4 texdata = (do_tex > 0.5f) ? texture2D(tex, texPos) : vec4(1);
+	vec4 texdata = texture2D(tex, texPos);
 	FragColour = tex_mat * texdata * vec4(vec3(brightness), 1);
+
+	if(FragColour.a == 0) discard;
 }
 
 )";
@@ -66,7 +64,6 @@ void main()
 static unsigned int prog_id;
 
 int shader::gl_tex_mat;
-int shader::gl_do_tex;
 int shader::gl_model;
 int shader::gl_projection;
 
@@ -102,7 +99,6 @@ unsigned int shader::init_program()
 	}
 	
 	gl_tex_mat = glGetUniformLocation(prog_id, "tex_mat");
-	gl_do_tex = glGetUniformLocation(prog_id, "do_tex");
 	gl_model = glGetUniformLocation(prog_id, "model");
 	gl_projection = glGetUniformLocation(prog_id, "projection");
 

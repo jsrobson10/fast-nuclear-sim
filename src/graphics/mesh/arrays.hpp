@@ -13,10 +13,6 @@ struct vertex
 	glm::vec2 texpos = {0, 0};
 	glm::vec3 pos = {0, 0, 0};
 	glm::vec3 normal = {0, 0, 0};
-	float do_tex = 0;
-
-	vertex() { }
-	vertex(unsigned long texid, glm::vec2 texpos, glm::vec3 pos) : texid(texid), texpos(texpos), pos(pos) { }
 };
 
 void vertex_attrib_pointers();

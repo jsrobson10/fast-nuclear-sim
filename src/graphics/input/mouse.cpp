@@ -3,8 +3,8 @@
 #include <GLFW/glfw3.h>
 
 #include "mouse.hpp"
-#include "window.hpp"
-#include "camera.hpp"
+#include "../window.hpp"
+#include "../camera.hpp"
 
 using namespace sim::graphics;
 

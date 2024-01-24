@@ -5,9 +5,9 @@
 #include <unordered_map>
 
 #include "keyboard.hpp"
-#include "window.hpp"
-#include "resize.hpp"
-#include "camera.hpp"
+#include "../window.hpp"
+#include "../resize.hpp"
+#include "../camera.hpp"
 
 using namespace sim::graphics;
 

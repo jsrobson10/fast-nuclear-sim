@@ -8,21 +8,21 @@
 
 #include <iostream>
 
-#include "model.hpp"
-#include "arrays.hpp"
-#include "keyboard.hpp"
-#include "mouse.hpp"
+#include "mesh/mesh.hpp"
+#include "mesh/arrays.hpp"
+#include "input/keyboard.hpp"
+#include "input/mouse.hpp"
 #include "camera.hpp"
 #include "resize.hpp"
 #include "window.hpp"
 #include "shader.hpp"
-#include "font.hpp"
+#include "mesh/font.hpp"
 
 using namespace sim::graphics;
 
 static GLFWwindow* win;
 static bool win_should_close = false;
-static model Model;
+static mesh MeshScene, MeshText;
 
 void GLAPIENTRY cb_debug_message(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
 {
@@ -44,6 +44,7 @@ void window::create()
 	win = glfwCreateWindow(800, 600, "FastNuclearSim", nullptr, nullptr);
 
 	glfwMakeContextCurrent(win);
+	glfwSwapInterval(1);
 	
 	GLenum err = glewInit();
 	
@@ -70,43 +71,46 @@ void window::create()
 
 	shader::init_program();
 
-	Model.load("../assets/scene", "scene.obj");
-	Model.load("../assets/AllPlants", "Plant3.obj", {2.5, 3.5, 0});
-	Model.load("../assets/AllPlants", "Plant1.obj", {-2.5, -3.5, 0});
-	Model.load("../assets/AllPlants", "Plant4.obj", {2, -3, 0});
-	Model.load("../assets/AllPlants", "Plant5.obj", {-2, 3, 0});
-	Model.load("../assets/monitor-scp", "Monitor.obj", {-3, 0, -2});
+	MeshScene.bind();
+	MeshScene.load_model("../assets", "scene.obj");
+
+	glm::mat4 mat = glm::mat4(1);
+	mat = glm::translate(mat, glm::vec3(-2.949, -1.7778, 3));
+	mat = glm::rotate(mat, glm::radians<float>(-90), glm::vec3(1, 0, 0));
+	mat = glm::rotate(mat, glm::radians<float>(-90), glm::vec3(0, 1, 0));
+
+	MeshText.model_matrix = mat;
+	MeshText.colour_matrix = {
+		1, 0, 0, 1,
+		0, 0, 0, 0,
+		0, 0, 0, 0,
+		0, 0, 0, 0
+	};
 
 	glViewport(0, 0, 800, 600);
 }
 
 void window::loop()
 {
+	MeshText.bind();
+	font::generate(MeshText, "Hello, World!\nThis is cool!\n=)", 0.2);
+
 	glClearColor(0, 0, 0, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glm::mat4 mat_colour = {
-		1, 0, 0, 0,
-		0, 1, 0, 0,
-		0, 0, 1, 0,
-		0, 0, 0, 1
-	};
-
 	camera::update();
-
-	glm::mat4 mat_model = camera::get_model_matrix();
 
 	double mouse_x, mouse_y;
 	mouse::get(mouse_x, mouse_y);
 	
-	glm::mat4 mat_projection = glm::perspective(glm::radians(90.0f), (float)resize::get_aspect(), 0.01f, 20.f);
-
-	glUniformMatrix4fv(shader::gl_tex_mat, 1, false, &mat_colour[0][0]);
+	glm::mat4 mat_projection = glm::perspective(glm::radians(90.0f), 1.0f, 0.01f, 20.f);
 	glUniformMatrix4fv(shader::gl_projection, 1, false, &mat_projection[0][0]);
-	glUniformMatrix4fv(shader::gl_model, 1, false, &mat_model[0][0]);
-	glUniform1i(shader::gl_do_tex, 0);
 	
-	Model.render();
+	MeshScene.bind();
+	MeshScene.render();
+
+	MeshText.bind();
+	MeshText.render();
 
 	glfwSwapBuffers(win);
 	glfwPollEvents();

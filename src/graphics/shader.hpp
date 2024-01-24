@@ -5,7 +5,6 @@ namespace sim::graphics::shader
 {
 
 extern int gl_tex_mat;
-extern int gl_do_tex;
 extern int gl_model;
 extern int gl_projection;
 
