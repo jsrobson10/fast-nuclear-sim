@@ -72,7 +72,7 @@ void window::create()
 	shader::init_program();
 
 	MeshScene.bind();
-	MeshScene.load_model("../assets", "scene.obj");
+	MeshScene.load_model("../assets/scene", "scene.obj");
 
 	glm::mat4 mat = glm::mat4(1);
 	mat = glm::translate(mat, glm::vec3(-2.949, -1.7778 + 0.05, 3 - 0.05));
