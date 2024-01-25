@@ -1,4 +1,5 @@
 
 build
 *.blend1
+assets/scene-baked.glb
 

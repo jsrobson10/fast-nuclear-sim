@@ -17,14 +17,14 @@ static int win_restore_h;
 static int win_restore_x;
 static int win_restore_y;
 
-glm::vec2 resize::get_size()
+glm::vec<2, int> resize::get_size()
 {
 	return {win_w, win_h};
 }
 
-double resize::get_aspect()
+float resize::get_aspect()
 {
-	return win_w / win_h;
+	return (float)win_w / (float)win_h;
 }
 
 void resize::toggle_fullscreen()

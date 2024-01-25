@@ -126,16 +126,3 @@ double vessel::get_pressure() const
 	return (n * T * constants::R) / V;
 }
 
-std::ostream& operator<<(std::ostream& o, const vessel& v)
-{
-	o << "Volume: " << v.get_volume() << " L\n";
-	o << "Level: " << v.get_level() << " L\n";
-	o << "Steam: " << v.get_steam() << " g\n";
-	o << "Heat: " << v.get_heat() << " C\n";
-	o << "Pressure: " << (v.get_pressure() * 0.001) << " kPa\n";
-	o << "Void Ratio: " << (v.get_void_ratio() * 100) << " %\n";
-
-	return o;
-}
-
-

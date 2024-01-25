@@ -66,7 +66,10 @@ void mesh::bind()
 	glm::mat4 m = camera::get_matrix() * model_matrix;
 	glUniformMatrix4fv(shader::gl_model, 1, false, &m[0][0]);
 	glUniformMatrix4fv(shader::gl_tex_mat, 1, false, &colour_matrix[0][0]);
+
 	glBindVertexArray(vao);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 }
 
 void mesh::render()

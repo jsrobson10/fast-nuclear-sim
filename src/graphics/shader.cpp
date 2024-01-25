@@ -15,7 +15,7 @@ static const char* VERTEX_SHADER = R"(
 
 layout (location = 0) in sampler2D aTex;
 layout (location = 1) in vec2 aTexPos;
-layout (location = 2) in vec3 aPos;
+layout (location = 2) in vec4 aPos;
 layout (location = 3) in vec3 aNormal;
 
 uniform mat4 model;
@@ -27,7 +27,7 @@ out vec2 texPos;
 
 void main()
 {
-	vec4 pos = model * vec4(aPos, 1.0);
+	vec4 pos = model * aPos;
 	vec3 cNormal = vec3(0.f, 0.f, 1.f) * mat3(model);
 
 	brightness = dot(normalize(aNormal), normalize(cNormal)) * 0.25f + 0.75f;

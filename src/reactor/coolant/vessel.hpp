@@ -41,9 +41,20 @@ public:
 	constexpr double get_void_ratio() const { double s = steam_suspended / get_steam_density(); return s / (level + s); }
 	
 	double get_pressure() const; // pascals
+
+	friend std::ostream& operator<<(std::ostream& o, const vessel& v)
+	{
+		o << "Volume: " << v.get_volume() << " L\n";
+		o << "Level: " << v.get_level() << " L\n";
+		o << "Steam: " << v.get_steam() << " g\n";
+		o << "Heat: " << v.get_heat() << " C\n";
+		o << "Pressure: " << (v.get_pressure() * 0.001) << " kPa\n";
+		o << "Void Ratio: " << (v.get_void_ratio() * 100) << " %\n";
+	
+		return o;
+	}
+
 };
 
 }
-
-std::ostream& operator<<(std::ostream& o, const sim::reactor::coolant::vessel& v);
 

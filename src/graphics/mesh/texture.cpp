@@ -12,22 +12,11 @@ using namespace sim::graphics;
 
 static std::unordered_map<std::string, unsigned int> loaded; 
 
-unsigned int texture::load(std::string path)
+unsigned int texture::load_mem(const unsigned char* data, int width, int height, int channels)
 {
-	const auto it = loaded.find(path);
-
-	if(it != loaded.end())
-	{
-		return it->second;
-	}
-
-	int width, height, channels;
-	unsigned char* data = stbi_load(path.c_str(), &width, &height, &channels, 0);
-
 	if(!data)
 	{
-		stbi_image_free(data);
-		throw std::runtime_error("Failed to load path: " + path);
+		return 0;
 	}
 
 	GLenum format, format_in;
@@ -57,8 +46,6 @@ unsigned int texture::load(std::string path)
 	glTextureStorage2D(texid, 8, format_in, width, height);
 	glTextureSubImage2D(texid, 0, 0, 0, width, height, format, GL_UNSIGNED_BYTE, data);
 
-	stbi_image_free(data);
-
 	glTextureParameteri(texid, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTextureParameteri(texid, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTextureParameteri(texid, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -67,6 +54,36 @@ unsigned int texture::load(std::string path)
 
 	unsigned int handle = glGetTextureHandleARB(texid);
 	glMakeTextureHandleResidentARB(handle);
+	return handle;
+}
+
+unsigned int texture::load_mem(const unsigned char* filedata, size_t len)
+{
+	int width, height, channels;
+	unsigned char* data = stbi_load_from_memory(filedata, len, &width, &height, &channels, 0);
+	unsigned int handle = load_mem(data, width, height, channels);
+	stbi_image_free(data);
+	return handle;
+}
+
+unsigned int texture::load(std::string path)
+{
+	const auto it = loaded.find(path);
+
+	if(it != loaded.end())
+	{
+		return it->second;
+	}
+
+	int width, height, channels;
+	unsigned char* data = stbi_load(path.c_str(), &width, &height, &channels, 0);
+	unsigned int handle = load_mem(data, width, height, channels);
+	stbi_image_free(data);
+
+	if(handle == 0)
+	{
+		throw std::runtime_error("Failed to load path: " + path);
+	}
 
 	std::cout << "Loaded Image: " << path << "\n";
 

@@ -89,9 +89,12 @@ void camera::update(double dt)
 	velocity.x += rotated.x * m * dt;
 	velocity.y += rotated.y * m * dt;
 
-	if(std::abs(pos.x + velocity.x * dt) > 2.9)
+	double nx = pos.x + velocity.x * dt;
+	double ny = pos.y + velocity.y * dt;
+
+	if(nx > 8.9 || nx < -2.9)
 		velocity.x = 0;
-	if(std::abs(pos.y + velocity.y * dt) > 3.9)
+	if(std::abs(ny) > 3.9)
 		velocity.y = 0;
 
 	float m2 = std::pow(0.5, dt / (on_ground ? 0.05 : 1));

@@ -17,12 +17,15 @@
 #include "window.hpp"
 #include "shader.hpp"
 #include "mesh/font.hpp"
+#include "../parts.hpp"
 
 using namespace sim::graphics;
 
 static GLFWwindow* win;
 static bool win_should_close = false;
+
 static mesh MeshScene, MeshText;
+static mesh MeshMon1, MeshMon2, MeshMon3;
 
 void GLAPIENTRY cb_debug_message(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
 {
@@ -75,7 +78,7 @@ void window::create()
 	shader::init_program();
 
 	MeshScene.bind();
-	MeshScene.load_model("../assets/scene", "scene.obj");
+	MeshScene.load_model("../assets", "scene-baked.glb");
 
 	glm::mat4 mat = glm::mat4(1);
 	mat = glm::translate(mat, glm::vec3(-2.949, -1.7778 + 0.05, 3 - 0.05));
@@ -90,15 +93,53 @@ void window::create()
 		0, 0, 0, 0
 	};
 
+	mat = glm::mat4(1);
+	mat = glm::translate(mat, glm::vec3(-1.5 + 0.05, 3.949, 3 - 0.05));
+	mat = glm::rotate(mat, glm::radians<float>(-90), glm::vec3(1, 0, 0));
+
+	MeshMon1.model_matrix = mat;
+	MeshMon1.colour_matrix = {
+		1, 0.5, 0.5, 1,
+		0, 0, 0, 0,
+		0, 0, 0, 0,
+		0, 0, 0, 0
+	};
+	
+	mat = glm::translate(glm::mat4(1), glm::vec3(2.5, 0, 0)) * mat;
+	
+	MeshMon2.model_matrix = mat;
+	MeshMon2.colour_matrix = {
+		0.5, 1, 0.5, 1,
+		0, 0, 0, 0,
+		0, 0, 0, 0,
+		0, 0, 0, 0
+	};
+	
+	mat = glm::translate(glm::mat4(1), glm::vec3(2.5, 0, 0)) * mat;
+	
+	MeshMon3.model_matrix = mat;
+	MeshMon3.colour_matrix = {
+		0.5, 0.5, 1, 1,
+		0, 0, 0, 0,
+		0, 0, 0, 0,
+		0, 0, 0, 0
+	};
+
 	glViewport(0, 0, 800, 600);
 }
 
-void window::loop(const char* str)
+void window::loop()
 {
 	MeshText.bind();
-	font::generate(MeshText, str, 0.1);
+	font::generate(MeshText, "Reactor Core\n\nTODO", 0.1);
+	MeshMon1.bind();
+	font::generate(MeshMon1, "Reactor Vessel\n\n", parts::vessel, 0.1);
+	MeshMon2.bind();
+	font::generate(MeshMon2, "Steam Valve\n\n", parts::valve, 0.1);
+	MeshMon3.bind();
+	font::generate(MeshMon3, "Coolant Pump\n\n", parts::pump, 0.1);
 
-	glm::mat4 mat_projection = glm::perspective(glm::radians(90.0f), 1.0f, 0.01f, 20.f);
+	glm::mat4 mat_projection = glm::perspective(glm::radians(80.0f), resize::get_aspect(), 0.01f, 20.f);
 	glUniformMatrix4fv(shader::gl_projection, 1, false, &mat_projection[0][0]);
 
 	glClearColor(0, 0, 0, 1.0f);
@@ -106,9 +147,14 @@ void window::loop(const char* str)
 	
 	MeshScene.bind();
 	MeshScene.render();
-
 	MeshText.bind();
 	MeshText.render();
+	MeshMon1.bind();
+	MeshMon1.render();
+	MeshMon2.bind();
+	MeshMon2.render();
+	MeshMon3.bind();
+	MeshMon3.render();
 
 	glfwSwapBuffers(win);
 	glfwPollEvents();

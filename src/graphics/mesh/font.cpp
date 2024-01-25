@@ -125,10 +125,10 @@ void font::generate(mesh& m, const char* text, double size)
 		float ex = sx + ch.size.x * size;
 		float ey = sy + ch.size.y * size;
 
-		vertices.push_back(arrays::vertex(ch.handle, {0, 0}, {sx, sy, 0}, {0, 0, -1}));
-		vertices.push_back(arrays::vertex(ch.handle, {0, 1}, {sx, ey, 0}, {0, 0, -1}));
-		vertices.push_back(arrays::vertex(ch.handle, {1, 0}, {ex, sy, 0}, {0, 0, -1}));
-		vertices.push_back(arrays::vertex(ch.handle, {1, 1}, {ex, ey, 0}, {0, 0, -1}));
+		vertices.push_back(arrays::vertex(ch.handle, {0, 0}, {sx, sy, 0, 1}, {0, 0, -1}));
+		vertices.push_back(arrays::vertex(ch.handle, {0, 1}, {sx, ey, 0, 1}, {0, 0, -1}));
+		vertices.push_back(arrays::vertex(ch.handle, {1, 0}, {ex, sy, 0, 1}, {0, 0, -1}));
+		vertices.push_back(arrays::vertex(ch.handle, {1, 1}, {ex, ey, 0, 1}, {0, 0, -1}));
 		indices.insert(indices.end(), &index[0], &index[6]);
 
 		at += 4;

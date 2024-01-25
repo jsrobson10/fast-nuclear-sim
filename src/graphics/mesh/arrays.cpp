@@ -27,7 +27,7 @@ void arrays::vertex_attrib_pointers()
 	glVertexAttribPointer(1, 2, GL_FLOAT, false, sizeof(v), ptr_diff(&v.texpos, &v));
 	glEnableVertexAttribArray(1);
 
-	glVertexAttribPointer(2, 3, GL_FLOAT, false, sizeof(v), ptr_diff(&v.pos, &v));
+	glVertexAttribPointer(2, 4, GL_FLOAT, false, sizeof(v), ptr_diff(&v.pos, &v));
 	glEnableVertexAttribArray(2);
 
 	glVertexAttribPointer(3, 3, GL_FLOAT, false, sizeof(v), ptr_diff(&v.normal, &v));
