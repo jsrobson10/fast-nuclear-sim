@@ -62,7 +62,7 @@ static unsigned int proc_texture(const proc_state& state, aiMaterial* mat, const
 static void proc_mesh(proc_state& state, glm::mat4 mat, aiMesh* mesh, const aiScene* scene)
 {
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-	unsigned int texid = proc_texture(state, material, scene);
+	unsigned int handle = proc_texture(state, material, scene);
 	unsigned int offset = state.offset;
 	
 	for(unsigned int i = 0; i < mesh->mNumVertices; i++)
@@ -71,7 +71,7 @@ static void proc_mesh(proc_state& state, glm::mat4 mat, aiMesh* mesh, const aiSc
 		
 		auto [x, y, z] = mesh->mVertices[i];
 		vertex.pos = glm::vec4(x, y, z, 1) * mat;
-		vertex.texid = texid;
+		vertex.texid = handle;
 
 		if(mesh->HasNormals())
 		{

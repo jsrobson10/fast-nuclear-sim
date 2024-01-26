@@ -10,23 +10,26 @@
 using namespace sim;
 
 reactor::coolant::vessel* parts::vessel;
-reactor::reactor<5, 5>* parts::reactor;
+reactor::reactor* parts::reactor;
 coolant::valve<sim::reactor::coolant::vessel>* parts::valve;
 coolant::pump<sim::reactor::coolant::vessel>* parts::pump;
 
 void parts::init()
 {
+	const char* layout[] = {
+		"#C#C#",
+		"CFCFC",
+		"#C#C#",
+		"CFCFC",
+		"#C#C#"
+	};
+	
 	vessel = new reactor::coolant::vessel(8, 10, 300, sim::coolant::WATER);
-	reactor = new reactor::reactor<5, 5>(sim::reactor::builder<5, 5>(
+	reactor = new sim::reactor::reactor(sim::reactor::builder(5, 5,
 		reactor::fuel::fuel_rod(2000, 4000),
 		reactor::control::control_rod(*vessel, 10000, 1),
-		reactor::coolant::pipe(*vessel), {
-			"#C#C#",
-			"CFCFC",
-			"#C#C#",
-			"CFCFC",
-			"#C#C#"
-		}));
+		reactor::coolant::pipe(*vessel),
+		layout));
 	
 	valve = new coolant::valve<reactor::coolant::vessel>(*vessel, 1, 500);
 	pump = new coolant::pump<reactor::coolant::vessel>(*vessel, 1e4, 15);

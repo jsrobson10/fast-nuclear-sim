@@ -10,7 +10,7 @@ namespace sim::parts
 {
 
 extern sim::reactor::coolant::vessel* vessel;
-extern sim::reactor::reactor<5, 5>* reactor;
+extern sim::reactor::reactor* reactor;
 extern sim::coolant::valve<sim::reactor::coolant::vessel>* valve;
 extern sim::coolant::pump<sim::reactor::coolant::vessel>* pump;
 
