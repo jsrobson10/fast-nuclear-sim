@@ -15,6 +15,7 @@ class fuel_rod : public sim::reactor::rod
 	virtual void display(std::ostream& o) const;
 	
 	virtual const char* get_name() const { return "Fuel"; }
+	virtual rod* clone() const { return new fuel_rod(*this); };
 	
 public:
 

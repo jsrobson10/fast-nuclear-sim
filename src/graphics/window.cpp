@@ -56,7 +56,20 @@ void window::create()
 	
 	if(err != GLEW_OK)
 	{
-		std::cout << "GLEW Init Failed: " << glewGetErrorString(err) << "\n";
+		std::cerr << "GLEW Init Failed: " << glewGetErrorString(err) << "\n";
+		close();
+		return;
+	}
+
+	if(!glGetTextureHandleARB || !glMakeTextureHandleResidentARB)
+	{
+		std::cerr << "Fatal: Bindless textures not supported\n";
+
+		if(!glGetTextureHandleARB)
+			std::cerr << "  Missing: glGetTextureHandleARB\n";
+		if(!glMakeTextureHandleResidentARB)
+			std::cerr << "  Missing: glMakeTextureHandleResidentARB\n";
+
 		close();
 		return;
 	}
@@ -130,14 +143,10 @@ void window::create()
 
 void window::loop()
 {
-	MeshText.bind();
-	font::generate(MeshText, "Reactor Core\n\nTODO", 0.1);
-	MeshMon1.bind();
-	font::generate(MeshMon1, "Reactor Vessel\n\n", parts::vessel, 0.1);
-	MeshMon2.bind();
-	font::generate(MeshMon2, "Steam Valve\n\n", parts::valve, 0.1);
-	MeshMon3.bind();
-	font::generate(MeshMon3, "Coolant Pump\n\n", parts::pump, 0.1);
+	MeshText.bind(); MeshText.load_text("Reactor Core\n\nTODO", 0.1);
+	MeshMon1.bind(); MeshMon1.load_text("Reactor Vessel\n\n", parts::vessel, 0.1);
+	MeshMon2.bind(); MeshMon2.load_text("Steam Valve\n\n", parts::valve, 0.1);
+	MeshMon3.bind(); MeshMon3.load_text("Coolant Pump\n\n", parts::pump, 0.1);
 
 	glm::mat4 mat_projection = glm::perspective(glm::radians(80.0f), resize::get_aspect(), 0.01f, 20.f);
 	glUniformMatrix4fv(shader::gl_projection, 1, false, &mat_projection[0][0]);
@@ -145,16 +154,11 @@ void window::loop()
 	glClearColor(0, 0, 0, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	MeshScene.bind();
-	MeshScene.render();
-	MeshText.bind();
-	MeshText.render();
-	MeshMon1.bind();
-	MeshMon1.render();
-	MeshMon2.bind();
-	MeshMon2.render();
-	MeshMon3.bind();
-	MeshMon3.render();
+	MeshScene.bind(); MeshScene.render();
+	MeshText.bind(); MeshText.render();
+	MeshMon1.bind(); MeshMon1.render();
+	MeshMon2.bind(); MeshMon2.render();
+	MeshMon3.bind(); MeshMon3.render();
 
 	glfwSwapBuffers(win);
 	glfwPollEvents();

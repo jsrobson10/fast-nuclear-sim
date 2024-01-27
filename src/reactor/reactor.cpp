@@ -22,6 +22,16 @@ reactor::reactor(reactor&& o) : width(o.width), height(o.height), size(o.size)
 	o.rods = nullptr;
 }
 
+reactor::reactor(const reactor& o) : width(o.width), height(o.height), size(o.size)
+{
+	rods = new std::unique_ptr<rod>[width * height];
+
+	for(int i = 0; i < size; i++)
+	{
+		this->rods[i] = std::unique_ptr<rod>(o.rods[i]->clone());
+	}
+}
+
 reactor::~reactor()
 {
 	if(rods != nullptr)

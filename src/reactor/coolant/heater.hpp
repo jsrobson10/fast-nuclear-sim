@@ -14,6 +14,7 @@ class heater : public sim::reactor::rod
 
 	virtual const char* get_name() const { return "Heater"; }
 	virtual double get_k(val_t type) const { return 0.5; }
+	virtual rod* clone() const { return new heater(*this); };
 
 public:
 

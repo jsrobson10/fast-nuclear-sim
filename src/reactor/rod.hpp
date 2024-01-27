@@ -24,6 +24,7 @@ public:
 	virtual void add(val_t type, double v);
 	virtual double extract(val_t type, double s, double k, double o);
 	virtual double get(val_t type) const;
+	virtual rod* clone() const { return new rod(*this); };
 
 	virtual bool should_display() const { return false; }
 	virtual bool should_select() const { return false; }

@@ -13,6 +13,7 @@ class graphite_rod : public sim::reactor::rod
 	virtual void display(std::ostream& o) const;
 
 	virtual const char* get_name() const { return "Graphite Rod"; }
+	virtual rod* clone() const { return new graphite_rod(*this); };
 	virtual double get_k(val_t type) const;
 
 public:

@@ -17,6 +17,7 @@ class control_rod : public sim::reactor::coolant::pipe
 	virtual void display(std::ostream& o) const;
 
 	virtual const char* get_name() const { return "Control Rod"; }
+	virtual rod* clone() const { return new control_rod(*this); };
 
 public:
 

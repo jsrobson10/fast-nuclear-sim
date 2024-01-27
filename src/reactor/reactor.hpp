@@ -21,6 +21,7 @@ struct reactor
 	int cursor = 0;
 
 	reactor(std::unique_ptr<rod>* rods, int width, int height);
+	reactor(const reactor& r);
 	reactor(reactor&& r);
 	~reactor();
 	

@@ -8,6 +8,7 @@
 #include <iostream>
 #include <vector>
 
+#include "mesh.hpp"
 #include "arrays.hpp"
 #include "font.hpp"
 
@@ -89,7 +90,7 @@ void font::init()
 	}
 }
 
-void font::generate(mesh& m, const char* text, double size)
+void mesh::load_text(const char* text, double size)
 {
 	std::vector<arrays::vertex> vertices;
 	std::vector<unsigned int> indices;
@@ -135,7 +136,7 @@ void font::generate(mesh& m, const char* text, double size)
 		x += ch.advance * size;
 	}
 
-	m.set_vertices(&vertices[0], vertices.size(), GL_DYNAMIC_DRAW);
-	m.set_indices(&indices[0], indices.size(), GL_DYNAMIC_DRAW);
+	set_vertices(&vertices[0], vertices.size(), GL_DYNAMIC_DRAW);
+	set_indices(&indices[0], indices.size(), GL_DYNAMIC_DRAW);
 }
 
