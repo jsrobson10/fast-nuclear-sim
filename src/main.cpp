@@ -13,7 +13,7 @@
 #include "graphics/window.hpp"
 #include "graphics/camera.hpp"
 
-#include "parts.hpp"
+#include "system.hpp"
 
 using namespace sim;
 
@@ -26,11 +26,8 @@ unsigned long get_now()
 
 int main()
 {
-	std::random_device rd;
-	std::mt19937 rand(rd());
-
-	parts::init();	
 	graphics::window::create();
+	sim::system sys(system::generate());
 
 	long clock = get_now();
 
@@ -41,13 +38,9 @@ int main()
 		double dt = (double)passed / 1e6;
 		clock += passed;
 		
-		parts::reactor->update(rand, dt);
-		parts::pump->update(dt);
-		parts::valve->update(dt);
-		parts::vessel->update(dt);
-
+		sys.update(dt);
 		graphics::camera::update(dt);
-		graphics::window::loop();
+		graphics::window::loop(sys);
 	}
 
 	graphics::window::destroy();

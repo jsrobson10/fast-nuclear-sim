@@ -53,6 +53,7 @@ static void cb_framebuffer_size(GLFWwindow* win, int w, int h)
 {
 	win_w = w;
 	win_h = h;
+
 	glViewport(0, 0, w, h);
 }
 

@@ -1,5 +1,6 @@
 
 #include "reactor.hpp"
+#include "../random.hpp"
 
 #include <algorithm>
 
@@ -40,7 +41,7 @@ reactor::~reactor()
 	}
 }
 
-void reactor::update(std::mt19937& rand, double secs)
+void reactor::update(double secs)
 {
 	int rods_lookup[size];
 
@@ -54,7 +55,7 @@ void reactor::update(std::mt19937& rand, double secs)
 		rods[i]->update(secs);
 	}
 
-	update_interactions(rand, rods_lookup, secs / 2);
+	update_interactions(rods_lookup, secs / 2);
 }
 
 void reactor::update_selected(int v)
@@ -98,10 +99,10 @@ void reactor::toggle_selected()
 	}
 }
 
-void reactor::update_tile(std::mt19937& rand, double secs, int i, int x, int y)
+void reactor::update_tile(double secs, int i, int x, int y)
 {
 	int nb_lookup[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
-	std::shuffle(nb_lookup, &nb_lookup[3], rand);
+	std::shuffle(nb_lookup, &nb_lookup[3], sim::random::gen);
 
 	for(int j = 0; j < 4; j++)
 	{
@@ -115,9 +116,9 @@ void reactor::update_tile(std::mt19937& rand, double secs, int i, int x, int y)
 	}
 }
 
-void reactor::update_interactions(std::mt19937& rand, int* rods_lookup, double secs)
+void reactor::update_interactions(int* rods_lookup, double secs)
 {
-	std::shuffle(rods_lookup, &rods_lookup[size - 1], rand);
+	std::shuffle(rods_lookup, &rods_lookup[size - 1], sim::random::gen);
 
 	for(int id = 0; id < size; id++)
 	{
@@ -127,7 +128,7 @@ void reactor::update_interactions(std::mt19937& rand, int* rods_lookup, double s
 
 		for(int j = 0; j < 4; j++)
 		{
-			update_tile(rand, secs, i, x, y);
+			update_tile(secs, i, x, y);
 		}
 	}
 }

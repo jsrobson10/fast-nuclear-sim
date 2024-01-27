@@ -56,7 +56,7 @@ static unsigned int proc_texture(const proc_state& state, aiMaterial* mat, const
 		return texture::load(state.base + "/" + filename);
 	}
 
-	return 0;
+	return texture::handle_white;
 }
 
 static void proc_mesh(proc_state& state, glm::mat4 mat, aiMesh* mesh, const aiScene* scene)

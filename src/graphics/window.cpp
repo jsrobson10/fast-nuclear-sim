@@ -17,15 +17,20 @@
 #include "window.hpp"
 #include "shader.hpp"
 #include "mesh/font.hpp"
-#include "../parts.hpp"
+#include "locations.hpp"
+#include "../system.hpp"
+#include "monitor/vessel.hpp"
+#include "monitor/core.hpp"
+#include "mesh/texture.hpp"
 
 using namespace sim::graphics;
 
 static GLFWwindow* win;
 static bool win_should_close = false;
 
-static mesh MeshScene, MeshText;
-static mesh MeshMon1, MeshMon2, MeshMon3;
+static mesh MeshScene;
+static monitor::vessel MonitorVessel;
+static monitor::core MonitorCore;
 
 void GLAPIENTRY cb_debug_message(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
 {
@@ -42,18 +47,19 @@ void window::create()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
-	
+	glfwWindowHint(GLFW_VISIBLE, false);
+
 #ifdef __APPLE__
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
 #endif
-
+	
 	win = glfwCreateWindow(800, 600, "FastNuclearSim", nullptr, nullptr);
 
 	glfwMakeContextCurrent(win);
 	glfwSwapInterval(1);
-	
+
 	GLenum err = glewInit();
-	
+
 	if(err != GLEW_OK)
 	{
 		std::cerr << "GLEW Init Failed: " << glewGetErrorString(err) << "\n";
@@ -86,6 +92,7 @@ void window::create()
 	keyboard::init();
 	mouse::init();
 	resize::init();
+	texture::init();
 	font::init();
 
 	shader::init_program();
@@ -93,60 +100,17 @@ void window::create()
 	MeshScene.bind();
 	MeshScene.load_model("../assets", "scene-baked.glb");
 
-	glm::mat4 mat = glm::mat4(1);
-	mat = glm::translate(mat, glm::vec3(-2.949, -1.7778 + 0.05, 3 - 0.05));
-	mat = glm::rotate(mat, glm::radians<float>(-90), glm::vec3(1, 0, 0));
-	mat = glm::rotate(mat, glm::radians<float>(-90), glm::vec3(0, 1, 0));
+	MonitorCore.init();
+	MonitorVessel.init();
 
-	MeshText.model_matrix = mat;
-	MeshText.colour_matrix = {
-		1, 1, 1, 1,
-		0, 0, 0, 0,
-		0, 0, 0, 0,
-		0, 0, 0, 0
-	};
-
-	mat = glm::mat4(1);
-	mat = glm::translate(mat, glm::vec3(-1.5 + 0.05, 3.949, 3 - 0.05));
-	mat = glm::rotate(mat, glm::radians<float>(-90), glm::vec3(1, 0, 0));
-
-	MeshMon1.model_matrix = mat;
-	MeshMon1.colour_matrix = {
-		1, 0.5, 0.5, 1,
-		0, 0, 0, 0,
-		0, 0, 0, 0,
-		0, 0, 0, 0
-	};
-	
-	mat = glm::translate(glm::mat4(1), glm::vec3(2.5, 0, 0)) * mat;
-	
-	MeshMon2.model_matrix = mat;
-	MeshMon2.colour_matrix = {
-		0.5, 1, 0.5, 1,
-		0, 0, 0, 0,
-		0, 0, 0, 0,
-		0, 0, 0, 0
-	};
-	
-	mat = glm::translate(glm::mat4(1), glm::vec3(2.5, 0, 0)) * mat;
-	
-	MeshMon3.model_matrix = mat;
-	MeshMon3.colour_matrix = {
-		0.5, 0.5, 1, 1,
-		0, 0, 0, 0,
-		0, 0, 0, 0,
-		0, 0, 0, 0
-	};
-
+	glfwShowWindow(win);
 	glViewport(0, 0, 800, 600);
 }
 
-void window::loop()
+void window::loop(sim::system& sys)
 {
-	MeshText.bind(); MeshText.load_text("Reactor Core\n\nTODO", 0.1);
-	MeshMon1.bind(); MeshMon1.load_text("Reactor Vessel\n\n", parts::vessel, 0.1);
-	MeshMon2.bind(); MeshMon2.load_text("Steam Valve\n\n", parts::valve, 0.1);
-	MeshMon3.bind(); MeshMon3.load_text("Coolant Pump\n\n", parts::pump, 0.1);
+	MonitorCore.update(sys);
+	MonitorVessel.update(sys);
 
 	glm::mat4 mat_projection = glm::perspective(glm::radians(80.0f), resize::get_aspect(), 0.01f, 20.f);
 	glUniformMatrix4fv(shader::gl_projection, 1, false, &mat_projection[0][0]);
@@ -155,10 +119,9 @@ void window::loop()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	MeshScene.bind(); MeshScene.render();
-	MeshText.bind(); MeshText.render();
-	MeshMon1.bind(); MeshMon1.render();
-	MeshMon2.bind(); MeshMon2.render();
-	MeshMon3.bind(); MeshMon3.render();
+
+	MonitorCore.render();
+	MonitorVessel.render();
 
 	glfwSwapBuffers(win);
 	glfwPollEvents();
@@ -176,6 +139,7 @@ void window::close()
 
 void window::destroy()
 {
+	glfwDestroyWindow(win);
 	glfwTerminate();
 }
 

@@ -11,6 +11,13 @@
 using namespace sim::graphics;
 
 static std::unordered_map<std::string, unsigned int> loaded; 
+unsigned int texture::handle_white;
+
+void texture::init()
+{
+	unsigned char pixels[] = {255, 255, 255, 255};
+	handle_white = load_mem(pixels, 1, 1, 4);
+}
 
 unsigned int texture::load_mem(const unsigned char* data, int width, int height, int channels)
 {
@@ -43,7 +50,7 @@ unsigned int texture::load_mem(const unsigned char* data, int width, int height,
 	unsigned int texid;
 
 	glCreateTextures(GL_TEXTURE_2D, 1, &texid);
-	glTextureStorage2D(texid, 8, format_in, width, height);
+	glTextureStorage2D(texid, 1, format_in, width, height);
 	glTextureSubImage2D(texid, 0, 0, 0, width, height, format, GL_UNSIGNED_BYTE, data);
 
 	glTextureParameteri(texid, GL_TEXTURE_WRAP_S, GL_REPEAT);
