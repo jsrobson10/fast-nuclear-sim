@@ -27,7 +27,7 @@ unsigned long get_now()
 int main()
 {
 	graphics::window::create();
-	sim::system sys(system::generate());
+	sim::system sys;
 
 	long clock = get_now();
 

@@ -6,12 +6,12 @@
 
 using namespace sim::reactor::fuel;
 
-static const double NEUTRON_BG = 1e-10;
+static const double NEUTRON_BG = 1e-25;
 
-sample::sample(double fuel, double mass)
+sample::sample(double fuel)
 {
 	this->fuel = fuel;
-	this->mass = mass;
+	this->mass = 1;
 }
 
 void sample::update(double secs)
@@ -21,7 +21,7 @@ void sample::update(double secs)
 	// decay waste and extract products
 	waste.update(secs);
 	fast_neutrons += waste.extract_neutrons();
-	energy += waste.extract_energy();
+	energy += waste.extract_energy() * (1.0 / 30.0);
 
 	// decay Xe-135
 	m = half_life::get(secs, half_life::Xe_135);
@@ -59,7 +59,7 @@ void sample::update(double secs)
 	efficiency = neutrons_fuel / neutrons_total;
 	
 	// simulate fuel use
-	energy += neutrons_fuel / secs;
+	energy += neutrons_fuel / secs * 0.8;
 	waste.add_fissile(neutrons_fuel * 6);
 }
 

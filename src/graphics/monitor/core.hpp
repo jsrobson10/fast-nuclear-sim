@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "../mesh/mesh.hpp"
+#include "../mesh/glmesh.hpp"
 #include "../../system.hpp"
 
 namespace sim::graphics::monitor
@@ -9,14 +9,13 @@ namespace sim::graphics::monitor
 
 class core
 {
-	sim::graphics::mesh mesh1, mesh2;
+	sim::graphics::glmesh mesh1, mesh2;
 	
 public:
 
 	core();
 	void init();
-	void update(sim::system& sys);
-	void render();
+	void render(sim::system& sys);
 };
 
 };

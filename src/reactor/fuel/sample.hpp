@@ -31,7 +31,7 @@ class sample
 
 public:
 
-	sample(double fuel, double mass);
+	sample(double fuel);
 
 	void update(double secs);
 

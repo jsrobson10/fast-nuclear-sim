@@ -28,7 +28,7 @@ using namespace sim::graphics;
 static GLFWwindow* win;
 static bool win_should_close = false;
 
-static mesh MeshScene;
+static glmesh MeshScene;
 static monitor::vessel MonitorVessel;
 static monitor::core MonitorCore;
 
@@ -96,9 +96,11 @@ void window::create()
 	font::init();
 
 	shader::init_program();
+	mesh rmesh;
 
+	rmesh.load_model("../assets", "scene-baked.glb");
 	MeshScene.bind();
-	MeshScene.load_model("../assets", "scene-baked.glb");
+	MeshScene.set(rmesh, GL_STATIC_DRAW);
 
 	MonitorCore.init();
 	MonitorVessel.init();
@@ -109,7 +111,6 @@ void window::create()
 
 void window::loop(sim::system& sys)
 {
-	MonitorCore.update(sys);
 	MonitorVessel.update(sys);
 
 	glm::mat4 mat_projection = glm::perspective(glm::radians(80.0f), resize::get_aspect(), 0.01f, 20.f);
@@ -118,9 +119,11 @@ void window::loop(sim::system& sys)
 	glClearColor(0, 0, 0, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	MeshScene.bind(); MeshScene.render();
+	MeshScene.bind();
+	MeshScene.uniform();
+	MeshScene.render();
 
-	MonitorCore.render();
+	MonitorCore.render(sys);
 	MonitorVessel.render();
 
 	glfwSwapBuffers(win);

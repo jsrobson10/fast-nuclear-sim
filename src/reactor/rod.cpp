@@ -1,5 +1,6 @@
 
 #include "rod.hpp"
+#include "reactor.hpp"
 
 #include <cmath>
 
@@ -46,6 +47,12 @@ double rod::get_speed() const
 {
 	int m = motion < 0 ? -1 : 1;
 	return motion == 0 ? 0 : (std::pow(10, std::abs(motion)) * 1e-6 * m);
+}
+
+double rod::get_volume() const
+{
+	auto r = (sim::reactor::reactor*)reactor;
+	return r->cell_width * r->cell_width * r->cell_height;
 }
 
 void rod::update_rod(double secs)

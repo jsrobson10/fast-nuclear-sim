@@ -12,9 +12,11 @@ class heater : public sim::reactor::rod
 
 	virtual void display(std::ostream& o) const;
 
+	virtual bool has_sensors(val_t t) const { return true; }
 	virtual const char* get_name() const { return "Heater"; }
 	virtual double get_k(val_t type) const { return 0.5; }
 	virtual rod* clone() const { return new heater(*this); };
+	virtual int get_id() const { return 3; }
 
 public:
 

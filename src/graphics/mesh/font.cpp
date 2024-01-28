@@ -137,7 +137,7 @@ void mesh::load_text(const char* text, double size)
 		x += ch.advance * size;
 	}
 
-	set_vertices(&vertices[0], vertices.size(), GL_DYNAMIC_DRAW);
-	set_indices(&indices[0], indices.size(), GL_DYNAMIC_DRAW);
+	set_vertices(&vertices[0], vertices.size());
+	set_indices(&indices[0], indices.size());
 }
 

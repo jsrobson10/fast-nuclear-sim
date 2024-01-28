@@ -11,7 +11,7 @@ namespace sim::reactor::coolant
 class vessel
 {
 	double level; // litres
-	double heat = 0; // celcius
+	double heat = 0; // celsius
 	double steam = 0; // grams
 	double steam_suspended = 0; // grams
 
@@ -27,7 +27,7 @@ public:
 	vessel(double height, double diameter, double level, sim::coolant::fluid_t fluid);
 
 	void update(double secs);
-	double add_heat(double amount);
+	double add_heat(double m, double t);
 	double add_fluid(double amount, double heat);
 	double extract_steam(double dt, double a, double p2);
 

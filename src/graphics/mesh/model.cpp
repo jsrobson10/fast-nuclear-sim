@@ -64,6 +64,7 @@ static void proc_mesh(proc_state& state, glm::mat4 mat, aiMesh* mesh, const aiSc
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 	unsigned int handle = proc_texture(state, material, scene);
 	unsigned int offset = state.offset;
+	glm::mat3 mat3(mat);
 	
 	for(unsigned int i = 0; i < mesh->mNumVertices; i++)
 	{
@@ -76,7 +77,7 @@ static void proc_mesh(proc_state& state, glm::mat4 mat, aiMesh* mesh, const aiSc
 		if(mesh->HasNormals())
 		{
 			auto [x, y, z] = mesh->mNormals[i];
-			vertex.normal = glm::vec3(x, y, z) * glm::mat3(mat);
+			vertex.normal = glm::vec3(x, y, z) * mat3;
 		}
 
 		if(mesh->mTextureCoords[0])
@@ -165,7 +166,7 @@ void mesh::load_model(std::string base, std::string filename)
 
 	proc_node(state, glm::mat4(1), scene->mRootNode, scene);
 
-	set_vertices(&state.vertices[0], state.vertices.size(), GL_STATIC_DRAW);
-	set_indices(&state.indices[0], state.indices.size(), GL_STATIC_DRAW);
+	set_vertices(&state.vertices[0], state.vertices.size());
+	set_indices(&state.indices[0], state.indices.size());
 }
 

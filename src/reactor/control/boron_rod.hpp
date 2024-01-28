@@ -6,25 +6,26 @@
 namespace sim::reactor::control
 {
 
-class control_rod : public sim::reactor::coolant::pipe
+class boron_rod : public sim::reactor::coolant::pipe
 {
-	const double limit;
 	const double max;
 
 	double inserted = 1;
 	double absorbed = 0;
 	
 	virtual void display(std::ostream& o) const;
-
-	virtual const char* get_name() const { return "Control Rod"; }
-	virtual rod* clone() const { return new control_rod(*this); };
+	virtual const char* get_name() const { return "Boron Control Rod"; }
+	virtual rod* clone() const { return new boron_rod(*this); }
+	virtual glm::vec4 get_colour() const;
+	virtual int get_id() const { return 5; }
 
 public:
 
-	control_rod(coolant::vessel& v, double limit, double max);
+	boron_rod(coolant::vessel& v, double max);
 
 	virtual void update(double secs);
 	void set_reactivity(double a);
+	double get_inserted() { return inserted; }
 	
 	virtual bool should_display() const { return true; }
 	virtual bool should_select() const { return true; }

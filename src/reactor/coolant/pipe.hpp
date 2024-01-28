@@ -17,6 +17,7 @@ protected:
 	virtual double get_k(sim::reactor::rod::val_t type) const;
 	virtual const char* get_name() const { return "Coolant"; }
 	virtual rod* clone() const { return new pipe(*this); };
+	virtual int get_id() const { return 2; }
 
 	void update_pipe(double secs);
 

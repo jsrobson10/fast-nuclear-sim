@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "../mesh/mesh.hpp"
+#include "../mesh/glmesh.hpp"
 #include "../../system.hpp"
 
 namespace sim::graphics::monitor
@@ -9,7 +9,7 @@ namespace sim::graphics::monitor
 
 class vessel
 {
-	sim::graphics::mesh mesh1, mesh2;
+	sim::graphics::glmesh mesh1, mesh2;
 	
 public:
 

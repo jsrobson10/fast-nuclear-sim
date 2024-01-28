@@ -6,24 +6,25 @@
 
 using namespace sim::reactor;
 
-reactor::reactor(std::unique_ptr<rod>* rods, int width, int height) : width(width), height(height), size(width * height)
+reactor::reactor(std::unique_ptr<rod>* rods, int w, int h, double cw, double ch) : cell_width(cw), cell_height(ch), width(w), height(h), size(w * h)
 {
 	this->rods = new std::unique_ptr<rod>[width * height];
 
 	for(int i = 0; i < size; i++)
 	{
 		this->rods[i] = std::move(rods[i]);
+		this->rods[i]->reactor = this;
 	}
 }
 
-reactor::reactor(reactor&& o) : width(o.width), height(o.height), size(o.size)
+reactor::reactor(reactor&& o) : cell_width(o.cell_width), cell_height(o.cell_height), width(o.width), height(o.height), size(o.size)
 {
 	rods = o.rods;
 	cursor = o.cursor;
 	o.rods = nullptr;
 }
 
-reactor::reactor(const reactor& o) : width(o.width), height(o.height), size(o.size)
+reactor::reactor(const reactor& o) : cell_width(o.cell_width), cell_height(o.cell_height), width(o.width), height(o.height), size(o.size)
 {
 	rods = new std::unique_ptr<rod>[width * height];
 
@@ -132,3 +133,35 @@ void reactor::update_interactions(int* rods_lookup, double secs)
 		}
 	}
 }
+
+double reactor::get_total(rod::val_t type)
+{
+	double v = 0;
+
+	for(int i = 0; i < size; i++)
+	{
+		v += rods[i]->get(type);
+	}
+
+	return v;
+}
+
+void reactor::get_stats(rod::val_t type, double& min, double& max)
+{
+	min = INFINITY;
+	max = -INFINITY;
+
+	for(int i = 0; i < size; i++)
+	{
+		if(!rods[i]->has_sensors(type))
+		{
+			continue;
+		}
+
+		double v = rods[i]->get(type);
+
+		if(v > max) max = v;
+		if(v < min) min = v;
+	}
+}
+

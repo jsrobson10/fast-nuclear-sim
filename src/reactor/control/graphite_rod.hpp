@@ -11,10 +11,13 @@ class graphite_rod : public sim::reactor::rod
 	double inserted = 0;
 	
 	virtual void display(std::ostream& o) const;
-
 	virtual const char* get_name() const { return "Graphite Rod"; }
 	virtual rod* clone() const { return new graphite_rod(*this); };
 	virtual double get_k(val_t type) const;
+	virtual glm::vec4 get_colour() const;
+	virtual int get_id() const { return 4; }
+	
+	double get_inserted() { return inserted; }
 
 public:
 

@@ -65,15 +65,15 @@ void vessel::update(double secs)
 	steam_suspended *= fuel::half_life::get(secs, bubble_hl);
 }
 
-double vessel::add_heat(double t1)
+double vessel::add_heat(double m1, double t1)
 {
 	double t2 = get_heat();
 	double t = t1 - t2;
-	double m1 = 1e6;
 	double m2 = (fluid.l_to_g(level) + steam) * fluid.jPgk;
 	double m = m1 + m2;
 	
-   	return heat = t1 - t * m2 / m;
+   	heat = t1 - t * m2 / m;
+	return heat;
 }
 
 double vessel::add_fluid(double m2, double t2)

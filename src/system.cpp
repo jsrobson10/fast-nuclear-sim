@@ -2,46 +2,74 @@
 #include "system.hpp"
 
 #include "reactor/builder.hpp"
-#include "reactor/control/control_rod.hpp"
+#include "reactor/control/boron_rod.hpp"
 #include "reactor/fuel/fuel_rod.hpp"
 #include "reactor/coolant/pipe.hpp"
 #include "reactor/coolant/heater.hpp"
 
 using namespace sim;
 
-sim::system sim::system::generate()
+system::system()
 {
 	const char* layout[] = {
-		"#C#C#",
-		"CFCFC",
-		"#C#C#",
-		"CFCFC",
-		"#C#C#"
+		"      C C C C      ",
+		"   C CFCFCFCFC C   ",
+		"  CFCFCFCFCFCFCFC  ",
+		" CFCFCFCFCFCFCFCFC ",
+		"  CFCFCFCFCFCFCFC  ",
+		" CFCFCFCFCFCFCFCFC ",
+		"CFCFCFCFCFCFCFCFCFC",
+		" CFCFCFCFCFCFCFCFC ",
+		"CFCFCFCFCFCFCFCFCFC",
+		" CFCFCFCFCFCFCFCFC ",
+		"CFCFCFCFCFCFCFCFCFC",
+		" CFCFCFCFCFCFCFCFC ",
+		"CFCFCFCFCFCFCFCFCFC",
+		" CFCFCFCFCFCFCFCFC ",
+		"  CFCFCFCFCFCFCFC  ",
+		" CFCFCFCFCFCFCFCFC ",
+		"  CFCFCFCFCFCFCFC  ",
+		"   C CFCFCFCFC C   ",
+		"      C C C C      "
 	};
 	
-	reactor::coolant::vessel vessel(8, 10, 300, sim::coolant::WATER);
-	sim::reactor::reactor reactor(sim::reactor::builder(5, 5,
-		reactor::fuel::fuel_rod(2000, 4000),
-		reactor::control::control_rod(vessel, 10000, 1),
-		reactor::coolant::pipe(vessel),
-		layout));
+	vessel = new reactor::coolant::vessel(8, 10, 300, sim::coolant::WATER);
+	reactor = new sim::reactor::reactor(sim::reactor::builder(19, 19, 0.25, 8,
+		reactor::fuel::fuel_rod(0.5),
+		reactor::control::boron_rod(*vessel, 1),
+		*vessel, layout));
 	
-	coolant::valve<reactor::coolant::vessel> valve(vessel, 1, 500);
-	coolant::pump<reactor::coolant::vessel> pump(vessel, 1e4, 15);
+	valve = new coolant::valve<reactor::coolant::vessel>(*vessel, 1, 500);
+	pump = new coolant::pump<reactor::coolant::vessel>(*vessel, 1e4, 15);
+}
 
-	return {
-		.reactor = reactor,
-		.vessel = vessel,
-		.valve = valve,
-		.pump = pump
-	};
+system::system(system&& o)
+{
+	vessel = o.vessel;
+	reactor = o.reactor;
+	valve = o.valve;
+	pump = o.pump;
+
+	o.vessel = nullptr;
+	o.reactor = nullptr;
+	o.valve = nullptr;
+	o.pump = nullptr;
+}
+
+system::~system()
+{
+	if(vessel != nullptr) delete vessel;
+	if(reactor != nullptr) delete reactor;
+	if(valve != nullptr) delete valve;
+	if(pump != nullptr) delete pump;
 }
 
 void system::update(double dt)
 {
-	vessel.update(dt);
-	reactor.update(dt);
-	valve.update(dt);
-	pump.update(dt);
+	dt *= 10;
+	vessel->update(dt);
+	reactor->update(dt);
+	valve->update(dt);
+	pump->update(dt);
 }
 

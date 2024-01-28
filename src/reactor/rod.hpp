@@ -2,6 +2,7 @@
 #pragma once
 
 #include <ostream>
+#include <glm/vec4.hpp>
 
 namespace sim::reactor
 {
@@ -9,7 +10,8 @@ namespace sim::reactor
 class rod
 {
 public:
-
+	
+	void* reactor = nullptr;
 	static const int VAL_N = 3;
 	
 	enum val_t
@@ -20,15 +22,19 @@ public:
 	};
 
 	virtual void interact(rod* o, double secs);
-	virtual void update(double secs) { };
+	virtual void update(double secs) { }
 	virtual void add(val_t type, double v);
 	virtual double extract(val_t type, double s, double k, double o);
 	virtual double get(val_t type) const;
-	virtual rod* clone() const { return new rod(*this); };
+	virtual rod* clone() const { return new rod(*this); }
+	virtual glm::vec4 get_colour() const { return {0, 0, 0, 0}; }
+	virtual int get_id() const { return 0; }
 
+	virtual bool has_sensors(val_t t) const { return false; }
 	virtual bool should_display() const { return false; }
 	virtual bool should_select() const { return false; }
 	void update_rod_selected(int m);
+	double get_volume() const;
 	
 	constexpr void toggle_selected() { selected = !selected; }
 	constexpr bool is_selected() const { return selected; }

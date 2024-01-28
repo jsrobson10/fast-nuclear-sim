@@ -10,6 +10,12 @@ void graphite_rod::display(std::ostream& o) const
 	o << "Inserted: " << (inserted * 100) << "%\n";
 };
 
+glm::vec4 graphite_rod::get_colour() const
+{
+	double v = inserted * 0.75 + 0.25;
+	return {v, v, v, 1};
+}
+
 double graphite_rod::get_k(val_t type) const
 {
 	if(type == val_t::HEAT) return 0.5;
