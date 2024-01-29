@@ -41,6 +41,8 @@ system::system()
 	
 	valve = new coolant::valve<reactor::coolant::vessel>(*vessel, 1, 500);
 	pump = new coolant::pump<reactor::coolant::vessel>(*vessel, 1e4, 15);
+
+	scene.load_model("../assets/model", "scene_collisions.stl");
 }
 
 system::system(system&& o)

@@ -10,6 +10,8 @@
 #include "coolant/valve.hpp"
 #include "coolant/pump.hpp"
 
+#include "graphics/mesh/mesh.hpp"
+
 #include "graphics/window.hpp"
 #include "graphics/camera.hpp"
 
@@ -39,7 +41,7 @@ int main()
 		clock += passed;
 		
 		sys.update(dt);
-		graphics::camera::update(dt);
+		graphics::camera::update(sys, dt);
 		graphics::window::loop(sys);
 	}
 

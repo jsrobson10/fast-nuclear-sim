@@ -3,6 +3,9 @@
 #include "arrays.hpp"
 #include "../shader.hpp"
 #include "../camera.hpp"
+#include "../../math.hpp"
+
+#include <iostream>
 
 using namespace sim::graphics;
 
@@ -48,5 +51,87 @@ void mesh::set_indices(const unsigned int* data, size_t size)
 	{
 		indices.push_back(data[i]);
 	}
+}
+
+typedef glm::vec<3, double> vec3;
+
+bool ray_intersects_triangle(vec3 ray_origin,
+                             vec3 ray_vector,
+                             const vec3* triangle,
+                             vec3& out_intersection_point)
+{
+    constexpr double epsilon = std::numeric_limits<double>::epsilon();
+
+    vec3 edge1 = triangle[1] - triangle[0];
+    vec3 edge2 = triangle[2] - triangle[0];
+    vec3 ray_cross_e2 = cross(ray_vector, edge2);
+    double det = dot(edge1, ray_cross_e2);
+
+    if (det > -epsilon && det < epsilon)
+        return false;    // This ray is parallel to this triangle.
+
+    double inv_det = 1.0 / det;
+    vec3 s = ray_origin - triangle[0];
+    double u = inv_det * dot(s, ray_cross_e2);
+
+    if (u < 0 || u > 1)
+        return false;
+
+    vec3 s_cross_e1 = cross(s, edge1);
+    double v = inv_det * dot(ray_vector, s_cross_e1);
+
+    if (v < 0 || u + v > 1)
+        return false;
+
+    // At this stage we can compute t to find out where the intersection point is on the line.
+    double t = inv_det * dot(edge2, s_cross_e1);
+    out_intersection_point = ray_origin + ray_vector * t;
+
+    if (t > epsilon) // ray intersection
+    {
+        return true;
+    }
+    else // This means that there is a line intersection but not a ray intersection.
+        return false;
+}
+
+vec3 mesh::check_intersect(vec3 pos, vec3 path) const
+{
+	double l = glm::length(path);
+
+	if(l == 0)
+	{
+		return path;
+	}
+
+	vec3 path_n = path / l;
+	bool intersects = false;
+
+	for(unsigned int i = 0; i < indices.size(); i += 3)
+	{
+		vec3 v[3] = {
+			vec3(this->vertices[indices[i]].pos),
+			vec3(this->vertices[indices[i + 1]].pos),
+			vec3(this->vertices[indices[i + 2]].pos)
+		};
+		
+		vec3 ipoint;
+		vec3 normal = glm::normalize(glm::cross(v[1] - v[0], v[2] - v[0]));
+		double d = glm::dot(normal, path);
+
+		if(d >= 0)
+			continue;
+		if(!ray_intersects_triangle(pos, path_n, v, ipoint))
+			continue;
+		if(l < glm::length(ipoint - pos))
+			continue;
+
+		intersects = true;
+		path -= normal * d;
+		l = glm::length(path);
+		path_n = path / l;
+	}
+
+	return path;
 }
 

@@ -27,6 +27,8 @@ struct mesh
 	void load_text(const char* text, double size);
 	void add(const mesh& o, glm::mat4 mat);
 
+	glm::vec<3, double> check_intersect(glm::vec<3, double> pos, glm::vec<3, double> path) const;
+
 	template <class T>
 	void load_text(const char* header, T& item, double size)
 	{

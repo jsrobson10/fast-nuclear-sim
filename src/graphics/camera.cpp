@@ -14,6 +14,7 @@
 
 using namespace sim::graphics;
 
+static bool on_ground = false;
 static double yaw = 0, pitch = 0;
 static glm::vec<3, double> pos(0, 0, 2);
 static glm::vec<3, double> velocity(0);
@@ -35,7 +36,7 @@ void camera::move(double xoff, double yoff, double zoff)
 	pos.z += zoff;
 }
 
-void camera::update(double dt)
+void camera::update(const system& sys, double dt)
 {
 	glm::vec<2, double> off(0, 0);
 	double m = 30;
@@ -61,46 +62,24 @@ void camera::update(double dt)
 	};
 	
 	glm::vec<2, double> rotated = glm::vec<2, double>(off.x, off.y) * mat;
-	bool on_ground = false;
-	
 	velocity.z -= 9.81 * dt;
 
-	if(pos.z + velocity.z * dt < 1.6)
+	if(on_ground)
 	{
-		on_ground = true;
-
-		if(keyboard::is_pressed(GLFW_KEY_SPACE))
-		{
-			velocity.z = 3.5;
-		}
-
-		else
-		{
-			velocity.z = 0;
-			pos.z = 1.6;
-		}
-	}
-
-	else
-	{
-		m = 0;
+		velocity.x += rotated.x * m * dt;
+		velocity.y += rotated.y * m * dt;
 	}
 	
-	velocity.x += rotated.x * m * dt;
-	velocity.y += rotated.y * m * dt;
+	if(on_ground && keyboard::is_pressed(GLFW_KEY_SPACE))
+	{
+		velocity.z += 3.5;
+	}
 
-	double nx = pos.x + velocity.x * dt;
-	double ny = pos.y + velocity.y * dt;
+	glm::vec<3, double> velocity2 = sys.scene.check_intersect(pos, velocity * dt) / dt;
 
-	if(nx > 8.9 || nx < -2.9)
-		velocity.x = 0;
-	if(std::abs(ny) > 3.9)
-		velocity.y = 0;
-
-	float m2 = std::pow(0.5, dt / (on_ground ? 0.05 : 1));
-
-	pos += velocity * dt;
-	velocity *= m2;
+	pos += velocity2 * dt;
+	on_ground = ((velocity * dt / dt).z != velocity2.z);
+	velocity = velocity2 * std::pow(0.5, dt / (on_ground ? 0.05 : 10));
 
 	camera_mat = glm::mat4(1);
 	camera_mat = glm::rotate(camera_mat, (float)glm::radians(-pitch), glm::vec3(1, 0, 0));
