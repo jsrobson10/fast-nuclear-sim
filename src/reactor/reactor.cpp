@@ -57,6 +57,11 @@ void reactor::update(double secs)
 
 	update_interactions(rods_lookup, secs / 2);
 
+	if(std::abs(rod_speed) < 1e-6)
+	{
+		rod_speed = 0;
+	}
+
 	if(rod_speed != 0)
 	{
 		update_selected(secs);

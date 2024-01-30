@@ -105,7 +105,9 @@ void vessel::update()
 	ss << sys.reactor->get_total(sim::reactor::rod::val_t::N_FAST) << " mol\n\n\n";
 	ss << show( crod_min * 100 ) << " %\n";
 	ss << show( crod_max * 100 ) << " %\n";
-	ss << show( sys.reactor->rod_speed * 100, 1e-5 ) << " %/s\n";
+	ss << show( sys.reactor->rod_speed * 100, 1e6 ) << " %/s";
+	if(sys.reactor->rod_speed == 0) ss << " (Stopped)";
+	ss << "\n";
 
 	rmesh.load_text(ss.str().c_str(), 0.04);
 	mesh2.bind();
