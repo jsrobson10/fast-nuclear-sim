@@ -101,8 +101,8 @@ void vessel::update()
 	ss << show( sys.vessel->get_void_ratio() * 100 ) << " %\n\n\n\n\n\n\n";
 	ss << show( temp_min ) << " C\n";
 	ss << show( temp_max ) << " C\n\n\n";
-	ss << sys.reactor->get_total(sim::reactor::rod::val_t::N_SLOW) << " mol\n";
-	ss << sys.reactor->get_total(sim::reactor::rod::val_t::N_FAST) << " mol\n\n\n";
+	ss << ( sys.reactor->get_total(sim::reactor::rod::val_t::N_SLOW) * 1e12 ) << " pmol\n";
+	ss << ( sys.reactor->get_total(sim::reactor::rod::val_t::N_FAST) * 1e12 ) << " pmol\n\n\n";
 	ss << show( crod_min * 100 ) << " %\n";
 	ss << show( crod_max * 100 ) << " %\n";
 	ss << show( sys.reactor->rod_speed * 100, 1e6 ) << " %/s";
