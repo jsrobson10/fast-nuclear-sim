@@ -3,6 +3,7 @@
 #include "arrays.hpp"
 #include "../shader.hpp"
 #include "../camera.hpp"
+#include "../input/focus.hpp"
 #include "../../util/math.hpp"
 
 #include <iostream>
@@ -95,6 +96,11 @@ bool ray_intersects_triangle(vec3 ray_origin,
         return false;
 }
 
+bool mesh::check_focus(double len) const
+{
+	return focus::is_triggered() && check_intersect(camera::get_pos(), camera::get_normal() * len);
+}
+
 bool mesh::check_intersect(vec3 pos, vec3 path) const
 {
 	double l = glm::length(path);
@@ -106,7 +112,7 @@ bool mesh::check_intersect(vec3 pos, vec3 path) const
 
 	vec3 path_n = path / l;
 	
-	for(unsigned int i = 0; i < indices.size(); i++)
+	for(unsigned int i = 0; i < indices.size(); i += 3)
 	{
 		vec3 v[3] = {
 			vec3(this->vertices[indices[i]].pos),
@@ -116,7 +122,7 @@ bool mesh::check_intersect(vec3 pos, vec3 path) const
 		
 		vec3 ipoint;
 		vec3 normal = glm::normalize(glm::cross(v[1] - v[0], v[2] - v[0]));
-		double d = glm::dot(normal, path_n);
+		double d = glm::dot(normal, path);
 
 		if(d >= 0)
 			continue;
@@ -124,7 +130,7 @@ bool mesh::check_intersect(vec3 pos, vec3 path) const
 			continue;
 		if(l < glm::length(ipoint - pos))
 			continue;
-
+		
 		return true;
 	}
 
@@ -194,8 +200,8 @@ vec3 mesh::calc_intersect(vec3 pos, vec3 path, vec3& normal_last) const
 			i_found = i;
 		}
 	}
-/*
-	for(unsigned int i = i_found - 1; i >= 0; i--)
+
+	for(unsigned int i = 0; i < i_found; i += 3)
 	{
 		vec3 v[3] = {
 			vec3(this->vertices[indices[i]].pos),
@@ -205,7 +211,7 @@ vec3 mesh::calc_intersect(vec3 pos, vec3 path, vec3& normal_last) const
 		
 		calc_intercept_vert(v, pos, path, path_n, normal_last, l);
 	}
-*/
+
 	return path;
 }
 
@@ -223,8 +229,6 @@ mesh mesh::to_lines() const
 		m.indices.push_back(indices[i]);
 		m.indices.push_back(indices[i + 2]);
 	}
-
-	std::cout << "indices.size() = " << m.indices.size() << ", vertices.size() = " << m.vertices.size() << "\n";
 
 	return m;
 }

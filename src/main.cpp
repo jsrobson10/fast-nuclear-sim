@@ -11,6 +11,7 @@
 #include "coolant/pump.hpp"
 
 #include "graphics/mesh/mesh.hpp"
+#include "graphics/input/focus.hpp"
 
 #include "graphics/window.hpp"
 #include "graphics/camera.hpp"
@@ -43,6 +44,7 @@ int main()
 		sys.update(dt);
 		graphics::camera::update(sys, dt);
 		graphics::window::loop(sys);
+		graphics::focus::clear_trigger();
 	}
 
 	graphics::window::destroy();

@@ -28,7 +28,7 @@ using namespace sim::graphics;
 static GLFWwindow* win;
 static bool win_should_close = false;
 
-static glmesh MeshScene, MeshCollisionScene;
+static glmesh MeshScene, MeshDebug;
 static monitor::vessel MonitorVessel;
 static monitor::core MonitorCore;
 
@@ -101,9 +101,13 @@ void window::create(system& sys)
 	MeshScene.bind();
 	MeshScene.set(sys.scene, GL_STATIC_DRAW);
 
+//	sys.scene.load_model("../assets/model", "reactor_core_input.stl");
+//	MeshDebug.bind();
+//	MeshDebug.set(sys.scene, GL_STATIC_DRAW);
+
 	sys.scene.load_model("../assets/model", "scene_collisions.stl");
-	MeshCollisionScene.bind();
-	MeshCollisionScene.set(sys.scene.to_lines(), GL_STATIC_DRAW);
+//	MeshCollisionScene.bind();
+//	MeshCollisionScene.set(sys.scene.to_lines(), GL_STATIC_DRAW);
 
 	MonitorCore.init();
 	MonitorVessel.init();
@@ -114,6 +118,9 @@ void window::create(system& sys)
 
 void window::loop(sim::system& sys)
 {
+	glfwPollEvents();
+
+	MonitorCore.update(sys);
 	MonitorVessel.update(sys);
 
 	glm::mat4 mat_projection = glm::perspective(glm::radians(80.0f), resize::get_aspect(), 0.01f, 20.f);
@@ -121,20 +128,19 @@ void window::loop(sim::system& sys)
 
 	glClearColor(0, 0, 0, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+//	MeshDebug.bind();
+//	MeshDebug.uniform();
+//	MeshDebug.render();
 	
 	MeshScene.bind();
 	MeshScene.uniform();
 	MeshScene.render();
 
-	MeshCollisionScene.bind();
-	MeshCollisionScene.uniform();
-	MeshCollisionScene.render(GL_LINES);
-
 	MonitorCore.render(sys);
 	MonitorVessel.render();
 
 	glfwSwapBuffers(win);
-	glfwPollEvents();
 }
 
 bool window::should_close()

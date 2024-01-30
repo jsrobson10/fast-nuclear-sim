@@ -8,7 +8,7 @@ using namespace sim::reactor;
 
 reactor::reactor(std::unique_ptr<rod>* rods, int w, int h, double cw, double ch) : cell_width(cw), cell_height(ch), width(w), height(h), size(w * h)
 {
-	this->rods = std::make_unique<std::unique_ptr<rod>[]>(width * height);
+	this->rods = std::vector<std::unique_ptr<rod>>(w * h);
 
 	for(int i = 0; i < size; i++)
 	{
@@ -21,15 +21,22 @@ reactor::reactor(reactor&& o) : cell_width(o.cell_width), cell_height(o.cell_hei
 {
 	rods = std::move(o.rods);
 	cursor = o.cursor;
+
+	for(int i = 0; i < size; i++)
+	{
+		rods[i]->reactor = this;
+	}
 }
 
 reactor::reactor(const reactor& o) : cell_width(o.cell_width), cell_height(o.cell_height), width(o.width), height(o.height), size(o.size)
 {
-	this->rods = std::make_unique<std::unique_ptr<rod>[]>(width * height);
+	rods = std::vector<std::unique_ptr<rod>>(width * height);
+	cursor = o.cursor;
 
 	for(int i = 0; i < size; i++)
 	{
-		this->rods[i] = std::unique_ptr<rod>(o.rods[i]->clone());
+		rods[i] = std::unique_ptr<rod>(o.rods[i]->clone());
+		rods[i]->reactor = this;
 	}
 }
 

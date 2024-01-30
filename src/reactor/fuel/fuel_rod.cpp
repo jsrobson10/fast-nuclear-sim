@@ -21,7 +21,7 @@ void fuel_rod::display(std::ostream& o) const
 	
 	o << "Fuel: " << (s.get_fuel() * mol) << " / " << (s.get_mass() * mol) << " mol\n";
 	o << "Efficiency: " << (s.get_efficiency() * 100) << " %\n";
-	o << "Output: " << (s.get_energy() * mol * energy_density) << " W/s\n";
+	o << "Output: " << (s.get_energy() * mol * energy_density) << " W\n";
 	o << "Iodine: " << (s.get_i_135() * mol) << " mol\n";
 	o << "Xenon: " << (s.get_xe_135() * mol) << " mol\n";
 }

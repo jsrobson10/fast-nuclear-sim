@@ -36,6 +36,17 @@ void camera::move(double xoff, double yoff, double zoff)
 	pos.z += zoff;
 }
 
+glm::vec<3, double> camera::get_normal()
+{
+	glm::mat<3, 3, double> mat(camera_mat);
+	return glm::vec<3, double>(0, 0, -1) * mat;
+}
+
+glm::vec<3, double> camera::get_pos()
+{
+	return pos;
+}
+
 void camera::update(const system& sys, double dt)
 {
 	glm::vec<2, double> off(0, 0);

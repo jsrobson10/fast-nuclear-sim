@@ -21,7 +21,7 @@ class sample
 	double te_135 = 0;
 	double mass = 0;
 
-	double energy = 0; // W/s
+	double energy = 0; // W
 	double fast_neutrons = 0; // mol/s
 	double slow_neutrons = 0; // mol/s
 	double efficiency = 0;

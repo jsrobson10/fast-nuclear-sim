@@ -18,7 +18,7 @@ struct reactor
 	const int height;
 	const int size;
 
-	std::unique_ptr<std::unique_ptr<rod>[]> rods;
+	std::vector<std::unique_ptr<rod>> rods;
 	int cursor = 0;
 
 	reactor(std::unique_ptr<rod>* rods, int width, int height, double cell_width, double cell_height);

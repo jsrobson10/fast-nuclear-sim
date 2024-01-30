@@ -20,10 +20,10 @@ sim::reactor::reactor sim::reactor::builder(const int W, const int H, const doub
 		switch(c)
 		{
 		case 'F':
-			r = fr.clone();
+			r = std::make_unique<fuel::fuel_rod>(fr);
 			break;
 		case 'C':
-			r = br.clone();
+			r = std::make_unique<control::boron_rod>(br);
 			break;
 		case 'G':
 			r = std::make_unique<control::graphite_rod>();
@@ -34,7 +34,7 @@ sim::reactor::reactor sim::reactor::builder(const int W, const int H, const doub
 		case 'P':
 			r = std::make_unique<coolant::pipe>(v);
 			break;
-		case ' ':
+		default:
 			r = std::make_unique<rod>();
 			break;
 		}

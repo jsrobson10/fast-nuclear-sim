@@ -1,9 +1,7 @@
 
 #pragma once
 
-#include <glm/vec2.hpp>
-#include <glm/vec3.hpp>
-#include <glm/vec4.hpp>
+#include <glm/matrix.hpp>
 
 namespace sim::graphics::arrays
 {
@@ -17,6 +15,7 @@ struct vertex
 };
 
 void vertex_attrib_pointers();
+glm::mat4 colour(glm::vec4 code);
 
 };
 
