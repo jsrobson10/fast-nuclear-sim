@@ -14,16 +14,15 @@ namespace sim
 
 struct system
 {
-	sim::reactor::reactor* reactor;
-	sim::reactor::coolant::vessel* vessel;
-	sim::coolant::valve<sim::reactor::coolant::vessel>* valve;
-	sim::coolant::pump<sim::reactor::coolant::vessel>* pump;
+	std::unique_ptr<sim::reactor::reactor> reactor;
+	std::unique_ptr<sim::reactor::coolant::vessel> vessel;
+	std::unique_ptr<sim::coolant::valve<sim::reactor::coolant::vessel>> valve;
+	std::unique_ptr<sim::coolant::pump<sim::reactor::coolant::vessel>> pump;
 	sim::graphics::mesh scene;
 
 	system();
 	system(system&& o);
 	system(const system& o) = delete;
-	~system();
 
 	void update(double dt);
 };

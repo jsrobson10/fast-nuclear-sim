@@ -3,6 +3,7 @@
 
 #include <ostream>
 #include <glm/vec4.hpp>
+#include <memory>
 
 namespace sim::reactor
 {
@@ -21,12 +22,13 @@ public:
 		N_FAST = 2
 	};
 
+	virtual ~rod() {};
 	virtual void interact(rod* o, double secs);
 	virtual void update(double secs) { }
 	virtual void add(val_t type, double v);
 	virtual double extract(val_t type, double s, double k, double o);
 	virtual double get(val_t type) const;
-	virtual rod* clone() const { return new rod(*this); }
+	virtual std::unique_ptr<rod> clone() const { return std::make_unique<rod>(*this); }
 	virtual glm::vec4 get_colour() const { return {0, 0, 0, 0}; }
 	virtual int get_id() const { return 0; }
 

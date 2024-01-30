@@ -73,6 +73,11 @@ void glmesh::set(const mesh& m, int mode)
 
 void glmesh::render()
 {
-	glDrawElements(GL_TRIANGLES, size, GL_UNSIGNED_INT, 0);
+	render(GL_TRIANGLES);
+}
+
+void glmesh::render(int type)
+{
+	glDrawElements(type, size, GL_UNSIGNED_INT, 0);
 }
 

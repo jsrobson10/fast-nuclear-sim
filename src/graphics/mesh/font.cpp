@@ -89,6 +89,8 @@ void font::init()
 
 		chars[i] = c;
 	}
+
+	FT_Done_FreeType(ft);
 }
 
 void mesh::load_text(const char* text, double size)

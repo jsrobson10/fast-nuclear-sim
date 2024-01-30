@@ -4,7 +4,7 @@
 
 #include "camera.hpp"
 #include "input/keyboard.hpp"
-#include "../math.hpp"
+#include "../util/math.hpp"
 
 #include <cmath>
 #include <iostream>
@@ -75,7 +75,11 @@ void camera::update(const system& sys, double dt)
 		velocity.z += 3.5;
 	}
 
-	glm::vec<3, double> velocity2 = sys.scene.check_intersect(pos, velocity * dt) / dt;
+	glm::vec<3, double> normal_last(0);
+	glm::vec<3, double> velocity2;
+   
+	velocity2 = sys.scene.calc_intersect(pos, velocity * dt, normal_last);
+	velocity2 = sys.scene.calc_intersect(pos + glm::vec<3, double>(0, 0, -1.5), velocity2, normal_last) / dt;
 
 	pos += velocity2 * dt;
 	on_ground = ((velocity * dt / dt).z != velocity2.z);

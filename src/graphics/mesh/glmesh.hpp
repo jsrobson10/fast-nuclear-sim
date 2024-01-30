@@ -27,6 +27,7 @@ struct glmesh
 	void bind();
 	void uniform();
 	void set(const mesh& m, int mode);
+	void render(int type);
 	void render();
 };
 

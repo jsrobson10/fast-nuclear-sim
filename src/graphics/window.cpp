@@ -28,7 +28,7 @@ using namespace sim::graphics;
 static GLFWwindow* win;
 static bool win_should_close = false;
 
-static glmesh MeshScene;
+static glmesh MeshScene, MeshCollisionScene;
 static monitor::vessel MonitorVessel;
 static monitor::core MonitorCore;
 
@@ -40,7 +40,7 @@ void GLAPIENTRY cb_debug_message(GLenum source, GLenum type, GLuint id, GLenum s
 	}
 }
 
-void window::create()
+void window::create(system& sys)
 {
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -96,11 +96,14 @@ void window::create()
 	font::init();
 
 	shader::init_program();
-	mesh rmesh;
 
-	rmesh.load_model("../assets", "scene-baked.glb");
+	sys.scene.load_model("../assets", "scene-baked.glb");
 	MeshScene.bind();
-	MeshScene.set(rmesh, GL_STATIC_DRAW);
+	MeshScene.set(sys.scene, GL_STATIC_DRAW);
+
+	sys.scene.load_model("../assets/model", "scene_collisions.stl");
+	MeshCollisionScene.bind();
+	MeshCollisionScene.set(sys.scene.to_lines(), GL_STATIC_DRAW);
 
 	MonitorCore.init();
 	MonitorVessel.init();
@@ -122,6 +125,10 @@ void window::loop(sim::system& sys)
 	MeshScene.bind();
 	MeshScene.uniform();
 	MeshScene.render();
+
+	MeshCollisionScene.bind();
+	MeshCollisionScene.uniform();
+	MeshCollisionScene.render(GL_LINES);
 
 	MonitorCore.render(sys);
 	MonitorVessel.render();

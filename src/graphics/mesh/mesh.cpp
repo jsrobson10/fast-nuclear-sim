@@ -3,7 +3,7 @@
 #include "arrays.hpp"
 #include "../shader.hpp"
 #include "../camera.hpp"
-#include "../../math.hpp"
+#include "../../util/math.hpp"
 
 #include <iostream>
 
@@ -95,19 +95,18 @@ bool ray_intersects_triangle(vec3 ray_origin,
         return false;
 }
 
-vec3 mesh::check_intersect(vec3 pos, vec3 path) const
+bool mesh::check_intersect(vec3 pos, vec3 path) const
 {
 	double l = glm::length(path);
 
 	if(l == 0)
 	{
-		return path;
+		return false;
 	}
 
 	vec3 path_n = path / l;
-	bool intersects = false;
-
-	for(unsigned int i = 0; i < indices.size(); i += 3)
+	
+	for(unsigned int i = 0; i < indices.size(); i++)
 	{
 		vec3 v[3] = {
 			vec3(this->vertices[indices[i]].pos),
@@ -117,7 +116,7 @@ vec3 mesh::check_intersect(vec3 pos, vec3 path) const
 		
 		vec3 ipoint;
 		vec3 normal = glm::normalize(glm::cross(v[1] - v[0], v[2] - v[0]));
-		double d = glm::dot(normal, path);
+		double d = glm::dot(normal, path_n);
 
 		if(d >= 0)
 			continue;
@@ -126,12 +125,107 @@ vec3 mesh::check_intersect(vec3 pos, vec3 path) const
 		if(l < glm::length(ipoint - pos))
 			continue;
 
-		intersects = true;
-		path -= normal * d;
-		l = glm::length(path);
-		path_n = path / l;
+		return true;
 	}
 
+	return false;
+}
+
+vec3 mesh::calc_intersect(vec3 pos, vec3 path) const
+{
+	vec3 normal_last(0);
+	return calc_intersect(pos, path, normal_last);
+}
+
+static bool calc_intercept_vert(vec3 v[3], vec3 pos, vec3& path, vec3& path_n, vec3& normal_last, double& l)
+{
+	vec3 ipoint;
+	vec3 normal = glm::normalize(glm::cross(v[1] - v[0], v[2] - v[0]));
+	double d = glm::dot(normal, path);
+
+	if(d >= 0)
+		return false;
+	if(!ray_intersects_triangle(pos, path_n, v, ipoint))
+		return false;
+	if(l < glm::length(ipoint - pos))
+		return false;
+
+	if(normal_last != vec3(0))
+	{
+		vec3 n = glm::cross(normal_last, normal);
+
+		if(glm::length(n) > 0)
+		{
+			normal = glm::normalize(glm::cross(glm::cross(normal_last, normal), normal_last));
+			d = glm::dot(normal, path);
+		}
+	}
+	
+	path -= normal * d;
+	normal_last = normal;
+	l = glm::length(path);
+	path_n = path / l;
+
+	return true;
+}
+
+vec3 mesh::calc_intersect(vec3 pos, vec3 path, vec3& normal_last) const
+{
+	double l = glm::length(path);
+
+	if(l == 0)
+	{
+		return path;
+	}
+
+	vec3 path_n = path / l;
+	unsigned int i_found = 0;
+
+	for(unsigned int i = 0; i < indices.size(); i += 3)
+	{
+		vec3 v[3] = {
+			vec3(this->vertices[indices[i]].pos),
+			vec3(this->vertices[indices[i + 1]].pos),
+			vec3(this->vertices[indices[i + 2]].pos)
+		};
+		
+		if(calc_intercept_vert(v, pos, path, path_n, normal_last, l))
+		{
+			i_found = i;
+		}
+	}
+/*
+	for(unsigned int i = i_found - 1; i >= 0; i--)
+	{
+		vec3 v[3] = {
+			vec3(this->vertices[indices[i]].pos),
+			vec3(this->vertices[indices[i + 1]].pos),
+			vec3(this->vertices[indices[i + 2]].pos)
+		};
+		
+		calc_intercept_vert(v, pos, path, path_n, normal_last, l);
+	}
+*/
 	return path;
+}
+
+mesh mesh::to_lines() const
+{
+	mesh m;
+	m.vertices = vertices;
+
+	for(int i = 0; i < indices.size(); i += 3)
+	{
+		m.indices.push_back(indices[i]);
+		m.indices.push_back(indices[i + 1]);
+		m.indices.push_back(indices[i + 1]);
+		m.indices.push_back(indices[i + 2]);
+		m.indices.push_back(indices[i]);
+		m.indices.push_back(indices[i + 2]);
+	}
+
+	std::cout << "indices.size() = " << m.indices.size() << ", vertices.size() = " << m.vertices.size() << "\n";
+
+	return m;
 }
 

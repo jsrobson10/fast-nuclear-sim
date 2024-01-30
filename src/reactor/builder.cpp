@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <vector>
+#include <cstdlib>
 
 using namespace sim::reactor;
 
@@ -14,31 +15,31 @@ sim::reactor::reactor sim::reactor::builder(const int W, const int H, const doub
 	for(int x = 0; x < W; x++)
 	{
 		char c = lines[y][x];
-		rod* r;
+		std::unique_ptr<rod> r;
 
 		switch(c)
 		{
 		case 'F':
-			r = new fuel::fuel_rod(fr);
+			r = fr.clone();
 			break;
 		case 'C':
-			r = new control::boron_rod(br);
+			r = br.clone();
 			break;
 		case 'G':
-			r = new control::graphite_rod();
+			r = std::make_unique<control::graphite_rod>();
 			break;
 		case 'H':
-			r = new coolant::heater();
+			r = std::make_unique<coolant::heater>();
 			break;
 		case 'P':
-			r = new coolant::pipe(v);
+			r = std::make_unique<coolant::pipe>(v);
 			break;
 		case ' ':
-			r = new rod();
+			r = std::make_unique<rod>();
 			break;
 		}
 
-		arr[y * W + x] = std::unique_ptr<rod>(std::move(r));
+		arr[y * W + x] = std::move(r);
 	}
 
 	return reactor(&arr[0], W, H, CW, CH);

@@ -16,7 +16,6 @@ class fuel_rod : public sim::reactor::rod
 	
 	virtual bool has_sensors(val_t t) const { return true; }
 	virtual const char* get_name() const { return "Fuel"; }
-	virtual rod* clone() const { return new fuel_rod(*this); };
 	virtual int get_id() const { return 1; }
 	virtual glm::vec4 get_colour() const;
 	
@@ -24,6 +23,7 @@ public:
 
 	fuel_rod(double fuel);
 	
+	virtual std::unique_ptr<rod> clone() const { return std::make_unique<fuel_rod>(*this); }
 	virtual bool should_display() const { return true; }
 	virtual void update(double secs);
 };
