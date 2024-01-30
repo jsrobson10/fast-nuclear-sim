@@ -85,7 +85,7 @@ int reactor::move_cursor(int d)
 {
 	goto logic;
 	
-	while(cursor == size || !rods[cursor]->should_display())
+	while(cursor != size && !rods[cursor]->should_display())
 	{
 logic:	cursor = (cursor + d) % (size + 1);
 	
