@@ -9,6 +9,8 @@
 
 using namespace sim;
 
+sim::system system::active;
+
 system::system()
 {
 	const char* layout[] = {

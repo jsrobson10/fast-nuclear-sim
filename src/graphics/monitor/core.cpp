@@ -17,37 +17,16 @@ using namespace sim::graphics::monitor;
 
 struct core_focus_t : public focus::focus_t
 {
-	sim::system* sys;
-	
-	core_focus_t(sim::system& sys)
+	virtual void on_cursor_pos(double x, double y)
 	{
-		this->sys = &sys;
-	}
-
-	void on_keypress(int key, int sc, int action, int mods)
-	{
-		if(action != GLFW_PRESS)
-		{
-			return;
-		}
-
-	}
-
-	void on_mouse_button(int button, int action, int mods)
-	{
-
-	}
-
-	void on_cursor_pos(double x, double y)
-	{
-
+		sim::system::active.reactor->rod_speed -= y * 1e-6;
 	}
 
 	void set_all(bool state)
 	{
-		for(int i = 0; i < sys->reactor->rods.size(); i++)
+		for(int i = 0; i < sim::system::active.reactor->rods.size(); i++)
 		{
-			sim::reactor::rod* r = sys->reactor->rods[i].get();
+			sim::reactor::rod* r = sim::system::active.reactor->rods[i].get();
 
 			if(r->should_select() && (r->is_selected() != state))
 			{
@@ -61,27 +40,50 @@ struct core_focus_t : public focus::focus_t
 		//TODO
 	}
 
-	void on_charcode(unsigned int c)
+	virtual void on_charcode(unsigned int c)
 	{
+		sim::system& sys = sim::system::active;
+
 		switch(c)
 		{
 		case 'a': case 'A':
-			sys->reactor->move_cursor(-1);
+			sys.reactor->move_cursor(-1);
 			break;
 		case 'd': case 'D':
-			sys->reactor->move_cursor(1);
-			break;
-		case 's': case 'S':
-			sys->reactor->toggle_selected();
+			sys.reactor->move_cursor(1);
 			break;
 		case 'w': case 'W':
+			sys.reactor->move_cursor(-sim::system::active.reactor->height);
+			break;
+		case 's': case 'S':
+			sys.reactor->move_cursor(sim::system::active.reactor->height);
+			break;
+		}
+	}
+
+	virtual void on_keypress(int key, int sc, int action, int mods)
+	{
+		if(action != GLFW_PRESS)
+		{
+			return;
+		}
+		
+		switch(key)
+		{
+		case GLFW_KEY_Z:
+			sim::system::active.reactor->toggle_selected();
+			break;
+		case GLFW_KEY_C:
 			toggle_auto();
 			break;
-		case 'q': case 'Q':
-			set_all(false);
+		case GLFW_KEY_X:
+			sim::system::active.reactor->rod_speed = 0;
 			break;
-		case 'e': case 'E':
+		case GLFW_KEY_Q:
 			set_all(true);
+			break;
+		case GLFW_KEY_E:
+			set_all(false);
 			break;
 		}
 	}
@@ -112,16 +114,18 @@ void core::init()
 	mesh_click.load_model("../assets/model/", "reactor_core_input.stl");
 }
 
-void core::update(sim::system& sys)
+void core::update()
 {
 	if(mesh_click.check_focus(2))
 	{
-		focus::set(std::make_unique<core_focus_t>(sys));
+		focus::set(std::make_unique<core_focus_t>());
 	}
 }
 
-void core::render(sim::system& sys)
+void core::render()
 {
+	sim::system& sys = sim::system::active;
+	
 	double step = 1 / (sys.vessel->diameter / sys.reactor->cell_width * 0.8);
 	double sx = 0.5 - (sys.reactor->width - 1) * step / 2.0;
 	double sy = 0.5 - (sys.reactor->height - 1) * step / 2.0;
@@ -157,7 +161,7 @@ void core::render(sim::system& sys)
 		mesh2.uniform();
 		mesh2.render();
 
-		if(sys.reactor->cursor == i && r->should_select())
+		if(sys.reactor->cursor == i)
 		{
 			mesh2.model_matrix = mat * mat_cursor;
 			mesh2.colour_matrix = arrays::colour({1, 0, 0, 1});

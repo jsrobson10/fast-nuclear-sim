@@ -14,6 +14,8 @@ namespace sim
 
 struct system
 {
+	static system active;
+
 	std::unique_ptr<sim::reactor::reactor> reactor;
 	std::unique_ptr<sim::reactor::coolant::vessel> vessel;
 	std::unique_ptr<sim::coolant::valve<sim::reactor::coolant::vessel>> valve;

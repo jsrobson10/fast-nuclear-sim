@@ -35,7 +35,7 @@ public:
 	virtual bool has_sensors(val_t t) const { return false; }
 	virtual bool should_display() const { return false; }
 	virtual bool should_select() const { return false; }
-	void update_rod_selected(int m);
+	virtual void update_selected(double a) { }
 	double get_volume() const;
 	
 	constexpr void toggle_selected() { selected = !selected; }
@@ -46,11 +46,6 @@ public:
 		if(!r.should_display()) return o;
 
 		o << r.get_name() << "\n";
-
-		if(r.is_selected())
-		{
-			o << "Speed: " << r.get_speed() << "\n";
-		}
 
 		r.display(o);
 
@@ -65,15 +60,12 @@ protected:
 
 	double vals[VAL_N] = {0};
 	bool selected = false;
-	int motion = 0;
 
 	virtual void display(std::ostream& o) const { };
 	virtual double get_k(val_t type) const { return 0; }
 	virtual const char* get_name() const { return "Empty"; }
-	virtual void update_selected(double a) { }
 
 	void update_rod(double secs);
-	double get_speed() const;
 };
 
 }

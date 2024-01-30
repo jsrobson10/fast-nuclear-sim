@@ -19,14 +19,14 @@ struct reactor
 	const int size;
 
 	std::vector<std::unique_ptr<rod>> rods;
-	int cursor = 0;
+	double rod_speed = 0;
+	int cursor;
 
 	reactor(std::unique_ptr<rod>* rods, int width, int height, double cell_width, double cell_height);
 	reactor(const reactor& r);
 	reactor(reactor&& r);
 	
 	void update(double secs);
-	void update_selected(int v);
 	void get_stats(rod::val_t type, double& min, double& max);
 	void get_rod_stats(int type, double& min, double& max);
 	double get_total(rod::val_t type);
@@ -37,6 +37,7 @@ private:
 
 	void update_tile(double secs, int i, int x, int y);
 	void update_interactions(int* rods_lookup, double secs);
+	void update_selected(double dt);
 };
 
 }

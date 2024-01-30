@@ -14,7 +14,7 @@ glm::vec<3, double> get_pos();
 
 void rotate(double pitch, double yaw);
 void move(double x, double y, double z);
-void update(const system& sys, double dt);
+void update(double dt);
 
 };
 

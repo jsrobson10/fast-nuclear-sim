@@ -15,7 +15,7 @@ public:
 
 	vessel();
 	void init();
-	void update(sim::system& sys);
+	void update();
 	void render();
 };
 

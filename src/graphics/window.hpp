@@ -9,8 +9,8 @@ namespace sim::graphics::window
 {
 
 bool should_close();
-void create(sim::system& sys);
-void loop(sim::system& sys);
+void create();
+void loop();
 void destroy();
 void close();
 

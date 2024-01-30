@@ -29,8 +29,7 @@ unsigned long get_now()
 
 int main()
 {
-	sim::system sys;
-	graphics::window::create(sys);
+	graphics::window::create();
 
 	long clock = get_now();
 
@@ -41,10 +40,10 @@ int main()
 		double dt = (double)passed / 1e6;
 		clock += passed;
 		
-		sys.update(dt);
-		graphics::camera::update(sys, dt);
-		graphics::window::loop(sys);
-		graphics::focus::clear_trigger();
+		sim::system::active.update(dt);
+		graphics::camera::update(dt);
+		graphics::window::loop();
+		graphics::focus::update();
 	}
 
 	graphics::window::destroy();

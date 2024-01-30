@@ -47,7 +47,7 @@ glm::vec<3, double> camera::get_pos()
 	return pos;
 }
 
-void camera::update(const system& sys, double dt)
+void camera::update(double dt)
 {
 	glm::vec<2, double> off(0, 0);
 	double m = 30;
@@ -89,8 +89,8 @@ void camera::update(const system& sys, double dt)
 	glm::vec<3, double> normal_last(0);
 	glm::vec<3, double> velocity2;
    
-	velocity2 = sys.scene.calc_intersect(pos, velocity * dt, normal_last);
-	velocity2 = sys.scene.calc_intersect(pos + glm::vec<3, double>(0, 0, -1.5), velocity2, normal_last) / dt;
+	velocity2 = system::active.scene.calc_intersect(pos, velocity * dt, normal_last);
+	velocity2 = system::active.scene.calc_intersect(pos + glm::vec<3, double>(0, 0, -1.5), velocity2, normal_last) / dt;
 
 	pos += velocity2 * dt;
 	on_ground = ((velocity * dt / dt).z != velocity2.z);

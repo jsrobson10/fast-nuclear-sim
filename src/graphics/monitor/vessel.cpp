@@ -41,11 +41,16 @@ void vessel::init()
 	ss << "Reactor Core\n\n";
 	ss << "Temperature\nMin\nMax\n\n";
 	ss << "Neutron Flux\nSlow\nFast\n\n";
-	ss << "Control Rods\nMin\nMax\n\n";
+	ss << "Control Rods\nMin\nMax\nSpeed\n";
 
 	rmesh.load_text(ss.str().c_str(), 0.04);
 	mesh1.bind();
 	mesh1.set(rmesh, GL_STATIC_DRAW);
+}
+
+static double show(double v, double m)
+{
+	return std::round(v * m) / m;
 }
 
 static double show(double v)
@@ -53,8 +58,10 @@ static double show(double v)
 	return std::round(v * 1e3) * 1e-3;
 }
 
-void vessel::update(sim::system& sys)
+void vessel::update()
 {
+	sim::system& sys = sim::system::active;
+
 	std::stringstream ss;
 	sim::graphics::mesh rmesh;
 
@@ -98,6 +105,7 @@ void vessel::update(sim::system& sys)
 	ss << sys.reactor->get_total(sim::reactor::rod::val_t::N_FAST) << " mol\n\n\n";
 	ss << show( crod_min * 100 ) << " %\n";
 	ss << show( crod_max * 100 ) << " %\n";
+	ss << show( sys.reactor->rod_speed * 100, 1e-5 ) << " %/s\n";
 
 	rmesh.load_text(ss.str().c_str(), 0.04);
 	mesh2.bind();

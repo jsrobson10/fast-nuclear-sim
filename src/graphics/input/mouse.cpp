@@ -13,14 +13,15 @@ static double xpos = 0, ypos = 0;
 
 static void cb_cursor_pos(GLFWwindow* win, double x, double y)
 {
-	focus::on_cursor_pos(x, y);
-	
 	if(focus::is_focused())
 	{
-		return;
+		focus::on_cursor_pos(x - xpos, y - ypos);
 	}
 	
-	camera::rotate(x - xpos, y - ypos);
+	else
+	{
+		camera::rotate(x - xpos, y - ypos);
+	}
 
 	xpos = x;
 	ypos = y;

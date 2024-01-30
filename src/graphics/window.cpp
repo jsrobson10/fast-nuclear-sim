@@ -18,7 +18,6 @@
 #include "shader.hpp"
 #include "mesh/font.hpp"
 #include "locations.hpp"
-#include "../system.hpp"
 #include "monitor/vessel.hpp"
 #include "monitor/core.hpp"
 #include "mesh/texture.hpp"
@@ -40,7 +39,7 @@ void GLAPIENTRY cb_debug_message(GLenum source, GLenum type, GLuint id, GLenum s
 	}
 }
 
-void window::create(system& sys)
+void window::create()
 {
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -97,6 +96,8 @@ void window::create(system& sys)
 
 	shader::init_program();
 
+	sim::system& sys = sim::system::active;
+
 	sys.scene.load_model("../assets", "scene-baked.glb");
 	MeshScene.bind();
 	MeshScene.set(sys.scene, GL_STATIC_DRAW);
@@ -116,12 +117,12 @@ void window::create(system& sys)
 	glViewport(0, 0, 800, 600);
 }
 
-void window::loop(sim::system& sys)
+void window::loop()
 {
 	glfwPollEvents();
 
-	MonitorCore.update(sys);
-	MonitorVessel.update(sys);
+	MonitorCore.update();
+	MonitorVessel.update();
 
 	glm::mat4 mat_projection = glm::perspective(glm::radians(80.0f), resize::get_aspect(), 0.01f, 20.f);
 	glUniformMatrix4fv(shader::gl_projection, 1, false, &mat_projection[0][0]);
@@ -137,7 +138,7 @@ void window::loop(sim::system& sys)
 	MeshScene.uniform();
 	MeshScene.render();
 
-	MonitorCore.render(sys);
+	MonitorCore.render();
 	MonitorVessel.render();
 
 	glfwSwapBuffers(win);

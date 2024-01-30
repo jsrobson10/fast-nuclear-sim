@@ -2,6 +2,7 @@
 # How to build
 
 This is built using CMake. You will also need the required libraries to build. 
+This project currently only works on Linux. 
 
 ```
 mkdir build

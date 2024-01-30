@@ -55,6 +55,16 @@ void focus::on_charcode(unsigned int c)
 	}
 }
 
+void focus::update()
+{
+	triggered = false;
+
+	if(state)
+	{
+		state->update();
+	}
+}
+
 bool focus::is_focused()
 {
 	return (state != nullptr);
@@ -73,10 +83,5 @@ void focus::set(std::unique_ptr<focus_t> f)
 bool focus::is_triggered()
 {
 	return triggered;
-}
-
-void focus::clear_trigger()
-{
-	triggered = false;
 }
 

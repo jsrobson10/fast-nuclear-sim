@@ -9,6 +9,7 @@ using namespace sim::reactor;
 reactor::reactor(std::unique_ptr<rod>* rods, int w, int h, double cw, double ch) : cell_width(cw), cell_height(ch), width(w), height(h), size(w * h)
 {
 	this->rods = std::vector<std::unique_ptr<rod>>(w * h);
+	this->cursor = w * h;
 
 	for(int i = 0; i < size; i++)
 	{
@@ -55,9 +56,14 @@ void reactor::update(double secs)
 	}
 
 	update_interactions(rods_lookup, secs / 2);
+
+	if(rod_speed != 0)
+	{
+		update_selected(secs);
+	}
 }
 
-void reactor::update_selected(int v)
+void reactor::update_selected(double dt)
 {
 	for(int i = 0; i < size; i++)
 	{
@@ -65,34 +71,34 @@ void reactor::update_selected(int v)
 
 		if(r->is_selected())
 		{
-			r->update_rod_selected(v);
+			r->update_selected(rod_speed * dt);
 		}
 	}
 }
 
 int reactor::move_cursor(int d)
 {
-	for(int i = 0; i < size; i++)
+	goto logic;
+	
+	while(cursor == size || !rods[cursor]->should_display())
 	{
-		cursor = (cursor + d) % size;
-		
+logic:	cursor = (cursor + d) % (size + 1);
+	
 		if(cursor < 0)
 		{
-			cursor += size;
+			cursor += size + 1;
 		}
 
-		if(rods[cursor]->should_select())
-		{
-			return cursor;
-		}
+		if(d > 1) d = 1;
+		if(d < -1) d = -1;
 	}
 
-	return 0;
+	return cursor;
 }
 
 void reactor::toggle_selected()
 {
-	if(rods[cursor]->should_select())
+	if(cursor < size && rods[cursor]->should_select())
 	{
 		rods[cursor]->toggle_selected();
 	}

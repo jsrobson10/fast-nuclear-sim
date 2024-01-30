@@ -16,8 +16,8 @@ public:
 
 	core();
 	void init();
-	void update(sim::system& sys);
-	void render(sim::system& sys);
+	void update();
+	void render();
 };
 
 };

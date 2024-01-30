@@ -43,12 +43,6 @@ void rod::interact(rod* o, double secs)
 	}
 }
 
-double rod::get_speed() const
-{
-	int m = motion < 0 ? -1 : 1;
-	return motion == 0 ? 0 : (std::pow(10, std::abs(motion)) * 1e-6 * m);
-}
-
 double rod::get_volume() const
 {
 	auto r = (sim::reactor::reactor*)reactor;
@@ -61,23 +55,5 @@ void rod::update_rod(double secs)
 	double m = std::pow(0.5, secs / 879.4);
 	vals[val_t::N_FAST] *= m;
 	vals[val_t::N_SLOW] *= m;
-
-	if(motion != 0 && !is_selected())
-	{
-		motion = 0;
-	}
-
-	if(motion != 0)
-	{
-		update_selected(get_speed() * secs);
-	}
-}
-
-void rod::update_rod_selected(int m)
-{
-	motion += m;
-
-	if(motion > 5) motion = 5;
-	if(motion < -5) motion = -5;
 }
 
