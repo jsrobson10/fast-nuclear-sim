@@ -16,9 +16,11 @@ struct focus_t
 	virtual void update() { }
 };
 
-void clear();
 bool is_focused();
+void clear_focus();
 bool is_triggered();
+bool is_mouse_locked();
+void clear_mouse_locked();
 void set(std::unique_ptr<focus_t> f);
 void on_keypress(int key, int sc, int action, int mods);
 void on_mouse_button(int button, int action, int mods);

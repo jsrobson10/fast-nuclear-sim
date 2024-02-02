@@ -13,7 +13,7 @@ static double xpos = 0, ypos = 0;
 
 static void cb_cursor_pos(GLFWwindow* win, double x, double y)
 {
-	if(focus::is_focused())
+	if(focus::is_mouse_locked())
 	{
 		focus::on_cursor_pos(x - xpos, y - ypos);
 	}
@@ -36,6 +36,24 @@ void mouse::get(double& x, double& y)
 {
 	x = xpos;
 	y = ypos;
+}
+
+void mouse::show_cursor()
+{
+	double x, y;
+	GLFWwindow* win = window::get_window();
+	glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	glfwGetCursorPos(win, &x, &y);
+	cb_cursor_pos(win, x, y);
+}
+
+void mouse::hide_cursor()
+{
+	double x, y;
+	GLFWwindow* win = window::get_window();
+	glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwGetCursorPos(win, &x, &y);
+	cb_cursor_pos(win, x, y);
 }
 
 void mouse::init()
