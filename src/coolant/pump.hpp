@@ -1,57 +1,34 @@
 
 #pragma once
 
-#include <ostream>
+#include "fluid_holder.hpp"
 
 namespace sim::coolant
 {
 
-template <class A>
 class pump
 {
-	const double max;
-	const double heat;
-	
-	A* a;
-	double rate = 0;
+	fluid_holder* const src;
+	fluid_holder* const dst;
+
+	const double mass; // grams
+	const double radius; // meters
+	const double l_per_rev; // litres
+	const double friction; // J/rev
+
+	double velocity = 0; // m/s
 
 public:
 
-	constexpr pump(A& a, double max, double heat) : a(&a), max(max), heat(heat)
-	{
+	double power = 0; // watts
 
-	}
+	pump(fluid_holder& src, fluid_holder& dst, double mass, double radius, double l_per_rev, double friction);
 
-	constexpr double get_rate() const
-	{
-		return rate;
-	}
+	double get_flow() const; // L/s
+	double get_rpm() const; // rev/min
 
-	constexpr double get_flow() const
-	{
-		return rate * max;
-	}
-
-	constexpr void change_speed(double amount)
-	{
-		rate += amount;
-
-		if(rate < 0) rate = 0;
-		if(rate > 1) rate = 1;
-	}
-
-	void update(double secs)
-	{
-		a->add_fluid(rate * max * secs, heat);
-	}
-
-	friend std::ostream& operator<<(std::ostream& o, const pump& p)
-	{
-		o << "Rate: " << (p.get_rate() * 100) << " %\n";
-		o << "Flow: " << (p.get_flow() * 0.001) << " kg/s\n";
-		return o;
-	}
+	void update(double dt);
 };
-	
+
 };
 
