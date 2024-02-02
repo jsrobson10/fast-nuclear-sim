@@ -21,13 +21,14 @@
 #include "monitor/vessel.hpp"
 #include "monitor/core.hpp"
 #include "mesh/texture.hpp"
+#include "ui.hpp"
 
 using namespace sim::graphics;
 
 static GLFWwindow* win;
 static bool win_should_close = false;
 
-static glmesh MeshScene, MeshDebug;
+static glmesh MeshScene;
 static monitor::vessel MonitorVessel;
 static monitor::core MonitorCore;
 
@@ -81,8 +82,8 @@ void window::create()
 
 	glEnable(GL_DEBUG_OUTPUT);
 	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -93,18 +94,16 @@ void window::create()
 	resize::init();
 	texture::init();
 	font::init();
+	ui::init();
 
 	shader::init_program();
 
 	sim::system& sys = sim::system::active;
+	mesh m;
 
-	sys.scene.load_model("../assets", "scene-baked.glb");
+	m.load_model("../assets", "scene-baked.glb");
 	MeshScene.bind();
-	MeshScene.set(sys.scene, GL_STATIC_DRAW);
-
-//	sys.scene.load_model("../assets/model", "reactor_core_input.stl");
-//	MeshDebug.bind();
-//	MeshDebug.set(sys.scene, GL_STATIC_DRAW);
+	MeshScene.set(m, GL_STATIC_DRAW);
 
 	sys.scene.load_model("../assets/model", "scene_collisions.stl");
 //	MeshCollisionScene.bind();
@@ -117,22 +116,25 @@ void window::create()
 	glViewport(0, 0, 800, 600);
 }
 
-void window::loop()
+void window::update(double dt)
 {
 	glfwPollEvents();
 
 	MonitorCore.update();
 	MonitorVessel.update();
 
-	glm::mat4 mat_projection = glm::perspective(glm::radians(80.0f), resize::get_aspect(), 0.01f, 20.f);
+	ui::update(dt);
+}
+
+void window::render()
+{
+	glm::mat4 mat_camera = camera::get_matrix();
+	glm::mat4 mat_projection = glm::perspective(glm::radians(90.0f), resize::get_aspect(), 0.01f, 20.f);
 	glUniformMatrix4fv(shader::gl_projection, 1, false, &mat_projection[0][0]);
+	glUniformMatrix4fv(shader::gl_camera, 1, false, &mat_camera[0][0]);
 
 	glClearColor(0, 0, 0, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-//	MeshDebug.bind();
-//	MeshDebug.uniform();
-//	MeshDebug.render();
 	
 	MeshScene.bind();
 	MeshScene.uniform();
@@ -140,6 +142,8 @@ void window::loop()
 
 	MonitorCore.render();
 	MonitorVessel.render();
+
+	ui::render();
 
 	glfwSwapBuffers(win);
 }

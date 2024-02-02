@@ -9,9 +9,9 @@ constexpr double boron_density = 2340000; // g/m^3
 constexpr double boron_molar_mass = 10; // g/mol
 constexpr double boron_molar_density = boron_density / boron_molar_mass; // mol/m^3
 
-boron_rod::boron_rod(coolant::vessel& v, double max) : coolant::pipe(v), max(max)
+boron_rod::boron_rod(coolant::vessel& v) : coolant::pipe(v)
 {
-	
+
 }
 
 void boron_rod::display(std::ostream& o) const
@@ -39,15 +39,12 @@ void boron_rod::update(double secs)
 
 	update_rod(secs);
 
-	double k = (1 - absorbed) * inserted * max;
-	double m = 1 - std::pow(0.5, secs * -std::log2(1 - k));
+	double m = (1 - absorbed) * inserted;
 	double r_fast = vals[val_t::N_FAST] * m;
-	double r_slow = vals[val_t::N_SLOW] * m;
 
 	vals[val_t::N_FAST] -= r_fast;
-	vals[val_t::N_SLOW] -= r_slow;
-	absorbed += (r_fast + r_slow) / limit;
-	
+	absorbed += r_fast / limit;
+
 	update_pipe(secs);
 }
 

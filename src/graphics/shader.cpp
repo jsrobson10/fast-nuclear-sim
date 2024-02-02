@@ -15,6 +15,7 @@ static unsigned int prog_id;
 
 int shader::gl_tex_mat;
 int shader::gl_model;
+int shader::gl_camera;
 int shader::gl_projection;
 
 static int load_shader(const char* src, int type)
@@ -68,6 +69,7 @@ unsigned int shader::init_program()
 	
 	gl_tex_mat = glGetUniformLocation(prog_id, "tex_mat");
 	gl_model = glGetUniformLocation(prog_id, "model");
+	gl_camera = glGetUniformLocation(prog_id, "camera");
 	gl_projection = glGetUniformLocation(prog_id, "projection");
 
 	glUseProgram(prog_id);

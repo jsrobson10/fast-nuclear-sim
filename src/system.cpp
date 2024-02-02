@@ -36,10 +36,7 @@ system::system()
 	};
 	
 	vessel = std::make_unique<reactor::coolant::vessel>(8, 10, 300, sim::coolant::WATER);
-	reactor = std::make_unique<sim::reactor::reactor>(sim::reactor::builder(19, 19, 0.25, 8,
-		reactor::fuel::fuel_rod(0.5),
-		reactor::control::boron_rod(*vessel.get(), 1),
-		*vessel.get(), layout));
+	reactor = std::make_unique<sim::reactor::reactor>(sim::reactor::builder(19, 19, 1.0 / 4.0, 4, reactor::fuel::fuel_rod(0.5), *vessel.get(), layout));
 	
 	valve = std::make_unique<coolant::valve<reactor::coolant::vessel>>(*vessel.get(), 1, 500);
 	pump = std::make_unique<coolant::pump<reactor::coolant::vessel>>(*vessel.get(), 1e4, 15);
@@ -55,7 +52,7 @@ system::system(system&& o)
 
 void system::update(double dt)
 {
-	dt *= 10;
+	dt *= speed;
 	vessel->update(dt);
 	reactor->update(dt);
 	valve->update(dt);

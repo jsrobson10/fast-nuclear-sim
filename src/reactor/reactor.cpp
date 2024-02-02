@@ -41,9 +41,45 @@ reactor::reactor(const reactor& o) : cell_width(o.cell_width), cell_height(o.cel
 	}
 }
 
+void reactor::reset_rod_speed()
+{
+	rod_speed = 0;
+}
+
+void reactor::add_rod_speed(double a)
+{
+	rod_speed -= a;
+
+	if(rod_speed < -0.2)
+		rod_speed = -0.2;
+	if(rod_speed > 0.2)
+		rod_speed = 0.2;
+}
+
+void reactor::scram()
+{
+	rod_speed = 0.2;
+
+	for(int i = 0; i < size; i++)
+	{
+		if(rods[i]->should_select())
+		{
+			rods[i]->selected = true;
+		}
+	}
+}
+
 void reactor::update(double secs)
 {
 	int rods_lookup[size];
+	double temp_min, temp_max;
+
+	get_stats(rod::val_t::HEAT, temp_min, temp_max);
+
+	if(temp_max > 360)
+	{
+		scram();
+	}
 
 	for(int i = 0; i < size; i++)
 	{
@@ -74,7 +110,7 @@ void reactor::update_selected(double dt)
 	{
 		rod* r = rods[i].get();
 
-		if(r->is_selected())
+		if(r->selected)
 		{
 			r->update_selected(rod_speed * dt);
 		}
@@ -150,6 +186,35 @@ double reactor::get_total(rod::val_t type)
 	for(int i = 0; i < size; i++)
 	{
 		v += rods[i]->get(type);
+	}
+
+	return v;
+}
+
+double reactor::get_average(rod::val_t type)
+{
+	return get_total(type) / size;
+}
+
+double reactor::get_flux()
+{
+	double v = 0;
+
+	for(int i = 0; i < size; i++)
+	{
+		v += rods[i]->get_flux();
+	}
+	
+	return v / size;
+}
+
+double reactor::get_energy_output()
+{
+	double v = 0;
+
+	for(int i = 0; i < size; i++)
+	{
+		v += rods[i]->get_energy_output();
 	}
 
 	return v;

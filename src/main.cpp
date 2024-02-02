@@ -41,9 +41,11 @@ int main()
 		clock += passed;
 		
 		sim::system::active.update(dt);
+
 		graphics::camera::update(dt);
-		graphics::window::loop();
+		graphics::window::update(dt);
 		graphics::focus::update();
+		graphics::window::render();
 	}
 
 	graphics::window::destroy();

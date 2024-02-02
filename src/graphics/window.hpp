@@ -10,7 +10,8 @@ namespace sim::graphics::window
 
 bool should_close();
 void create();
-void loop();
+void update(double dt);
+void render();
 void destroy();
 void close();
 

@@ -26,9 +26,15 @@ struct reactor
 	reactor(const reactor& r);
 	reactor(reactor&& r);
 	
+	void scram();
+	void reset_rod_speed();
+	void add_rod_speed(double a);
 	void update(double secs);
 	void get_stats(rod::val_t type, double& min, double& max);
 	void get_rod_stats(int type, double& min, double& max);
+	double get_flux();
+	double get_energy_output();
+	double get_average(rod::val_t type);
 	double get_total(rod::val_t type);
 	int move_cursor(int d);
 	void toggle_selected();

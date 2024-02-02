@@ -19,7 +19,7 @@ struct core_focus_t : public focus::focus_t
 {
 	virtual void on_cursor_pos(double x, double y)
 	{
-		sim::system::active.reactor->rod_speed -= y * 1e-6;
+		sim::system::active.reactor->add_rod_speed(-y * 1e-6);
 	}
 
 	void set_all(bool state)
@@ -28,9 +28,9 @@ struct core_focus_t : public focus::focus_t
 		{
 			sim::reactor::rod* r = sim::system::active.reactor->rods[i].get();
 
-			if(r->should_select() && (r->is_selected() != state))
+			if(r->should_select())
 			{
-				r->toggle_selected();
+				r->selected = state;
 			}
 		}
 	}
@@ -77,7 +77,7 @@ struct core_focus_t : public focus::focus_t
 			toggle_auto();
 			break;
 		case GLFW_KEY_X:
-			sim::system::active.reactor->rod_speed = 0;
+			sim::system::active.reactor->reset_rod_speed();
 			break;
 		case GLFW_KEY_Q:
 			set_all(true);
@@ -112,13 +112,19 @@ void core::init()
 	mesh2.set(rmesh2, GL_STATIC_DRAW);
 	
 	mesh_click.load_model("../assets/model/", "reactor_core_input.stl");
+	mesh_scram.load_model("../assets/model/", "reactor_core_scram.stl");
 }
 
 void core::update()
 {
-	if(mesh_click.check_focus(2))
+	if(mesh_click.check_focus())
 	{
 		focus::set(std::make_unique<core_focus_t>());
+	}
+
+	if(mesh_scram.check_focus())
+	{
+		sim::system::active.reactor->scram();
 	}
 }
 
@@ -169,7 +175,7 @@ void core::render()
 			mesh2.render();
 		}
 
-		if(r->is_selected())
+		if(r->selected)
 		{
 			mesh2.model_matrix = mat * mat_select;
 			mesh2.colour_matrix = arrays::colour({1, 1, 0, 1});

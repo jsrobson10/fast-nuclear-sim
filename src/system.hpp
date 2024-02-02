@@ -21,6 +21,7 @@ struct system
 	std::unique_ptr<sim::coolant::valve<sim::reactor::coolant::vessel>> valve;
 	std::unique_ptr<sim::coolant::pump<sim::reactor::coolant::vessel>> pump;
 	sim::graphics::mesh scene;
+	double speed = 1;
 
 	system();
 	system(system&& o);

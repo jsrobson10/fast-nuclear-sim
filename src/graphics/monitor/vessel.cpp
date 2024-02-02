@@ -37,10 +37,11 @@ void vessel::init()
 	ss << "Steam\n";
 	ss << "Pressure\n";
 	ss << "Level\n";
-	ss << "Void Ratio\n\n\n\n";
+	ss << "Void Ratio\n\n";
 	ss << "Reactor Core\n\n";
+	ss << "Energy Output\n";
+	ss << "Neutron Flux\n\n";
 	ss << "Temperature\nMin\nMax\n\n";
-	ss << "Neutron Flux\nSlow\nFast\n\n";
 	ss << "Control Rods\nMin\nMax\nSpeed\n";
 
 	rmesh.load_text(ss.str().c_str(), 0.04);
@@ -98,13 +99,13 @@ void vessel::update()
 	ss << show( sys.vessel->get_steam() ) << " g\n";
 	ss << show( sys.vessel->get_pressure() * 0.001 ) << " kPa\n";
 	ss << show( sys.vessel->get_level() ) << " / " << show( sys.vessel->get_volume() ) << " L\n";
-	ss << show( sys.vessel->get_void_ratio() * 100 ) << " %\n\n\n\n\n\n\n";
+	ss << show( sys.vessel->get_void_ratio() * 100 ) << " %\n\n\n\n";
+	ss << show( sys.reactor->get_energy_output() * 0.001 ) << " kW\n";
+	ss << show( sys.reactor->get_flux() ) << " n/cm2/s\n\n\n";
 	ss << show( temp_min ) << " C\n";
 	ss << show( temp_max ) << " C\n\n\n";
-	ss << ( sys.reactor->get_total(sim::reactor::rod::val_t::N_SLOW) * 1e12 ) << " pmol\n";
-	ss << ( sys.reactor->get_total(sim::reactor::rod::val_t::N_FAST) * 1e12 ) << " pmol\n\n\n";
-	ss << show( crod_min * 100 ) << " %\n";
-	ss << show( crod_max * 100 ) << " %\n";
+	ss << show( 100 - crod_max * 100 ) << " %\n";
+	ss << show( 100 - crod_min * 100 ) << " %\n";
 	ss << show( sys.reactor->rod_speed * 100, 1e6 ) << " %/s";
 	if(sys.reactor->rod_speed == 0) ss << " (Stopped)";
 	ss << "\n";

@@ -21,9 +21,16 @@ void fuel_rod::display(std::ostream& o) const
 	
 	o << "Fuel: " << (s.get_fuel() * mol) << " / " << (s.get_mass() * mol) << " mol\n";
 	o << "Efficiency: " << (s.get_efficiency() * 100) << " %\n";
-	o << "Output: " << (s.get_energy() * mol * energy_density) << " W\n";
+	o << "Output: " << get_energy_output() << " W\n";
 	o << "Iodine: " << (s.get_i_135() * mol) << " mol\n";
 	o << "Xenon: " << (s.get_xe_135() * mol) << " mol\n";
+}
+
+double fuel_rod::get_energy_output() const
+{
+	double mol = fuel_molar_density * get_volume();
+
+	return s.get_energy() * mol * energy_density;
 }
 
 static float map(float v, float imin, float imax, float omin, float omax)
@@ -77,11 +84,12 @@ void fuel_rod::update(double secs)
 	
 	s.clear_energy();
 	s.clear_fast_neutrons();
+	s.clear_slow_neutrons();
 	s.add_slow_neutrons(vals[val_t::N_SLOW] / mol);
 	s.update(secs);
 
 	vals[val_t::HEAT] += s.get_energy() * mol * energy_density * secs;
 	vals[val_t::N_FAST] += s.get_fast_neutrons() * mol;
-	vals[val_t::N_SLOW] = 0;
+	vals[val_t::N_SLOW] = s.get_slow_neutrons() * mol;
 }
 

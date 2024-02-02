@@ -7,7 +7,7 @@
 
 using namespace sim::reactor;
 
-sim::reactor::reactor sim::reactor::builder(const int W, const int H, const double CW, const double CH, fuel::fuel_rod fr, control::boron_rod br, coolant::vessel& v, const char** lines)
+sim::reactor::reactor sim::reactor::builder(const int W, const int H, const double CW, const double CH, fuel::fuel_rod fr, coolant::vessel& v, const char** lines)
 {
 	std::vector<std::unique_ptr<rod>> arr(W * H);
 	
@@ -23,7 +23,7 @@ sim::reactor::reactor sim::reactor::builder(const int W, const int H, const doub
 			r = std::make_unique<fuel::fuel_rod>(fr);
 			break;
 		case 'C':
-			r = std::make_unique<control::boron_rod>(br);
+			r = std::make_unique<control::boron_rod>(v);
 			break;
 		case 'G':
 			r = std::make_unique<control::graphite_rod>();

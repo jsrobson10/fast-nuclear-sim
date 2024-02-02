@@ -101,6 +101,11 @@ bool mesh::check_focus(double len) const
 	return focus::is_triggered() && check_intersect(camera::get_pos(), camera::get_normal() * len);
 }
 
+bool mesh::check_focus() const
+{
+	return check_focus(2.5);
+}
+
 bool mesh::check_intersect(vec3 pos, vec3 path) const
 {
 	double l = glm::length(path);

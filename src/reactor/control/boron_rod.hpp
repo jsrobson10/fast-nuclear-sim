@@ -6,10 +6,8 @@
 namespace sim::reactor::control
 {
 
-class boron_rod : public sim::reactor::coolant::pipe
+class boron_rod : public coolant::pipe
 {
-	const double max;
-
 	double inserted = 1;
 	double absorbed = 0;
 	
@@ -19,8 +17,8 @@ class boron_rod : public sim::reactor::coolant::pipe
 	virtual int get_id() const { return 5; }
 
 public:
-
-	boron_rod(coolant::vessel& v, double max);
+	
+	boron_rod(coolant::vessel& v);
 
 	virtual void update(double secs);
 	void set_reactivity(double a);

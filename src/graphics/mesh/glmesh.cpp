@@ -59,8 +59,7 @@ void glmesh::bind()
 
 void glmesh::uniform()
 {
-	glm::mat4 m = camera::get_matrix() * model_matrix;
-	glUniformMatrix4fv(shader::gl_model, 1, false, &m[0][0]);
+	glUniformMatrix4fv(shader::gl_model, 1, false, &model_matrix[0][0]);
 	glUniformMatrix4fv(shader::gl_tex_mat, 1, false, &colour_matrix[0][0]);
 }
 

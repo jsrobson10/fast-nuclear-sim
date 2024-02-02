@@ -12,14 +12,15 @@ class rod
 {
 public:
 	
+	bool selected = false;
 	void* reactor = nullptr;
-	static const int VAL_N = 3;
+	static const int VAL_N = 4;
 	
 	enum val_t
 	{
 		HEAT = 0,
 		N_SLOW = 1,
-		N_FAST = 2
+		N_FAST = 2,
 	};
 
 	virtual ~rod() {};
@@ -30,16 +31,19 @@ public:
 	virtual double get(val_t type) const;
 	virtual std::unique_ptr<rod> clone() const { return std::make_unique<rod>(*this); }
 	virtual glm::vec4 get_colour() const { return {0, 0, 0, 0}; }
+	virtual double get_energy_output() const { return 0; }
 	virtual int get_id() const { return 0; }
 
 	virtual bool has_sensors(val_t t) const { return false; }
 	virtual bool should_display() const { return false; }
 	virtual bool should_select() const { return false; }
 	virtual void update_selected(double a) { }
+
+	double get_flux() const;
+	double get_side_area() const;
 	double get_volume() const;
 	
 	constexpr void toggle_selected() { selected = !selected; }
-	constexpr bool is_selected() const { return selected; }
 
 	friend std::ostream& operator<<(std::ostream& o, const rod& r)
 	{
@@ -59,7 +63,7 @@ public:
 protected:
 
 	double vals[VAL_N] = {0};
-	bool selected = false;
+	double vals_n[VAL_N] = {0};
 
 	virtual void display(std::ostream& o) const { };
 	virtual double get_k(val_t type) const { return 0; }

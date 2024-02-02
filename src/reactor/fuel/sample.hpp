@@ -19,6 +19,7 @@ class sample
 	double i_135 = 0;
 	double xe_135 = 0;
 	double te_135 = 0;
+	double u_238 = 0;
 	double mass = 0;
 
 	double energy = 0; // W
@@ -39,6 +40,7 @@ public:
 	constexpr double get_mass() const { return mass; }
 	constexpr double get_energy() const { return energy; }
 	constexpr double get_fast_neutrons() const { return fast_neutrons; }
+	constexpr double get_slow_neutrons() const { return slow_neutrons; }
 	constexpr double get_volume() const { return mass + xe_135 * Xe_135_M; }
 	constexpr double get_efficiency() const { return efficiency; }
 	constexpr double get_te_135() const { return te_135; }
@@ -47,6 +49,7 @@ public:
 	
 	constexpr void clear_energy() { energy = 0; }
 	constexpr void clear_fast_neutrons() { fast_neutrons = 0; }
+	constexpr void clear_slow_neutrons() { slow_neutrons = 0; }
 	constexpr void add_slow_neutrons(double a) { slow_neutrons += a; }
 
 	friend std::ostream& operator<<(std::ostream& o, const sample& s)

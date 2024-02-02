@@ -9,6 +9,7 @@
 #include "../window.hpp"
 #include "../resize.hpp"
 #include "../camera.hpp"
+#include "../../system.hpp"
 
 using namespace sim::graphics;
 
@@ -24,6 +25,25 @@ static void cb_keypress(GLFWwindow* win, int key, int sc, int action, int mods)
 	if(action == GLFW_PRESS)
 	{
 		pressed[key] = true;
+
+		switch(key)
+		{
+		case GLFW_KEY_1:
+			sim::system::active.speed = 1;
+			break;
+		case GLFW_KEY_2:
+			sim::system::active.speed = 10;
+			break;
+		case GLFW_KEY_3:
+			sim::system::active.speed = 60;
+			break;
+		case GLFW_KEY_4:
+			sim::system::active.speed = 600;
+			break;
+		case GLFW_KEY_5:
+			sim::system::active.speed = 3600;
+			break;
+		}
 	}
 
 	if(action == GLFW_RELEASE)

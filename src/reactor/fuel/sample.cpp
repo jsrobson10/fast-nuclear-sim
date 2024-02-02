@@ -6,26 +6,26 @@
 
 using namespace sim::reactor::fuel;
 
-static const double NEUTRON_BG = 1e-25;
+constexpr double NEUTRON_BG = 1e-30;
 
 sample::sample(double fuel)
 {
 	this->fuel = fuel;
+	this->u_238 = 1 - fuel;
 	this->mass = 1;
 }
 
 void sample::update(double secs)
 {
 	double m;
-
+	
 	// decay waste and extract products
 	waste.update(secs);
 	fast_neutrons += waste.extract_neutrons();
-	energy += waste.extract_energy() * (1.0 / 30.0);
+	energy += waste.extract_energy() * (1.0 / 30.0) / secs;
 
 	// decay Xe-135
-	m = half_life::get(secs, half_life::Xe_135);
-	xe_135 *= m;
+	xe_135 *= half_life::get(secs, half_life::Xe_135);
 
 	// decay I-135 into Xe-135
 	m = half_life::get(secs, half_life::I_135);
