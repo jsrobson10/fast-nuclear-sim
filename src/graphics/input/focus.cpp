@@ -1,15 +1,22 @@
 
-#include "focus.hpp"
-#include "../camera.hpp"
-#include "../../util/math.hpp"
-#include "mouse.hpp"
-
-#include <iostream>
-
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include "focus.hpp"
+#include "../../util/math.hpp"
+#include "../window.hpp"
+#include "../camera.hpp"
+#include "../resize.hpp"
+#include "mouse.hpp"
+
+#include <glm/gtc/matrix_transform.hpp>
+
+#include <iostream>
+
 using namespace sim::graphics;
+
+static glm::vec<3, double> trigger_near;
+static glm::vec<3, double> trigger_far;
 
 static std::unique_ptr<focus::focus_t> state = nullptr;
 static bool mouse_visible = false;
@@ -44,9 +51,28 @@ void focus::on_mouse_button(int button, int action, int mods)
 		state->on_mouse_button(button, action, mods);
 	}
 
-	else if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
+	else if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 	{
 		triggered = true;
+
+		if(is_mouse_locked())
+		{
+			double mx, my;
+			mouse::get(mx, my);
+
+			glm::vec2 wsize = resize::get_size();
+			glm::vec4 viewport = glm::vec4(0, 0, wsize);
+			glm::vec2 mouse(mx, wsize.y - my);
+
+			trigger_near = glm::unProject(glm::vec3(mouse, -1), camera::get_matrix(), window::projection_matrix, viewport);
+			trigger_far = glm::unProject(glm::vec3(mouse, 1), camera::get_matrix(), window::projection_matrix, viewport);
+		}
+
+		else
+		{
+			trigger_near = camera::get_pos();
+			trigger_far = trigger_near + camera::get_normal();
+		}
 	}
 }
 
@@ -66,15 +92,30 @@ void focus::on_charcode(unsigned int c)
 	}
 }
 
+glm::vec<3, double> focus::get_trigger_near()
+{
+	return trigger_near;
+}
+
+glm::vec<3, double> focus::get_trigger_far()
+{
+	return trigger_far;
+}
+
 void focus::update()
 {
 	triggered = false;
 
-	bool locked = is_mouse_locked();
+	bool c = is_mouse_locked();
 
-	if(locked != mouse_visible)
+	if(state && !state->cursor_is_visible())
 	{
-		if(locked)
+		c = false;
+	}
+
+	if(c != mouse_visible)
+	{
+		if(c)
 		{
 			mouse::show_cursor();
 		}
@@ -84,7 +125,7 @@ void focus::update()
 			mouse::hide_cursor();
 		}
 
-		mouse_visible = locked;
+		mouse_visible = c;
 	}
 
 	if(state)

@@ -38,6 +38,11 @@ void mouse::get(double& x, double& y)
 	y = ypos;
 }
 
+glm::vec2 mouse::get()
+{
+	return {xpos, ypos};
+}
+
 void mouse::show_cursor()
 {
 	double x, y;

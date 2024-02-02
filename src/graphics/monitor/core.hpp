@@ -9,8 +9,11 @@ namespace sim::graphics::monitor
 
 class core
 {
-	sim::graphics::mesh mesh_click, mesh_scram;
 	sim::graphics::glmesh mesh1, mesh2;
+
+	sim::graphics::mesh m_buttons[9];
+	sim::graphics::mesh m_joystick;
+	sim::graphics::mesh m_scram;
 	
 public:
 

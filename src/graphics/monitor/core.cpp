@@ -15,83 +15,42 @@
 using namespace sim::graphics;
 using namespace sim::graphics::monitor;
 
-struct core_focus_t : public focus::focus_t
+struct core_joystick : public focus::focus_t
 {
 	virtual void on_cursor_pos(double x, double y)
 	{
-		sim::system::active.reactor->add_rod_speed(-y * 1e-6);
+		sim::system::active.reactor->add_rod_speed(y * 1e-6);
 	}
 
-	void set_all(bool state)
+	virtual void on_mouse_button(int button, int action, int mods)
 	{
-		for(int i = 0; i < sim::system::active.reactor->rods.size(); i++)
+		if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
 		{
-			sim::reactor::rod* r = sim::system::active.reactor->rods[i].get();
-
-			if(r->should_select())
-			{
-				r->selected = state;
-			}
+			focus::clear_focus();
 		}
 	}
 
-	void toggle_auto()
+	virtual bool cursor_is_visible()
 	{
-		//TODO
-	}
-
-	virtual void on_charcode(unsigned int c)
-	{
-		sim::system& sys = sim::system::active;
-
-		switch(c)
-		{
-		case 'a': case 'A':
-			sys.reactor->move_cursor(-1);
-			break;
-		case 'd': case 'D':
-			sys.reactor->move_cursor(1);
-			break;
-		case 'w': case 'W':
-			sys.reactor->move_cursor(-sim::system::active.reactor->height);
-			break;
-		case 's': case 'S':
-			sys.reactor->move_cursor(sim::system::active.reactor->height);
-			break;
-		}
-	}
-
-	virtual void on_keypress(int key, int sc, int action, int mods)
-	{
-		if(action != GLFW_PRESS)
-		{
-			return;
-		}
-		
-		switch(key)
-		{
-		case GLFW_KEY_Z:
-			sim::system::active.reactor->toggle_selected();
-			break;
-		case GLFW_KEY_C:
-			toggle_auto();
-			break;
-		case GLFW_KEY_X:
-			sim::system::active.reactor->reset_rod_speed();
-			break;
-		case GLFW_KEY_Q:
-			set_all(true);
-			break;
-		case GLFW_KEY_E:
-			set_all(false);
-			break;
-		}
+		return false;
 	}
 };
 
 core::core()
 {
+}
 
+static void set_all(bool state)
+{
+	for(int i = 0; i < sim::system::active.reactor->rods.size(); i++)
+	{
+		sim::reactor::rod* r = sim::system::active.reactor->rods[i].get();
+
+		if(r->should_select())
+		{
+			r->selected = state;
+		}
+	}
 }
 
 void core::init()
@@ -110,22 +69,46 @@ void core::init()
 	rmesh2.load_model("../assets/model/", "reactor_core_interface_cell.stl");
 	mesh2.bind();
 	mesh2.set(rmesh2, GL_STATIC_DRAW);
-	
-	mesh_click.load_model("../assets/model/", "reactor_core_input.stl");
-	mesh_scram.load_model("../assets/model/", "reactor_core_scram.stl");
+
+	m_buttons[0].load_model("../assets/model/", "reactor_core_button1.stl");
+	m_buttons[1].load_model("../assets/model/", "reactor_core_button2.stl");
+	m_buttons[2].load_model("../assets/model/", "reactor_core_button3.stl");
+	m_buttons[3].load_model("../assets/model/", "reactor_core_button4.stl");
+	m_buttons[4].load_model("../assets/model/", "reactor_core_button5.stl");
+	m_buttons[5].load_model("../assets/model/", "reactor_core_button6.stl");
+	m_buttons[6].load_model("../assets/model/", "reactor_core_button7.stl");
+	m_buttons[7].load_model("../assets/model/", "reactor_core_button8.stl");
+	m_buttons[8].load_model("../assets/model/", "reactor_core_button9.stl");
+	m_joystick.load_model("../assets/model/", "reactor_core_joystick.stl");
+	m_scram.load_model("../assets/model/", "reactor_core_scram.stl");
 }
 
 void core::update()
 {
-	if(mesh_click.check_focus())
-	{
-		focus::set(std::make_unique<core_focus_t>());
-	}
-
-	if(mesh_scram.check_focus())
-	{
+	sim::system& sys = sim::system::active;
+	
+	if(m_joystick.check_focus())
+		focus::set(std::make_unique<core_joystick>());
+	if(m_scram.check_focus())
 		sim::system::active.reactor->scram();
-	}
+	if(m_buttons[0].check_focus())
+		set_all(true);
+	if(m_buttons[1].check_focus())
+		sys.reactor->move_cursor(-sim::system::active.reactor->height);
+	if(m_buttons[2].check_focus())
+		set_all(false);
+	if(m_buttons[3].check_focus())
+		sys.reactor->move_cursor(-1);
+	if(m_buttons[4].check_focus())
+		sys.reactor->move_cursor(sim::system::active.reactor->height);
+	if(m_buttons[5].check_focus())
+		sys.reactor->move_cursor(1);
+	if(m_buttons[6].check_focus())
+		sim::system::active.reactor->toggle_selected();
+	if(m_buttons[7].check_focus())
+		sim::system::active.reactor->reset_rod_speed();
+//	if(m_buttons[8].check_focus())
+//		
 }
 
 void core::render()

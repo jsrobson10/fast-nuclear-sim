@@ -50,7 +50,7 @@ void boron_rod::update(double secs)
 
 void boron_rod::update_selected(double a)
 {
-	inserted += a;
+	inserted -= a;
 
 	if(inserted > 1) inserted = 1;
 	if(inserted < 0) inserted = 0;

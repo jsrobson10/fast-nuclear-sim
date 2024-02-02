@@ -58,7 +58,7 @@ void reactor::add_rod_speed(double a)
 
 void reactor::scram()
 {
-	rod_speed = 0.2;
+	rod_speed = -0.2;
 
 	for(int i = 0; i < size; i++)
 	{

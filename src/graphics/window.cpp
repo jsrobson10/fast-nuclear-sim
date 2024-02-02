@@ -32,6 +32,8 @@ static glmesh MeshScene;
 static monitor::vessel MonitorVessel;
 static monitor::core MonitorCore;
 
+glm::mat4 window::projection_matrix;
+
 void GLAPIENTRY cb_debug_message(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
 {
 	if(severity != GL_DEBUG_SEVERITY_NOTIFICATION)
@@ -132,6 +134,7 @@ void window::render()
 	glm::mat4 mat_projection = glm::perspective(glm::radians(90.0f), resize::get_aspect(), 0.01f, 20.f);
 	glUniformMatrix4fv(shader::gl_projection, 1, false, &mat_projection[0][0]);
 	glUniformMatrix4fv(shader::gl_camera, 1, false, &mat_camera[0][0]);
+	projection_matrix = mat_projection;
 
 	glClearColor(0, 0, 0, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

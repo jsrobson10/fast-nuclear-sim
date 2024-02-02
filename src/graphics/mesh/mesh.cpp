@@ -98,7 +98,10 @@ bool ray_intersects_triangle(vec3 ray_origin,
 
 bool mesh::check_focus(double len) const
 {
-	return focus::is_triggered() && check_intersect(camera::get_pos(), camera::get_normal() * len);
+	auto near = focus::get_trigger_near();
+	auto far = focus::get_trigger_far();
+	
+	return focus::is_triggered() && check_intersect(near, glm::normalize(far - near) * len);
 }
 
 bool mesh::check_focus() const
