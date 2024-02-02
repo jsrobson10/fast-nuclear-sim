@@ -57,8 +57,8 @@ void system::update(double dt)
 	dt *= speed;
 	vessel->update(dt);
 	reactor->update(dt);
-	condenser->update(dt);
-	turbine_bypass_valve->update(dt);
-	core_pump->update(dt);
+//	condenser->update(dt);
+//	turbine_bypass_valve->update(dt);
+//	core_pump->update(dt);
 }
 
