@@ -178,7 +178,11 @@ static bool calc_intercept_vert(vec3 v[3], vec3 pos, vec3& path, vec3& path_n, v
 	path -= normal * d;
 	normal_last = normal;
 	l = glm::length(path);
-	path_n = path / l;
+
+	if(l > 0)
+	{
+		path_n = path / l;
+	}
 
 	return true;
 }
@@ -207,6 +211,11 @@ vec3 mesh::calc_intersect(vec3 pos, vec3 path, vec3& normal_last) const
 		{
 			i_found = i;
 		}
+
+		if(l == 0)
+		{
+			return path;
+		}
 	}
 
 	for(unsigned int i = 0; i < i_found; i += 3)
@@ -218,6 +227,11 @@ vec3 mesh::calc_intersect(vec3 pos, vec3 path, vec3& normal_last) const
 		};
 		
 		calc_intercept_vert(v, pos, path, path_n, normal_last, l);
+
+		if(l == 0)
+		{
+			return path;
+		}
 	}
 
 	return path;

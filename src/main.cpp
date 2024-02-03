@@ -4,6 +4,7 @@
 #include <random>
 #include <sstream>
 #include <cmath>
+#include <cfenv>
 
 #include "reactor/coolant/vessel.hpp"
 #include "coolant/fluid_t.hpp"
@@ -29,6 +30,8 @@ unsigned long get_now()
 
 int main()
 {
+	feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
+	
 	graphics::window::create();
 
 	long clock = get_now();

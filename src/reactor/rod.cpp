@@ -31,6 +31,7 @@ double rod::extract(val_t type, double s, double k, double o)
 		m = 1 - std::pow(0.5, s * -std::log2(k));
 	}
 
+
 	double v = m * 0.5 * (get(type) - o);
 	vals[type] -= v;
 

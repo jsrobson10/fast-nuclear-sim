@@ -19,11 +19,6 @@ condenser::condenser(fluid_t type, double height, double diameter, double level)
 	this->level = level;
 }
 
-double condenser::get_bubble_hl()
-{
-	return (level / volume) * diameter * 0.5 / fluid.bubble_speed;
-}
-
 void condenser::update(double secs)
 {
 	((sim::coolant::fluid_holder*)this)->update(secs);

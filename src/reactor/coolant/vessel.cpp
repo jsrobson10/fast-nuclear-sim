@@ -4,6 +4,7 @@
 #include "../../conversions/temperature.hpp"
 #include "../fuel/half_life.hpp"
 
+#include <iostream>
 #include <cmath>
 
 using namespace sim::reactor::coolant;
@@ -22,13 +23,50 @@ vessel::vessel(sim::coolant::fluid_t fluid, double height, double diameter, doub
 	this->level = level;
 }
 
-double vessel::get_bubble_hl()
+double vessel::get_steam_suspended() const
+{
+	return steam_suspended;
+}
+
+double vessel::get_void_ratio() const
+{
+	double s = steam_suspended / get_steam_density();
+	
+	if(s == 0)
+	{
+		return 0;
+	}
+
+	return s / (level + s);
+}
+
+double vessel::get_bubble_hl() const
 {
 	return (level / volume) * height * 0.5 / fluid.bubble_speed;
 }
 
 void vessel::update(double secs)
 {
+	double s = steam;
+
 	((sim::coolant::fluid_holder*)this)->update(secs);
+
+	double diff = steam - s;
+	double hl = get_bubble_hl();
+
+	if(diff > 0)
+	{
+		steam_suspended += diff;
+	}
+
+	if(hl > 0)
+	{
+		steam_suspended *= reactor::fuel::half_life::get(secs, get_bubble_hl());
+	}
+
+	else
+	{
+		steam_suspended = 0;
+	}
 }
 

@@ -14,10 +14,11 @@ struct reactor
 {
 	const double cell_width;
 	const double cell_height;
+	
 	const int width;
 	const int height;
 	const int size;
-
+	
 	std::vector<std::unique_ptr<rod>> rods;
 	double rod_speed = 0;
 	int cursor;
@@ -38,7 +39,7 @@ struct reactor
 	double get_total(rod::val_t type);
 	int move_cursor(int d);
 	void toggle_selected();
-
+	
 private:
 
 	void update_tile(double secs, int i, int x, int y);

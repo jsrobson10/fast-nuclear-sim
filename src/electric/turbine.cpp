@@ -19,11 +19,6 @@ turbine::turbine(coolant::fluid_t type, double height, double diameter, double l
 	this->level = level;
 }
 
-double turbine::get_bubble_hl()
-{
-	return (level / volume) * diameter * 0.5 / fluid.bubble_speed;
-}
-
 void turbine::update(double secs)
 {
 	((sim::coolant::fluid_holder*)this)->update(secs);

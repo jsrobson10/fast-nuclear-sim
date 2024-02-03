@@ -5,6 +5,7 @@
 #include "../reactor/fuel/half_life.hpp"
 
 #include <cmath>
+#include <iostream>
 
 using namespace sim::coolant;
 
@@ -19,8 +20,12 @@ double fluid_holder::add_heat(double m1, double t1)
 	double t = t1 - t2;
 	double m2 = (fluid.l_to_g(level) + steam) * fluid.jPgk;
 	double m = m1 + m2;
+
+	if(m1 == 0 || m2 == 0)
+		return t1;
 	
    	heat = t1 - t * m2 / m;
+
 	return heat;
 }
 
@@ -124,7 +129,5 @@ void fluid_holder::update(double secs)
 	level = fluid.g_to_l(l);
 	heat -= diff * fluid.jPg / (fluid.l_to_g(level) + steam) / fluid.jPgk;
 
-	if(diff > 0) steam_suspended += diff;
-	steam_suspended *= reactor::fuel::half_life::get(secs, get_bubble_hl());
 }
 

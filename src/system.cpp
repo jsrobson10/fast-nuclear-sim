@@ -37,7 +37,7 @@ system::system()
 	
 	vessel = std::make_unique<reactor::coolant::vessel>(sim::coolant::WATER, 8, 10, 300);
 	reactor = std::make_unique<reactor::reactor>(sim::reactor::builder(19, 19, 1.0 / 4.0, 4, reactor::fuel::fuel_rod(0.5), vessel.get(), layout));
-	condenser = std::make_unique<coolant::condenser>(sim::coolant::WATER, 8, 6, 200);
+	condenser = std::make_unique<coolant::condenser>(sim::coolant::WATER, 8, 6, 20);
 	turbine = std::make_unique<electric::turbine>(sim::coolant::WATER, 6, 3, 20);
 	
 	turbine_inlet_valve = std::make_unique<coolant::valve>(vessel.get(), turbine.get(), 1);

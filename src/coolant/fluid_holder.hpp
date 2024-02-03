@@ -15,7 +15,6 @@ protected:
 
 	double level = 0; // litres
 	double steam = 0; // grams
-	double steam_suspended = 0; // grams
 	double heat = 0; // celsius
 	
 	fluid_holder(fluid_t fluid, double volume);
@@ -33,10 +32,6 @@ public:
 	constexpr double get_steam() const { return steam; } // grams
 	constexpr double get_mass() const { return fluid.l_to_g(level) + steam; } // grams
 	constexpr double get_steam_density() const { return steam / (volume - level); } // g/L
-	constexpr double get_steam_suspended() const { return steam_suspended; } // grams
-	constexpr double get_void_ratio() const { double s = steam_suspended / get_steam_density(); return s / (level + s); }
-
-	virtual double get_bubble_hl() = 0;
 
 	double get_pressure() const; // pascals
 	void update(double dt);
