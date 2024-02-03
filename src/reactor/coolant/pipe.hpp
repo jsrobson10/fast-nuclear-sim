@@ -22,7 +22,7 @@ protected:
 
 public:
 
-	pipe(coolant::vessel& v);
+	pipe(coolant::vessel* v);
 
 	virtual std::unique_ptr<rod> clone() const { return std::make_unique<pipe>(*this); }
 	virtual bool should_display() const { return true; }

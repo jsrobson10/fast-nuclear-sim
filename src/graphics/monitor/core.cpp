@@ -3,9 +3,11 @@
 #include <GLFW/glfw3.h>
 
 #include "core.hpp"
+#include "helpers.hpp"
 #include "../locations.hpp"
 #include "../input/focus.hpp"
 #include "../mesh/arrays.hpp"
+#include "../../system.hpp"
 
 #include <glm/ext/matrix_transform.hpp>
 
@@ -14,6 +16,60 @@
 
 using namespace sim::graphics;
 using namespace sim::graphics::monitor;
+
+static void set_all(bool state)
+{
+	for(int i = 0; i < sim::system::active.reactor->rods.size(); i++)
+	{
+		sim::reactor::rod* r = sim::system::active.reactor->rods[i].get();
+
+		if(r->should_select())
+		{
+			r->selected = state;
+		}
+	}
+}
+
+struct core_monitor : public focus::focus_t
+{
+	virtual void on_keypress(int key, int sc, int action, int mods)
+	{
+		if(action != GLFW_PRESS)
+		{
+			return;
+		}
+	
+		sim::system& sys = sim::system::active;
+
+		switch(key)
+		{
+		case GLFW_KEY_KP_7:
+			set_all(true);
+			break;
+		case GLFW_KEY_KP_8:
+			sys.reactor->move_cursor(-sys.reactor->height);
+			break;
+		case GLFW_KEY_KP_9:
+			set_all(false);
+			break;
+		case GLFW_KEY_KP_4:
+			sys.reactor->move_cursor(-1);
+			break;
+		case GLFW_KEY_KP_5:
+			sys.reactor->toggle_selected();
+			break;
+		case GLFW_KEY_KP_6:
+			sys.reactor->move_cursor(1);
+			break;
+		case GLFW_KEY_KP_1:
+			sys.reactor->reset_rod_speed();
+			break;
+		case GLFW_KEY_KP_2:
+			sys.reactor->move_cursor(sys.reactor->height);
+			break;
+		}
+	}
+};
 
 struct core_joystick : public focus::focus_t
 {
@@ -38,19 +94,6 @@ struct core_joystick : public focus::focus_t
 
 core::core()
 {
-}
-
-static void set_all(bool state)
-{
-	for(int i = 0; i < sim::system::active.reactor->rods.size(); i++)
-	{
-		sim::reactor::rod* r = sim::system::active.reactor->rods[i].get();
-
-		if(r->should_select())
-		{
-			r->selected = state;
-		}
-	}
 }
 
 void core::init()
@@ -80,6 +123,7 @@ void core::init()
 	m_buttons[7].load_model("../assets/model/", "reactor_core_button8.stl");
 	m_buttons[8].load_model("../assets/model/", "reactor_core_button9.stl");
 	m_joystick.load_model("../assets/model/", "reactor_core_joystick.stl");
+	m_monitor.load_model("../assets/model/", "reactor_core_input.stl");
 	m_scram.load_model("../assets/model/", "reactor_core_scram.stl");
 }
 
@@ -87,28 +131,28 @@ void core::update()
 {
 	sim::system& sys = sim::system::active;
 	
+	if(m_monitor.check_focus())
+		focus::set(std::make_unique<core_monitor>());
 	if(m_joystick.check_focus())
 		focus::set(std::make_unique<core_joystick>());
 	if(m_scram.check_focus())
-		sim::system::active.reactor->scram();
+		sys.reactor->scram();
 	if(m_buttons[0].check_focus())
 		set_all(true);
 	if(m_buttons[1].check_focus())
-		sys.reactor->move_cursor(-sim::system::active.reactor->height);
+		sys.reactor->move_cursor(-sys.reactor->height);
 	if(m_buttons[2].check_focus())
 		set_all(false);
 	if(m_buttons[3].check_focus())
 		sys.reactor->move_cursor(-1);
 	if(m_buttons[4].check_focus())
-		sys.reactor->move_cursor(sim::system::active.reactor->height);
+		sys.reactor->toggle_selected();
 	if(m_buttons[5].check_focus())
 		sys.reactor->move_cursor(1);
 	if(m_buttons[6].check_focus())
-		sim::system::active.reactor->toggle_selected();
+		sys.reactor->reset_rod_speed();
 	if(m_buttons[7].check_focus())
-		sim::system::active.reactor->reset_rod_speed();
-//	if(m_buttons[8].check_focus())
-//		
+		sys.reactor->move_cursor(sys.reactor->height);
 }
 
 void core::render()

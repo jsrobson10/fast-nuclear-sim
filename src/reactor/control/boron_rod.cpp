@@ -9,7 +9,7 @@ constexpr double boron_density = 2340000; // g/m^3
 constexpr double boron_molar_mass = 10; // g/mol
 constexpr double boron_molar_density = boron_density / boron_molar_mass; // mol/m^3
 
-boron_rod::boron_rod(coolant::vessel& v) : coolant::pipe(v)
+boron_rod::boron_rod(coolant::vessel* v) : coolant::pipe(v)
 {
 
 }

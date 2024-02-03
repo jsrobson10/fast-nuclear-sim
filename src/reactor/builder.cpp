@@ -7,7 +7,7 @@
 
 using namespace sim::reactor;
 
-sim::reactor::reactor sim::reactor::builder(const int W, const int H, const double CW, const double CH, fuel::fuel_rod fr, coolant::vessel& v, const char** lines)
+sim::reactor::reactor sim::reactor::builder(const int W, const int H, const double CW, const double CH, fuel::fuel_rod fr, coolant::vessel* v, const char** lines)
 {
 	std::vector<std::unique_ptr<rod>> arr(W * H);
 	

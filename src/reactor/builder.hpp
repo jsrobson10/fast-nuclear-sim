@@ -13,7 +13,7 @@
 namespace sim::reactor
 {
 
-reactor builder(const int W, const int H, const double CW, const double CH, fuel::fuel_rod fr, coolant::vessel& v, const char** lines);
+reactor builder(const int W, const int H, const double CW, const double CH, fuel::fuel_rod fr, coolant::vessel* v, const char** lines);
 
 };
 

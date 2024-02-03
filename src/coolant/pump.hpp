@@ -22,7 +22,7 @@ public:
 
 	double power = 0; // watts
 
-	pump(fluid_holder& src, fluid_holder& dst, double mass, double radius, double l_per_rev, double friction);
+	pump(fluid_holder* src, fluid_holder* dst, double mass, double radius, double l_per_rev, double friction);
 
 	double get_flow() const; // L/s
 	double get_rpm() const; // rev/min

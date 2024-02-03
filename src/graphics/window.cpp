@@ -20,6 +20,7 @@
 #include "locations.hpp"
 #include "monitor/vessel.hpp"
 #include "monitor/core.hpp"
+#include "monitor/primary_loop.hpp"
 #include "mesh/texture.hpp"
 #include "ui.hpp"
 
@@ -31,6 +32,7 @@ static bool win_should_close = false;
 static glmesh MeshScene;
 static monitor::vessel MonitorVessel;
 static monitor::core MonitorCore;
+static monitor::primary_loop MonitorPrimaryLoop;
 
 glm::mat4 window::projection_matrix;
 
@@ -113,6 +115,7 @@ void window::create()
 
 	MonitorCore.init();
 	MonitorVessel.init();
+	MonitorPrimaryLoop.init();
 
 	glfwShowWindow(win);
 	glViewport(0, 0, 800, 600);
@@ -124,6 +127,7 @@ void window::update(double dt)
 
 	MonitorCore.update();
 	MonitorVessel.update();
+	MonitorPrimaryLoop.update();
 
 	ui::update(dt);
 }
@@ -145,6 +149,7 @@ void window::render()
 
 	MonitorCore.render();
 	MonitorVessel.render();
+	MonitorPrimaryLoop.render();
 
 	ui::render();
 

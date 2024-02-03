@@ -3,25 +3,25 @@
 
 using namespace sim::coolant;
 
-valve::valve(fluid_holder& src, fluid_holder& dst, double max) : src(&src), dst(&dst), max(max)
+valve::valve(fluid_holder* src, fluid_holder* dst, double max) : src(src), dst(dst), max(max)
 {
 
 }
 
-void valve::set_state(double v)
+void valve::add_open_speed(double v)
 {
-	if(v > 1) v = 1;
-	if(v < 0) v = 0;
-	state = v;
+	open_speed += v;
 }
 
-void valve::open(double v)
+void valve::clear_open_speed()
 {
-	set_state(state + v);
+	open_speed = 0;
 }
 
 void valve::update(double dt)
 {
-//	rate = a->extract_steam(dt, state * max, pressure) / dt; TODO
+	state += open_speed * dt;
+	if(state > 1) state = 1;
+	if(state < 0) state = 0;
 }
 

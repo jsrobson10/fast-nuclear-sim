@@ -4,9 +4,9 @@
 
 using namespace sim::reactor::coolant;
 
-pipe::pipe(coolant::vessel& v)
+pipe::pipe(coolant::vessel* v)
 {
-	this->vessel = &v;
+	this->vessel = v;
 	this->steam = 0;
 }
 

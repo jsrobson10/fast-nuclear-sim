@@ -18,7 +18,7 @@ class boron_rod : public coolant::pipe
 
 public:
 	
-	boron_rod(coolant::vessel& v);
+	boron_rod(coolant::vessel* v);
 
 	virtual void update(double secs);
 	void set_reactivity(double a);

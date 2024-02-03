@@ -3,9 +3,11 @@
 #include <GLFW/glfw3.h>
 
 #include "vessel.hpp"
+#include "helpers.hpp"
 #include "../../reactor/rod.hpp"
 #include "../../reactor/control/boron_rod.hpp"
 #include "../locations.hpp"
+#include "../../system.hpp"
 
 #include <glm/ext/matrix_transform.hpp>
 #include <sstream>
@@ -47,16 +49,6 @@ void vessel::init()
 	rmesh.load_text(ss.str().c_str(), 0.04);
 	mesh1.bind();
 	mesh1.set(rmesh, GL_STATIC_DRAW);
-}
-
-static double show(double v, double m)
-{
-	return std::round(v * m) / m;
-}
-
-static double show(double v)
-{
-	return std::round(v * 1e3) * 1e-3;
 }
 
 void vessel::update()

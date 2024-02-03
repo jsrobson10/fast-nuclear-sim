@@ -6,8 +6,8 @@
 
 using namespace sim::coolant;
 
-pump::pump(fluid_holder& src, fluid_holder& dst, double mass, double radius, double l_per_rev, double friction) :
-		src(&src), dst(&dst), mass(mass), radius(radius), l_per_rev(l_per_rev), friction(friction)
+pump::pump(fluid_holder* src, fluid_holder* dst, double mass, double radius, double l_per_rev, double friction) :
+		src(src), dst(dst), mass(mass), radius(radius), l_per_rev(l_per_rev), friction(friction)
 {
 	power = 1e3;
 }

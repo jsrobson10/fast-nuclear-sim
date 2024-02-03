@@ -26,14 +26,6 @@ double condenser::get_bubble_hl()
 
 void condenser::update(double secs)
 {
-	std::cout << "Condenser:\n\n";
-	std::cout << "Level: " << level << "\n";
-	std::cout << "Volume: " << volume << "\n";
-	std::cout << "Height: " << height << "\n";
-	std::cout << "Diameter: " << diameter << "\n";
-	std::cout << "Pressure: " << get_pressure() << "\n";
-	std::cout << "Teperature: " << heat << "\n\n";
-	
 	((sim::coolant::fluid_holder*)this)->update(secs);
 }
 

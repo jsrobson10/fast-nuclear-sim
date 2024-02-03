@@ -13,15 +13,16 @@ class valve
 	fluid_holder* const src;
 	fluid_holder* const dst;
 
+	double open_speed = 0;
 	double state = 0;
 
 public:
 
-	valve(fluid_holder& src, fluid_holder& dst, double max);
+	valve(fluid_holder* src, fluid_holder* dst, double max);
 
-	void open(double v);
 	void update(double secs);
-	void set_state(double v);
+	void add_open_speed(double v);
+	void clear_open_speed();
 	
 	constexpr double get_state() const { return state; }
 };
