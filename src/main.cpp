@@ -47,7 +47,7 @@ int main()
 
 		graphics::camera::update(dt);
 		graphics::window::update(dt);
-		graphics::focus::update();
+		graphics::focus::update(dt);
 		graphics::window::render();
 	}
 

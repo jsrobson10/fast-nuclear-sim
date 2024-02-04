@@ -13,8 +13,9 @@ class valve
 	fluid_holder* const src;
 	fluid_holder* const dst;
 
-	double open_speed = 0;
+	double speed = 0;
 	double state = 0;
+	double flow = 0; // L/s
 
 public:
 
@@ -25,6 +26,7 @@ public:
 	void clear_open_speed();
 	
 	constexpr double get_state() const { return state; }
+	constexpr double get_flow() const { return flow; }
 };
 
 };

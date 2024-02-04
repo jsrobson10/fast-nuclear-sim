@@ -10,6 +10,7 @@
 #include "../input/focus.hpp"
 
 #include <glm/ext/matrix_transform.hpp>
+#include <iostream>
 
 using namespace sim::graphics;
 using namespace sim::graphics::monitor;
@@ -30,7 +31,7 @@ struct valve_joystick : public focus::focus_t
 	
 	virtual void on_cursor_pos(double x, double y)
 	{
-		active->add_open_speed(y * 1e-5);
+		active->add_open_speed(-y * 1e-6);
 	}
 
 	virtual void on_mouse_button(int button, int action, int mods)
@@ -68,9 +69,20 @@ void primary_loop::init()
 	std::stringstream ss;
 	sim::graphics::mesh rmesh;
 
-	ss << "Turbine Valves\n\n";
-	ss << "Inlet\n";
-	ss << "Bypass\n";
+	ss << "Turbine Bypass Valve\n\n";
+	ss << "Opened\nFlow\n\n";
+	ss << "Turbine Inlet Valve\n\n";
+	ss << "Opened\nFlow\n\n";
+	ss << "Turbine\n\n";
+	ss << "Heat\n";
+	ss << "Steam\n";
+	ss << "Pressure\n";
+	ss << "Level\n\n";
+	ss << "Condenser\n\n";
+	ss << "Heat\n";
+	ss << "Steam\n";
+	ss << "Pressure\n";
+	ss << "Level\n\n";
 
 	rmesh.load_text(ss.str().c_str(), 0.04);
 	mesh1.bind();
@@ -87,8 +99,21 @@ void primary_loop::update()
 	system& sys = sim::system::active;
 
 	ss << "\n\n";
-	ss << show( sys.turbine_inlet_valve->get_state() * 100 ) << " %\n";
 	ss << show( sys.turbine_bypass_valve->get_state() * 100 ) << " %\n";
+	ss << show( sys.turbine_bypass_valve->get_flow() ) << " g/s\n";
+	ss << "\n\n\n";
+	ss << show( sys.turbine_inlet_valve->get_state() * 100 ) << " %\n";
+	ss << show( sys.turbine_inlet_valve->get_flow() ) << " g/s\n";
+	ss << "\n\n\n";
+	ss << show( sys.turbine->get_heat() ) << " C\n";
+	ss << show( sys.turbine->get_steam() ) << " g\n";
+	ss << show( sys.turbine->get_pressure() / 1000 ) << " kPa\n";
+	ss << sys.turbine->get_level() << " / " << show( sys.turbine->get_volume() ) << " L\n";
+	ss << "\n\n\n";
+	ss << show( sys.condenser->get_heat() ) << " C\n";
+	ss << show( sys.condenser->get_steam() ) << " g\n";
+	ss << show( sys.condenser->get_pressure() / 1000 ) << " kPa\n";
+	ss << sys.condenser->get_level() << " / " << show( sys.condenser->get_volume() ) << " L\n";
 
 	rmesh.load_text(ss.str().c_str(), 0.04);
 	mesh2.bind();

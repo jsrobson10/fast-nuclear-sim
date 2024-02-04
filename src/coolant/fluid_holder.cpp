@@ -18,7 +18,7 @@ double fluid_holder::add_heat(double m1, double t1)
 {
 	double t2 = get_heat();
 	double t = t1 - t2;
-	double m2 = (fluid.l_to_g(level) + steam) * fluid.jPgk;
+	double m2 = get_mass() * fluid.jPgk;
 	double m = m1 + m2;
 
 	if(m1 == 0 || m2 == 0)
@@ -62,33 +62,24 @@ double fluid_holder::extract_fluid(double amount)
 	return amount;
 }
 
-double fluid_holder::extract_steam(double dt, double a, double p2)
+void fluid_holder::add_steam(double m2, double t2)
 {
-	// calculate the mass moved
-	double p1 = get_pressure();
-	double p = (p1 - p2) * 0.001; // mPa or g/m/s^2
+	double m1 = steam;
+	double t1 = heat;
+	double m = m1 + m2;
 
-	if(p == 0)
+	if(m > 0)
 	{
-		return 0;
+		heat = (t1 * m1 + t2 * m2) / m;
 	}
 
-	double V = (volume - level) * 0.001; // m^3
-	double mass = std::min(dt * a * p / std::sqrt( V * std::abs(p) / steam ), steam);
-
-	if(std::isnan(mass))
-	{
-		return 0;
-	}
-
-	steam -= mass;
-	return mass;
+	steam = m;
 }
 
 double fluid_holder::get_pressure() const
 {
 	double T = conversions::temperature::c_to_k(heat);
-	double V = (volume - level) * 0.001;
+	double V = get_steam_volume() * 0.001;
 	double n = fluid.g_to_mol(steam);
 	
 	return (n * T * constants::R) / V;
@@ -96,38 +87,36 @@ double fluid_holder::get_pressure() const
 
 void fluid_holder::update(double secs)
 {
-	double V = (volume - level) * 0.001;
-	double P = fluid.vapor_pressure.calc_p(heat);
-	double T = conversions::temperature::c_to_k(heat);
-	double n = fluid.mol_to_g((V * P) / (T * constants::R)) - steam;
+	double mass = get_mass();
 
-	double s = steam + n;
-	double l = fluid.l_to_g(level) - n;
-	double v = fluid.l_to_g(volume);
-
-	if(l < 0)
+	if(mass > 0)
 	{
-		s += l;
-		l = 0;
+		double V = get_steam_volume() * 0.001;
+		double P = fluid.vapor_pressure.calc_p(heat);
+		double T = conversions::temperature::c_to_k(heat);
+		double n = fluid.mol_to_g((V * P) / (T * constants::R)) - steam;
+
+		double s = steam + n;
+		double l = fluid.l_to_g(level) - n;
+		double v = fluid.l_to_g(volume);
+
+		if(l < 0)
+		{
+			s += l;
+			l = 0;
+		}
+
+		if(l > v)
+		{
+			l = v;
+			s = 0;
+		}
+
+		double diff = s - steam;
+
+		steam = s;
+		level = fluid.g_to_l(l);
+		heat -= diff * fluid.jPg / mass / fluid.jPgk;
 	}
-
-	if(s > v)
-	{
-		s = v;
-		l = 0;
-	}
-
-	if(l > v)
-	{
-		l = v;
-		s = 0;
-	}
-
-	double diff = s - steam;
-
-	steam = s;
-	level = fluid.g_to_l(l);
-	heat -= diff * fluid.jPg / (fluid.l_to_g(level) + steam) / fluid.jPgk;
-
 }
 

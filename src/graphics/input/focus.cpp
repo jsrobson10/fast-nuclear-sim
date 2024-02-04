@@ -12,12 +12,14 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <iostream>
+#include <vector>
 
 using namespace sim::graphics;
 
 static glm::vec<3, double> trigger_near;
 static glm::vec<3, double> trigger_far;
 
+static std::vector<std::unique_ptr<focus::focus_t>> stack;
 static std::unique_ptr<focus::focus_t> state = nullptr;
 static bool mouse_visible = false;
 static bool mouse_locked = false;
@@ -51,11 +53,9 @@ void focus::on_mouse_button(int button, int action, int mods)
 		state->on_mouse_button(button, action, mods);
 	}
 
-	else if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+	if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 	{
-		triggered = true;
-
-		if(is_mouse_locked())
+		if(is_mouse_locked() && mouse_visible)
 		{
 			double mx, my;
 			mouse::get(mx, my);
@@ -66,12 +66,14 @@ void focus::on_mouse_button(int button, int action, int mods)
 
 			trigger_near = glm::unProject(glm::vec3(mouse, -1), camera::get_matrix(), window::projection_matrix, viewport);
 			trigger_far = glm::unProject(glm::vec3(mouse, 1), camera::get_matrix(), window::projection_matrix, viewport);
+			triggered = true;
 		}
 
-		else
+		else if(!mouse_visible)
 		{
 			trigger_near = camera::get_pos();
 			trigger_far = trigger_near + camera::get_normal();
+			triggered = true;
 		}
 	}
 }
@@ -102,7 +104,7 @@ glm::vec<3, double> focus::get_trigger_far()
 	return trigger_far;
 }
 
-void focus::update()
+void focus::update(double dt)
 {
 	triggered = false;
 
@@ -130,7 +132,7 @@ void focus::update()
 
 	if(state)
 	{
-		state->update();
+		state->update(dt);
 	}
 }
 
@@ -142,6 +144,12 @@ bool focus::is_focused()
 void focus::clear_focus()
 {
 	state = nullptr;
+
+	if(stack.size() != 0)
+	{
+		state = std::move(stack.back());
+		stack.pop_back();
+	}
 }
 
 bool focus::is_mouse_locked()
@@ -152,11 +160,16 @@ bool focus::is_mouse_locked()
 void focus::clear_mouse_locked()
 {
 	mouse_locked = false;
-	state = nullptr;
+	clear_focus();
 }
 
 void focus::set(std::unique_ptr<focus_t> f)
 {
+	if(state != nullptr)
+	{
+		stack.push_back(std::move(state));
+	}
+	
 	state = std::move(f);
 }
 

@@ -73,9 +73,16 @@ struct core_monitor : public focus::focus_t
 
 struct core_joystick : public focus::focus_t
 {
+	double ypos = 0;
+	
 	virtual void on_cursor_pos(double x, double y)
 	{
-		sim::system::active.reactor->add_rod_speed(y * 1e-6);
+		ypos += y;
+	}
+
+	virtual void update(double dt)
+	{
+		sim::system::active.reactor->add_rod_speed(ypos * dt * 1e-6);
 	}
 
 	virtual void on_mouse_button(int button, int action, int mods)

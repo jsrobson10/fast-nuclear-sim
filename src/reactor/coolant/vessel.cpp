@@ -30,14 +30,22 @@ double vessel::get_steam_suspended() const
 
 double vessel::get_void_ratio() const
 {
-	double s = steam_suspended / get_steam_density();
-	
-	if(s == 0)
+	double density = get_steam_density();
+
+	if(density == 0)
 	{
 		return 0;
 	}
 
-	return s / (level + s);
+	double s = steam_suspended / density;
+	double m = level + s;
+	
+	if(m == 0)
+	{
+		return 0;
+	}
+
+	return s / m;
 }
 
 double vessel::get_bubble_hl() const

@@ -8,7 +8,8 @@ constexpr double show(double v, double m)
 	return std::round(v * m) / m;
 }
 
-constexpr double show(double v)
+constexpr double show(double a)
 {
-	return std::round(v * 1e3) * 1e-3;
+	double b = std::round(a * 1e3) * 1e-3;
+	return b == 0 ? 0 : b;
 }
