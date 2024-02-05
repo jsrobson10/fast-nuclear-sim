@@ -1,9 +1,10 @@
 
 #include "vessel.hpp"
-#include "../../constants.hpp"
+#include "../../util/constants.hpp"
 #include "../../conversions/temperature.hpp"
 #include "../fuel/half_life.hpp"
 
+#include <iostream>
 #include <cmath>
 
 using namespace sim::reactor::coolant;
@@ -15,127 +16,65 @@ constexpr static double calc_cylinder(double h, double d)
 	return M_PI * r * r * h;
 }
 
-vessel::vessel(double height, double diameter, double level, sim::coolant::fluid_t fluid) :
-		height(height),
-		diameter(diameter),
-		volume(calc_cylinder(height, diameter)),
-		fluid(fluid),
-		level(level),
-		bubble_hl(height * 0.5 / fluid.bubble_speed)
+vessel::vessel(sim::coolant::fluid_t fluid, double height, double diameter, double mass, double level) :
+		sim::coolant::fluid_holder(fluid, calc_cylinder(height, diameter), mass),
+		height(height), diameter(diameter)
 {
+	this->level = level;
+}
+
+double vessel::get_steam_suspended() const
+{
+	return steam_suspended;
+}
+
+double vessel::get_void_ratio() const
+{
+	double density = get_steam_density();
+
+	if(density == 0)
+	{
+		return 0;
+	}
+
+	double s = steam_suspended / density;
+	double m = level + s;
 	
+	if(m == 0)
+	{
+		return 0;
+	}
+
+	return s / m;
+}
+
+double vessel::get_bubble_hl() const
+{
+	return (level / volume) * height * 0.5 / fluid.bubble_speed;
 }
 
 void vessel::update(double secs)
 {
-	double V = (volume - level) * 0.001;
-	double P = fluid.vapor_pressure.calc_p(heat);
-	double T = conversions::temperature::c_to_k(heat);
-	double n = fluid.mol_to_g((V * P) / (T * constants::R)) - steam;
+	double s = steam;
 
-	double s = steam + n;
-	double l = fluid.l_to_g(level) - n;
-	double v = fluid.l_to_g(volume);
+	((sim::coolant::fluid_holder*)this)->update(secs);
 
-	if(l < 0)
+	double diff = steam - s;
+	double hl = get_bubble_hl();
+
+	if(diff > 0)
 	{
-		s += l;
-		l = 0;
+		steam_suspended += diff;
 	}
 
-	if(s > v)
+	if(hl > 0)
 	{
-		s = v;
-		l = 0;
+		steam_suspended *= reactor::fuel::half_life::get(secs, get_bubble_hl());
 	}
 
-	if(l > v)
+	else
 	{
-		l = v;
-		s = 0;
+		steam_suspended = 0;
 	}
-
-	double diff = s - steam;
-
-	steam = s;
-	level = fluid.g_to_l(l);
-	heat -= diff * fluid.jPg / (fluid.l_to_g(level) + steam) / fluid.jPgk;
-
-	if(diff > 0) steam_suspended += diff;
-	steam_suspended *= fuel::half_life::get(secs, bubble_hl);
 }
-
-double vessel::add_heat(double t1)
-{
-	double t2 = get_heat();
-	double t = t1 - t2;
-	double m1 = 1e6;
-	double m2 = (fluid.l_to_g(level) + steam) * fluid.jPgk;
-	double m = m1 + m2;
-	
-   	return heat = t1 - t * m2 / m;
-}
-
-double vessel::add_fluid(double m2, double t2)
-{
-	double m1 = get_mass();
-	double t1 = get_heat();
-	double t = t1 - t2;
-
-	m2 = fluid.g_to_l(m2);
-
-	if(level + m2 > volume)
-	{
-		m2 = volume - level;
-	}
-
-	heat = t1 - t * m2 / (m1 + m2);
-	level += m2;
-	return m2;
-}
-
-double vessel::extract_steam(double dt, double a, double p2)
-{
-	// calculate the mass moved
-	double p1 = get_pressure();
-	double p = (p1 - p2) * 0.001; // mPa or g/m/s^2
-
-	if(p == 0)
-	{
-		return 0;
-	}
-
-	double V = (volume - level) * 0.001; // m^3
-	double mass = std::min(dt * a * p / std::sqrt( V * std::abs(p) / steam ), steam);
-
-	if(std::isnan(mass))
-	{
-		return 0;
-	}
-
-	steam -= mass;
-	return mass;
-}
-
-double vessel::get_pressure() const
-{
-	double T = conversions::temperature::c_to_k(heat);
-	double V = (volume - level) * 0.001;
-	double n = fluid.g_to_mol(steam);
-	
-	return (n * T * constants::R) / V;
-}
-
-std::ostream& operator<<(std::ostream& o, const vessel& v)
-{
-	o << "Volume: " << v.get_volume() << " L\n";
-	o << "Level: " << v.get_level() << " L\n";
-	o << "Steam: " << v.get_steam() << " g\n";
-	o << "Heat: " << v.get_heat() << " C\n";
-	o << "Pressure: " << (v.get_pressure() * 0.001) << " kPa\n";
-	o << "Void Ratio: " << (v.get_void_ratio() * 100) << " %\n";
-
-	return o;
-}
-
 

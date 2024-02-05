@@ -1,55 +1,32 @@
 
 #pragma once
 
+#include "fluid_holder.hpp"
+
 namespace sim::coolant
 {
 
-template <class A>
 class valve
 {
-	A* a;
-	
 	const double max;
-	const double pressure;
 
+	fluid_holder* const src;
+	fluid_holder* const dst;
+
+	double speed = 0;
 	double state = 0;
-	double rate = 0;
+	double flow = 0; // L/s
 
 public:
 
-	constexpr valve(A& a, double max, double pressure) : a(&a), max(max), pressure(pressure)
-	{
+	valve(fluid_holder* src, fluid_holder* dst, double state, double max);
 
-	}
-
-	constexpr double get_state() const
-	{
-		return state;
-	}
-
-	constexpr void set_state(double v)
-	{
-		if(v > 1) v = 1;
-		if(v < 0) v = 0;
-		state = v;
-	}
-
-	constexpr void open(double v)
-	{
-		set_state(state + v);
-	}
-
-	constexpr void update(double secs)
-	{
-		rate = a->extract_steam(secs, state * max, pressure) / secs;
-	}
-
-	friend std::ostream& operator<<(std::ostream& o, const valve& v)
-	{
-		o << "Opened: " << (v.state * 100) << " %\n";
-		o << "Rate: " << v.rate << " g/s\n";
-		return o;
-	}
+	void update(double secs);
+	void add_open_speed(double v);
+	void clear_open_speed();
+	
+	constexpr double get_state() const { return state; }
+	constexpr double get_flow() const { return flow; }
 };
 
 };

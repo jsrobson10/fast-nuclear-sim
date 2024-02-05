@@ -1,9 +1,13 @@
 
 #include "rod.hpp"
+#include "reactor.hpp"
 
 #include <cmath>
 
 using namespace sim::reactor;
+
+// Avogadro's Number
+static double N_a = 6.02214076e23;
 
 double rod::get(val_t type) const
 {
@@ -28,8 +32,8 @@ double rod::extract(val_t type, double s, double k, double o)
 	}
 
 	double v = m * 0.5 * (get(type) - o);
-
 	vals[type] -= v;
+
 	return v;
 }
 
@@ -37,15 +41,31 @@ void rod::interact(rod* o, double secs)
 {
 	for(int i = 0; i < rod::VAL_N; i++)
 	{
-		val_t v = (val_t)i;
-		add(v, o->extract(v, secs, get_k(v), get(v)));
+		val_t t = (val_t)i;
+		double v = o->extract(t, secs, get_k(t), get(t));
+		add(t, v);
+		
+		double v2 = std::abs(v / secs);
+		o->vals_n[t] += v2;
+		vals_n[t] += v2;
 	}
 }
 
-double rod::get_speed() const
+double rod::get_flux() const
 {
-	int m = motion < 0 ? -1 : 1;
-	return motion == 0 ? 0 : (std::pow(10, std::abs(motion)) * 1e-6 * m);
+	return (vals_n[val_t::N_FAST] + vals_n[val_t::N_SLOW]) * N_a / (get_side_area() * 10000) / 4;
+}
+
+double rod::get_volume() const
+{
+	auto r = (sim::reactor::reactor*)reactor;
+	return r->cell_width * r->cell_width * r->cell_height;
+}
+
+double rod::get_side_area() const
+{
+	auto r = (sim::reactor::reactor*)reactor;
+	return r->cell_width * r->cell_height;
 }
 
 void rod::update_rod(double secs)
@@ -55,22 +75,10 @@ void rod::update_rod(double secs)
 	vals[val_t::N_FAST] *= m;
 	vals[val_t::N_SLOW] *= m;
 
-	if(motion != 0 && !is_selected())
+	// clear data
+	for(int i = 0; i < rod::VAL_N; i++)
 	{
-		motion = 0;
+		vals_n[(val_t)i] = 0;
 	}
-
-	if(motion != 0)
-	{
-		update_selected(get_speed() * secs);
-	}
-}
-
-void rod::update_rod_selected(int m)
-{
-	motion += m;
-
-	if(motion > 5) motion = 5;
-	if(motion < -5) motion = -5;
 }
 

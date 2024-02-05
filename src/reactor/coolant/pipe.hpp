@@ -16,12 +16,15 @@ protected:
 	
 	virtual double get_k(sim::reactor::rod::val_t type) const;
 	virtual const char* get_name() const { return "Coolant"; }
+	virtual int get_id() const { return 2; }
+
 	void update_pipe(double secs);
 
 public:
 
-	pipe(coolant::vessel& v);
+	pipe(coolant::vessel* v);
 
+	virtual std::unique_ptr<rod> clone() const { return std::make_unique<pipe>(*this); }
 	virtual bool should_display() const { return true; }
 	virtual void update(double secs);
 
