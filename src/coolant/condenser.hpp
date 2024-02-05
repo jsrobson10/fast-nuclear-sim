@@ -13,7 +13,7 @@ class condenser : public fluid_holder
 
 public:
 
-	condenser(fluid_t type, double height, double diameter, double level);
+	condenser(fluid_t type, double height, double diameter, double mass, double level);
 	
 	void update(double dt);
 };

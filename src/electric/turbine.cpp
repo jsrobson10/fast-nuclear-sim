@@ -14,32 +14,21 @@ constexpr static double calc_cylinder(double h, double d)
 	return M_PI * r * r * h;
 }
 
-turbine::turbine(coolant::fluid_t type, double height, double diameter, double level) :
-		height(height), diameter(diameter), sim::coolant::fluid_holder(type, calc_cylinder(height, diameter))
+turbine::turbine(coolant::fluid_t type, coolant::condenser* condenser, double length, double diameter, double mass) :
+		length(length), diameter(diameter), condenser(condenser),
+		sim::coolant::fluid_holder(type, calc_cylinder(length, diameter), mass)
 {
 	this->level = level;
 }
 
 void turbine::update(double secs)
 {
-	sim::system& sys = sim::system::active;
-	auto& o = *sys.turbine.get();
+	
+}
 
-	((sim::coolant::fluid_holder*)this)->update(secs);
-
-/*	if(level + o.level > o.volume)
-	{
-		level += o.level - o.volume;
-		o.level = o.volume;
-	}
-
-	else
-	{
-		o.level += level;
-		level = 0;
-	}
-
-	balance_steam(o);*/
+void turbine::add_steam(double amount, double t)
+{
+	condenser->add_steam(amount, t);
 }
 
 

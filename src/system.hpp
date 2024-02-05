@@ -22,7 +22,7 @@ struct system
 	std::unique_ptr<sim::reactor::coolant::vessel> vessel;
 	std::unique_ptr<sim::coolant::condenser> condenser;
 	std::unique_ptr<sim::electric::turbine> turbine;
-	std::unique_ptr<sim::coolant::pump> core_pump;
+	std::unique_ptr<sim::coolant::pump> primary_pump;
 	std::unique_ptr<sim::coolant::valve> turbine_bypass_valve;
 	std::unique_ptr<sim::coolant::valve> turbine_inlet_valve;
 	sim::graphics::mesh scene;

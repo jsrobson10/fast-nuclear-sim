@@ -73,11 +73,8 @@ void primary_loop::init()
 	ss << "Opened\nFlow\n\n";
 	ss << "Turbine Inlet Valve\n\n";
 	ss << "Opened\nFlow\n\n";
-	ss << "Turbine\n\n";
-	ss << "Heat\n";
-	ss << "Steam\n";
-	ss << "Pressure\n";
-	ss << "Level\n\n";
+	ss << "Primary Pump\n\n";
+	ss << "Power\nSpeed\nFlow\n\n";
 	ss << "Condenser\n\n";
 	ss << "Heat\n";
 	ss << "Steam\n";
@@ -100,20 +97,19 @@ void primary_loop::update()
 
 	ss << "\n\n";
 	ss << show( sys.turbine_bypass_valve->get_state() * 100 ) << " %\n";
-	ss << show( sys.turbine_bypass_valve->get_flow() ) << " g/s\n";
+	ss << show( sys.turbine_bypass_valve->get_flow() / 1000 ) << " kg/s\n";
 	ss << "\n\n\n";
 	ss << show( sys.turbine_inlet_valve->get_state() * 100 ) << " %\n";
-	ss << show( sys.turbine_inlet_valve->get_flow() ) << " g/s\n";
+	ss << show( sys.turbine_inlet_valve->get_flow() / 1000 ) << " kg/s\n";
 	ss << "\n\n\n";
-	ss << show( sys.turbine->get_heat() ) << " C\n";
-	ss << show( sys.turbine->get_steam() ) << " g\n";
-	ss << show( sys.turbine->get_pressure() / 1000 ) << " kPa\n";
-	ss << sys.turbine->get_level() << " / " << show( sys.turbine->get_volume() ) << " L\n";
+	ss << sys.primary_pump->get_state_string() << "\n";
+	ss << show( sys.primary_pump->get_rpm() ) << " r/min\n";
+	ss << show( sys.primary_pump->get_flow() / 1000 ) << " kg/s\n";
 	ss << "\n\n\n";
 	ss << show( sys.condenser->get_heat() ) << " C\n";
 	ss << show( sys.condenser->get_steam() ) << " g\n";
 	ss << show( sys.condenser->get_pressure() / 1000 ) << " kPa\n";
-	ss << sys.condenser->get_level() << " / " << show( sys.condenser->get_volume() ) << " L\n";
+	ss << show( sys.condenser->get_level() ) << " / " << show( sys.condenser->get_volume() ) << " L\n";
 
 	rmesh.load_text(ss.str().c_str(), 0.04);
 	mesh2.bind();

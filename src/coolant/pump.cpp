@@ -9,17 +9,37 @@ using namespace sim::coolant;
 pump::pump(fluid_holder* src, fluid_holder* dst, double mass, double radius, double l_per_rev, double friction) :
 		src(src), dst(dst), mass(mass), radius(radius), l_per_rev(l_per_rev), friction(friction)
 {
-	power = 1e3;
+	power = 1e8;
 }
 
 double pump::get_flow() const
 {
-	return l_per_rev * get_rpm() / 60;
+	return src->fluid.l_to_g(l_per_rev * get_rpm() / 60);
 }
 
 double pump::get_rpm() const
 {
 	return velocity / (M_PI * mass * 0.001 * radius * radius);
+}
+
+const char* pump::get_state_string()
+{
+	if(!powered)
+	{
+		return "Off";
+	}
+
+	if(idling && std::abs(get_flow()) < 1e-3)
+	{
+		return "Idle";
+	}
+
+	if(idling)
+	{
+		return "Coasting";
+	}
+
+	return "Revving";
 }
 
 static double calc_work(double j, double mass)
@@ -36,7 +56,10 @@ static double calc_work(double j, double mass)
 
 void pump::update(double dt)
 {
-	velocity += calc_work(dt * power, mass);
+	if(powered && !idling)
+	{
+		velocity += calc_work(dt * power, mass);
+	}
 	
 	double src_heat = src->get_heat();
 	double p_diff_1 = dst->get_pressure() - src->get_pressure();
@@ -54,14 +77,14 @@ void pump::update(double dt)
 
 	velocity -= calc_work(work, mass);
 
-	if(dst->get_level() > 400 || src->get_level() < 50)
+	if(dst->get_level() > 400 || src->get_level() < 10)
 	{
-		power = 0;
+		idling = true;
 	}
 
 	else
 	{
-		power = 1e3;
+		idling = false;
 	}
 
 	std::cout << "RPM: " << get_rpm() << "\t";

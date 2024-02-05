@@ -16,7 +16,7 @@ public:
 	const double diameter; // meters
 	double steam_suspended = 0; // grams
 
-	vessel(sim::coolant::fluid_t fluid, double height, double diameter, double level);
+	vessel(sim::coolant::fluid_t fluid, double height, double diameter, double mass, double level);
 
 	double get_steam_suspended() const; // grams
 	double get_void_ratio() const;

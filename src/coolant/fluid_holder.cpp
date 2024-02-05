@@ -9,7 +9,7 @@
 
 using namespace sim::coolant;
 
-fluid_holder::fluid_holder(fluid_t fluid, double volume) : fluid(fluid), volume(volume)
+fluid_holder::fluid_holder(fluid_t fluid, double volume, double extra_mass) : fluid(fluid), volume(volume), extra_mass(extra_mass)
 {
 
 }
@@ -18,7 +18,7 @@ double fluid_holder::add_heat(double m1, double t1)
 {
 	double t2 = get_heat();
 	double t = t1 - t2;
-	double m2 = get_mass() * fluid.jPgk;
+	double m2 = get_thermal_mass();
 	double m = m1 + m2;
 
 	if(m1 == 0 || m2 == 0)
@@ -31,16 +31,18 @@ double fluid_holder::add_heat(double m1, double t1)
 
 double fluid_holder::add_fluid(double v2, double t2)
 {
-	double v1 = level;
-	double t1 = get_heat();
-	double t = t1 - t2;
-
 	if(level + v2 > volume)
 	{
 		v2 = volume - level;
 	}
 
-	heat = t1 - t * v2 / (v1 + v2);
+	int m1 = get_thermal_mass();
+	int m2 = fluid.l_to_g(v2);
+	
+	double t1 = get_heat();
+	double t = t1 - t2;
+
+	heat = t1 - t * m2 / (m1 + m2);
 	level += v2;
 
 	return v2;
@@ -64,16 +66,16 @@ double fluid_holder::extract_fluid(double amount)
 
 void fluid_holder::add_steam(double m2, double t2)
 {
-	double m1 = steam;
+	double m1 = get_thermal_mass();
 	double t1 = heat;
 	double m = m1 + m2;
 
 	if(m > 0)
 	{
-		heat = (t1 * m1 + t2 * m2) / m;
+		heat = t1 - (t1 - t2) * m2 / (m1 + m2);
 	}
 
-	steam = m;
+	steam += m2;
 }
 
 double fluid_holder::get_pressure() const
@@ -81,13 +83,24 @@ double fluid_holder::get_pressure() const
 	double T = conversions::temperature::c_to_k(heat);
 	double V = get_steam_volume() * 0.001;
 	double n = fluid.g_to_mol(steam);
+
+	if(V == 0)
+	{
+		return NAN;
+	}
 	
 	return (n * T * constants::R) / V;
 }
 
+double fluid_holder::get_steam_density() const
+{
+	double v = get_steam_volume();
+	return v > 0 ? steam / v : NAN;
+}
+
 void fluid_holder::update(double secs)
 {
-	double mass = get_mass();
+	double mass = get_thermal_mass();
 
 	if(mass > 0)
 	{
@@ -116,7 +129,7 @@ void fluid_holder::update(double secs)
 
 		steam = s;
 		level = fluid.g_to_l(l);
-		heat -= diff * fluid.jPg / mass / fluid.jPgk;
+		heat -= diff * fluid.jPg / mass;
 	}
 }
 

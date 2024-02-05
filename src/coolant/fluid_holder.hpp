@@ -10,31 +10,34 @@ class fluid_holder
 {
 protected:
 
-	const fluid_t fluid;
-	const double volume; // litres
-
 	double level = 0; // litres
 	double steam = 0; // grams
 	double heat = 0; // celsius
-	
-	fluid_holder(fluid_t fluid, double volume);
 
 public:
 	
-	double add_heat(double m, double t);
-	double add_fluid(double amount, double heat);
-	double extract_fluid(double amount);
+	fluid_holder(fluid_t fluid, double volume, double extra_mass);
+	
+	const fluid_t fluid;
+	const double volume; // litres
+	const double extra_mass; // grams
+
+	virtual double add_heat(double m, double t);
+	virtual double extract_fluid(double amount);
+
+	virtual double add_fluid(double amount, double heat);
 	virtual void add_steam(double amount, double t);
 
-	constexpr double get_volume() const { return volume; } // litres
-	constexpr double get_level() const { return level; } // litres
-	constexpr double get_heat() const { return heat; } // celsius
-	constexpr double get_steam() const { return steam; } // grams
-	constexpr double get_steam_volume() const { return volume - level; } // litres
-	constexpr double get_steam_density() const { return steam / get_steam_volume(); } // g/L
-	constexpr double get_mass() const { return fluid.l_to_g(level) + steam; } // grams
+	virtual double get_volume() const { return volume; } // litres
+	virtual double get_level() const { return level; } // litres
+	virtual double get_heat() const { return heat; } // celsius
+	virtual double get_steam() const { return steam; } // grams
+	virtual double get_steam_volume() const { return get_volume() - get_level(); } // litres
+	virtual double get_mass() const { return fluid.l_to_g(get_level()) + get_steam(); } // grams
+	virtual double get_thermal_mass() const { return get_mass() + extra_mass; } // grams
+	virtual double get_pressure() const; // pascals
+	virtual double get_steam_density() const; // g/L
 
-	double get_pressure() const; // pascals
 	void update(double dt);
 };
 

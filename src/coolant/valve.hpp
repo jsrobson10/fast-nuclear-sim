@@ -19,7 +19,7 @@ class valve
 
 public:
 
-	valve(fluid_holder* src, fluid_holder* dst, double max);
+	valve(fluid_holder* src, fluid_holder* dst, double state, double max);
 
 	void update(double secs);
 	void add_open_speed(double v);

@@ -17,16 +17,19 @@ class pump
 	const double friction; // J/rev
 
 	double velocity = 0; // m/s
+	double power = 0; // W
 
 public:
 
-	double power = 0; // watts
+	bool powered = true;
+	bool idling = false;
 
 	pump(fluid_holder* src, fluid_holder* dst, double mass, double radius, double l_per_rev, double friction);
 
-	double get_flow() const; // L/s
+	double get_flow() const; // g/s
 	double get_rpm() const; // rev/min
 
+	const char* get_state_string();
 	void update(double dt);
 };
 

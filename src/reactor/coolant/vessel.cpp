@@ -16,8 +16,8 @@ constexpr static double calc_cylinder(double h, double d)
 	return M_PI * r * r * h;
 }
 
-vessel::vessel(sim::coolant::fluid_t fluid, double height, double diameter, double level) :
-		sim::coolant::fluid_holder(fluid, calc_cylinder(height, diameter)),
+vessel::vessel(sim::coolant::fluid_t fluid, double height, double diameter, double mass, double level) :
+		sim::coolant::fluid_holder(fluid, calc_cylinder(height, diameter), mass),
 		height(height), diameter(diameter)
 {
 	this->level = level;

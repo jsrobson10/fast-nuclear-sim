@@ -1,14 +1,16 @@
 
 #include "valve.hpp"
+#include "../conversions/temperature.hpp"
+#include "../constants.hpp"
 
 #include <cmath>
 #include <iostream>
 
 using namespace sim::coolant;
 
-valve::valve(fluid_holder* src, fluid_holder* dst, double max) : src(src), dst(dst), max(max)
+valve::valve(fluid_holder* src, fluid_holder* dst, double state, double max) : src(src), dst(dst), max(max)
 {
-
+	this->state = state;
 }
 
 void valve::add_open_speed(double v)
@@ -28,26 +30,53 @@ void valve::update(double dt)
 	if(state > 1) state = 1;
 	if(state < 0) state = 0;
 
-	double r = max * state; // L
-	double m = r * dt;//1 - std::pow(0.5, dt * -std::log2(1 - r));
-	
-	double pressure1 = src->get_pressure();
-	double pressure2 = dst->get_pressure();
-	double density1 = src->get_steam_density(); // g/L
-	double density2 = dst->get_steam_density(); // g/L
-	double diff = (pressure1 - pressure2) * m;
-	double temp, mass;
-
-	if(diff > 0)
+	if(src->get_steam_volume() == 0 || dst->get_steam_volume() == 0)
 	{
-		temp = src->get_heat();
-		mass = diff * src->get_steam_density();
+		flow = 0;
+		return;
 	}
 
-	else
+	double pressure1 = src->get_pressure(); // Pa
+	double pressure2 = dst->get_pressure();
+	
+	int overshoots = 0;
+	double m = max * state * dt;
+	double temp, mass;
+
+	for(;;)
 	{
-		temp = dst->get_heat();
-		mass = diff * dst->get_steam_density();
+		double diff = (pressure1 - pressure2) * m; // L
+
+		if(diff > 0)
+		{
+			temp = src->get_heat();
+			mass = std::min(diff * src->get_steam_density(), src->get_steam());
+		}
+
+		else
+		{
+			temp = dst->get_heat();
+			mass = std::min(diff * dst->get_steam_density(), dst->get_steam());
+		}
+
+		fluid_holder fh_src(*src);
+		fluid_holder fh_dst(*dst);
+
+		fh_src.add_steam(-mass, temp);
+		fh_dst.add_steam(mass, temp);
+
+//		if((pressure1 > fh_dst.get_pressure()) == (pressure2 < fh_src.get_pressure()))
+		{
+			break;
+		}
+		
+		overshoots += 1;
+		m *= 0.5;
+	}
+
+	if(overshoots > 0)
+	{
+		std::cout << "Warning: overshot " << overshoots << " times\n";
 	}
 
 	src->add_steam(-mass, temp);
