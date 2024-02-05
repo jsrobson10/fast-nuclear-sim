@@ -21,12 +21,13 @@ class pump
 
 public:
 
-	bool powered = true;
+	bool powered = false;
 	bool idling = false;
 
-	pump(fluid_holder* src, fluid_holder* dst, double mass, double radius, double l_per_rev, double friction);
+	pump(fluid_holder* src, fluid_holder* dst, double mass, double radius, double power, double l_per_rev, double friction);
 
-	double get_flow() const; // g/s
+	double get_flow() const; // L/s
+	double get_flow_mass() const; // g/s
 	double get_rpm() const; // rev/min
 
 	const char* get_state_string();

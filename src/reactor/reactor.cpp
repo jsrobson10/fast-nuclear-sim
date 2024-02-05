@@ -1,6 +1,6 @@
 
 #include "reactor.hpp"
-#include "../random.hpp"
+#include "../util/random.hpp"
 
 #include <algorithm>
 

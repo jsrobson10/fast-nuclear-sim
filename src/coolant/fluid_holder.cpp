@@ -1,6 +1,6 @@
 
 #include "fluid_holder.hpp"
-#include "../constants.hpp"
+#include "../util/constants.hpp"
 #include "../conversions/temperature.hpp"
 #include "../reactor/fuel/half_life.hpp"
 
@@ -86,7 +86,7 @@ double fluid_holder::get_pressure() const
 
 	if(V == 0)
 	{
-		return NAN;
+		return 0;
 	}
 	
 	return (n * T * constants::R) / V;
@@ -95,7 +95,7 @@ double fluid_holder::get_pressure() const
 double fluid_holder::get_steam_density() const
 {
 	double v = get_steam_volume();
-	return v > 0 ? steam / v : NAN;
+	return v > 0 ? steam / v : 0;
 }
 
 void fluid_holder::update(double secs)
