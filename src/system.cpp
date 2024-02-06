@@ -35,14 +35,14 @@ system::system()
 		"      C C C C      "
 	};
 	
-	vessel = std::make_unique<reactor::coolant::vessel>(sim::coolant::WATER, 8, 10, 6e6, 300);
+	vessel = std::make_unique<reactor::coolant::vessel>(sim::coolant::WATER, 8, 10, 6e6, 500);
 	reactor = std::make_unique<reactor::reactor>(sim::reactor::builder(19, 19, 1.0 / 4.0, 4, reactor::fuel::fuel_rod(0.5), vessel.get(), layout));
-	condenser = std::make_unique<coolant::condenser>(sim::coolant::WATER, 8, 6, 3e6, 200);
+	condenser = std::make_unique<coolant::condenser>(sim::coolant::WATER, 8, 6, 3e6, 0);
 	turbine = std::make_unique<electric::turbine>(sim::coolant::WATER, condenser.get(), 6, 3, 2e6);
 	
 	turbine_inlet_valve = std::make_unique<coolant::valve>(vessel.get(), turbine.get(), 0, 1e-2);
 	turbine_bypass_valve = std::make_unique<coolant::valve>(vessel.get(), condenser.get(), 0, 1e-2);
-	primary_pump = std::make_unique<coolant::pump>(condenser.get(), vessel.get(), 1e6, 1, 1e6, 1, 10);
+	primary_pump = std::make_unique<coolant::pump>(condenser.get(), vessel.get(), 1e5, 1, 1e4, 0.1, 10);
 }
 
 system::system(system&& o)

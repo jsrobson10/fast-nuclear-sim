@@ -132,7 +132,7 @@ void core::init()
 	m_scram.load_model("../assets/model/", "reactor_core_scram.stl");
 }
 
-void core::update()
+void core::update(double dt)
 {
 	sim::system& sys = sim::system::active;
 	

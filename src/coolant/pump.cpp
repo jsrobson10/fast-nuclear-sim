@@ -7,19 +7,30 @@
 using namespace sim::coolant;
 
 pump::pump(fluid_holder* src, fluid_holder* dst, double mass, double radius, double power, double l_per_rev, double friction) :
-		src(src), dst(dst), mass(mass), radius(radius), l_per_rev(l_per_rev), friction(friction)
+		src(src),
+		dst(dst),
+		mass(mass),
+		radius(radius),
+		l_per_rev(l_per_rev),
+		friction(friction),
+		max_power(power)
 {
-	this->power = power;
+	
 }
 
-double pump::get_flow() const
+double pump::get_flow_target() const
 {
 	return l_per_rev * get_rpm() * 60;
 }
 
+double pump::get_flow() const
+{
+	return flow;
+}
+
 double pump::get_flow_mass() const
 {
-	return src->fluid.l_to_g(get_flow());
+	return src->fluid.l_to_g(flow);
 }
 
 double pump::get_rpm() const
@@ -27,24 +38,16 @@ double pump::get_rpm() const
 	return velocity / (M_PI * mass * 0.001 * radius * radius);
 }
 
+double pump::get_power() const
+{
+	return power;
+}
+
 const char* pump::get_state_string()
 {
-	if(!powered)
-	{
-		return "Off";
-	}
-
-	if(idling && std::abs(get_flow()) < 1e-3)
-	{
-		return "Idle";
-	}
-
-	if(idling)
-	{
-		return "Coasting";
-	}
-
-	return "Revving";
+	if(!powered) return "Off";
+	if(power == 0) return "Idle";
+	return "On";
 }
 
 static double calc_work(double j, double mass)
@@ -61,11 +64,10 @@ static double calc_work(double j, double mass)
 
 void pump::update(double dt)
 {
-	idling = false;
-
-	if(powered && !idling)
+	if(powered)
 	{
-		velocity += calc_work(dt * power, mass);
+		power = pid.calculate(dt, src->get_volume() / 2, src->get_steam_volume());
+		velocity += calc_work(dt * power * max_power, mass);
 	}
 	
 	fluid_holder fh_src(*src);
@@ -73,7 +75,7 @@ void pump::update(double dt)
 
 	double src_heat = src->get_heat();
 	double p_diff_1 = dst->get_pressure() - src->get_pressure();
-	double src_volume = fh_src.extract_fluid(get_flow() * dt);
+	double src_volume = fh_src.extract_fluid(get_flow_target() * dt);
 	double dst_volume = fh_dst.add_fluid(src_volume, src_heat);
 
 	src->extract_fluid(dst_volume);
@@ -84,15 +86,6 @@ void pump::update(double dt)
 	double work = p_diff * dst_volume * 0.001 + get_rpm() * 60 * dt * friction;
 
 	velocity -= calc_work(work, mass);
-
-	if(dst->get_level() > 400 || src->get_level() < 10)
-	{
-//		idling = true;
-	}
-
-	else
-	{
-//		idling = false;
-	}
+	flow = dst_volume / dt;
 }
 

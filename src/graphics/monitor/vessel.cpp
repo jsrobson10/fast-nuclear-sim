@@ -51,12 +51,11 @@ void vessel::init()
 	mesh1.set(rmesh, GL_STATIC_DRAW);
 }
 
-void vessel::update()
+void vessel::update(double dt)
 {
-	sim::system& sys = sim::system::active;
-
 	std::stringstream ss;
 	sim::graphics::mesh rmesh;
+	sim::system& sys = sim::system::active;
 
 	double temp_min, temp_max;
 	double crod_min = INFINITY, crod_max = -INFINITY;

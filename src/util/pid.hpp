@@ -22,7 +22,9 @@
 
 #pragma once
 
-class PIDImpl;
+namespace sim::util
+{
+
 class PID
 {
     public:
@@ -32,13 +34,23 @@ class PID
         // dt -  loop interval time
         // max - maximum value of manipulated variable
         // min - minimum value of manipulated variable
-        PID( double dt, double max, double min, double Kp, double Kd, double Ki );
+        PID( double max, double min, double Kp, double Ki, double Kd );
 
-        // Returns the manipulated variable given a setpoint and current process value
-        double calculate( double setpoint, double pv );
-        ~PID();
+        // Returns the manipulated variable, given
+		// dt - loop interval time
+		// sp - current setpoint
+		// pv - current process value
+        double calculate( double dt, double sp, double pv );
 
     private:
-        PIDImpl *pimpl;
+        double _max;
+        double _min;
+        double _Kp;
+        double _Kd;
+        double _Ki;
+        double _pre_error;
+        double _integral;
+};
+
 };
 

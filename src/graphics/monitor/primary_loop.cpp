@@ -60,7 +60,7 @@ void primary_loop::toggle_primary_pump()
 	bool state;
 	
 	sys.primary_pump->powered = state = !sys.primary_pump->powered;
-	gm_switch_primary.model_matrix = glm::translate(glm::mat4(1), glm::vec3(0, state ? 0.07 : 0, 0));
+	gm_switch_1.model_matrix = glm::translate(glm::mat4(1), glm::vec3(0, state ? 0.07 : 0, 0));
 }
 
 void primary_loop::init()
@@ -83,7 +83,7 @@ void primary_loop::init()
 	ss << "Turbine Inlet Valve\n\n";
 	ss << "Opened\nFlow\n\n";
 	ss << "Primary Pump\n\n";
-	ss << "Power\nSpeed\nFlow\n\n";
+	ss << "State\nPower\nSpeed\nFlow\n\n";
 	ss << "Condenser\n\n";
 	ss << "Heat\n";
 	ss << "Steam\n";
@@ -94,21 +94,16 @@ void primary_loop::init()
 	mesh1.bind();
 	mesh1.set(rmesh, GL_STATIC_DRAW);
 
-	rmesh.load_model("../assets/model", "primary_coolant_pump_switch.glb");
-	gm_switch_primary.bind();
-	gm_switch_primary.set(rmesh, GL_STATIC_DRAW);
-
-	rmesh.load_model("../assets/model", "secondary_coolant_pump_switch.glb");
-	gm_switch_secondary.bind();
-	gm_switch_secondary.set(rmesh, GL_STATIC_DRAW);
+	rmesh.load_model("../assets/model", "pump_switch_1.glb");
+	gm_switch_1.bind();
+	gm_switch_1.set(rmesh, GL_STATIC_DRAW);
 
 	m_joystick_turbine_bypass.load_model("../assets/model", "turbine_valve_bypass_joystick.stl");
 	m_joystick_turbine_inlet.load_model("../assets/model", "turbine_valve_inlet_joystick.stl");
-	m_switch_primary.load_model("../assets/model", "primary_coolant_pump_switch.stl");
-	m_switch_secondary.load_model("../assets/model", "secondary_coolant_pump_switch.stl");
+	m_switch_1.load_model("../assets/model", "pump_switch_click_1.stl");
 }
 
-void primary_loop::update()
+void primary_loop::update(double dt)
 {
 	std::stringstream ss;
 	sim::graphics::mesh rmesh;
@@ -122,6 +117,7 @@ void primary_loop::update()
 	ss << show( sys.turbine_inlet_valve->get_flow() / 1000 ) << " kg/s\n";
 	ss << "\n\n\n";
 	ss << sys.primary_pump->get_state_string() << "\n";
+	ss << show( sys.primary_pump->get_power() / 1000 ) << " kW\n";
 	ss << show( sys.primary_pump->get_rpm() ) << " r/min\n";
 	ss << show( sys.primary_pump->get_flow_mass() / 1000 ) << " kg/s\n";
 	ss << "\n\n\n";
@@ -138,7 +134,7 @@ void primary_loop::update()
 		focus::set(std::make_unique<valve_joystick>(sys.turbine_bypass_valve.get()));
 	if(m_joystick_turbine_inlet.check_focus())
 		focus::set(std::make_unique<valve_joystick>(sys.turbine_inlet_valve.get()));
-	if(m_switch_primary.check_focus())
+	if(m_switch_1.check_focus())
 		toggle_primary_pump();
 }
 
@@ -152,12 +148,8 @@ void primary_loop::render()
 	mesh2.uniform();
 	mesh2.render();
 	
-	gm_switch_primary.bind();
-	gm_switch_primary.uniform();
-	gm_switch_primary.render();
-
-	gm_switch_secondary.bind();
-	gm_switch_secondary.uniform();
-	gm_switch_secondary.render();
+	gm_switch_1.bind();
+	gm_switch_1.uniform();
+	gm_switch_1.render();
 }
 

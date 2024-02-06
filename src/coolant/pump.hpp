@@ -2,6 +2,7 @@
 #pragma once
 
 #include "fluid_holder.hpp"
+#include "../util/pid.hpp"
 
 namespace sim::coolant
 {
@@ -11,24 +12,29 @@ class pump
 	fluid_holder* const src;
 	fluid_holder* const dst;
 
+	util::PID pid {1, 0, 100, 0, 0};
+
+	double flow = 0; // L/s
+	double velocity = 0; // m/s
+	double power = 0;
+
+public:
+	
 	const double mass; // grams
 	const double radius; // meters
 	const double l_per_rev; // litres
 	const double friction; // J/rev
-
-	double velocity = 0; // m/s
-	double power = 0; // W
-
-public:
+	const double max_power; // W
 
 	bool powered = false;
-	bool idling = false;
 
 	pump(fluid_holder* src, fluid_holder* dst, double mass, double radius, double power, double l_per_rev, double friction);
 
 	double get_flow() const; // L/s
+	double get_flow_target() const; // L/s
 	double get_flow_mass() const; // g/s
 	double get_rpm() const; // rev/min
+	double get_power() const; // W
 
 	const char* get_state_string();
 	void update(double dt);

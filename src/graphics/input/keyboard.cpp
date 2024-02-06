@@ -29,19 +29,22 @@ static void cb_keypress(GLFWwindow* win, int key, int sc, int action, int mods)
 		switch(key)
 		{
 		case GLFW_KEY_1:
-			sim::system::active.speed = 1;
+			sim::system::active.speed = 1; // 1 s/s
 			break;
 		case GLFW_KEY_2:
-			sim::system::active.speed = 10;
+			sim::system::active.speed = 10; // 10 s/s
 			break;
 		case GLFW_KEY_3:
-			sim::system::active.speed = 60;
+			sim::system::active.speed = 60; // 1 min/s
 			break;
 		case GLFW_KEY_4:
-			sim::system::active.speed = 600;
+			sim::system::active.speed = 600; // 10 min/s
 			break;
 		case GLFW_KEY_5:
-			sim::system::active.speed = 3600;
+			sim::system::active.speed = 3600; // 1 h/s
+			break;
+		case GLFW_KEY_6:
+			sim::system::active.speed = 43200; // 12 h/s
 			break;
 		}
 	}

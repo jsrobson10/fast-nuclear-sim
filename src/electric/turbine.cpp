@@ -18,7 +18,7 @@ turbine::turbine(coolant::fluid_t type, coolant::condenser* condenser, double le
 		length(length), diameter(diameter), condenser(condenser),
 		sim::coolant::fluid_holder(type, calc_cylinder(length, diameter), mass)
 {
-	this->level = level;
+	
 }
 
 void turbine::update(double secs)
