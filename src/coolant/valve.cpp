@@ -39,48 +39,18 @@ void valve::update(double dt)
 	double pressure1 = src->get_pressure(); // Pa
 	double pressure2 = dst->get_pressure();
 	
-	int overshoots = 0;
-	double m = max * state * dt;
-	double temp, mass;
+	double m = max * state;
+	double diff = (pressure1 - pressure2);
+	double remove = diff - diff * std::pow(1 - m, dt);
 
-	for(;;)
-	{
-		double diff = (pressure1 - pressure2) * m; // L
+	double mol = fluid_holder::calc_pressure_mol(src->get_heat(), src->get_steam_volume(), pressure1 - remove);
+	double mass = src->get_steam() - src->fluid.mol_to_g(mol);
+	
+	double heat1 = src->get_heat(); // C
+	double heat2 = dst->get_heat();
 
-		if(diff > 0)
-		{
-			temp = src->get_heat();
-			mass = std::min(diff * src->get_steam_density(), src->get_steam());
-		}
-
-		else
-		{
-			temp = dst->get_heat();
-			mass = std::min(diff * dst->get_steam_density(), dst->get_steam());
-		}
-
-		fluid_holder fh_src(*src);
-		fluid_holder fh_dst(*dst);
-
-		fh_src.add_steam(-mass, temp);
-		fh_dst.add_steam(mass, temp);
-
-//		if((pressure1 > fh_dst.get_pressure()) == (pressure2 < fh_src.get_pressure()))
-		{
-			break;
-		}
-		
-		overshoots += 1;
-		m *= 0.5;
-	}
-
-	if(overshoots > 0)
-	{
-		std::cout << "Warning: overshot " << overshoots << " times\n";
-	}
-
-	src->add_steam(-mass, temp);
-	dst->add_steam(mass, temp);
+	src->add_steam(-mass, heat2);
+	dst->add_steam(mass, heat1);
 
 	this->flow = mass / dt;
 }

@@ -89,7 +89,7 @@ void vessel::update(double dt)
 	ss << show( sys.vessel->get_heat() ) << " C\n";
 	ss << show( sys.vessel->get_steam() ) << " g\n";
 	ss << show( sys.vessel->get_pressure() * 0.001 ) << " kPa\n";
-	ss << show( sys.vessel->get_level() ) << " / " << show( sys.vessel->get_volume() ) << " L\n";
+	ss << show( sys.vessel->get_level() / 1000 ) << " / " << show( sys.vessel->get_volume() / 1000 ) << " kL\n";
 	ss << show( sys.vessel->get_void_ratio() * 100 ) << " %\n\n\n\n";
 	ss << show( sys.reactor->get_energy_output() * 0.001 ) << " kW\n";
 	ss << show( sys.reactor->get_flux() ) << " n/cm2/s\n\n\n";

@@ -19,16 +19,26 @@ class pump
 	double power = 0;
 
 public:
+
+	enum mode_t
+	{
+		SRC,
+		DST,
+		NONE
+	};
+
+	const mode_t mode;
 	
 	const double mass; // grams
 	const double radius; // meters
 	const double l_per_rev; // litres
 	const double friction; // J/rev
 	const double max_power; // W
+	const double target; // L
 
 	bool powered = false;
 
-	pump(fluid_holder* src, fluid_holder* dst, double mass, double radius, double power, double l_per_rev, double friction);
+	pump(fluid_holder* src, fluid_holder* dst, double mass, double radius, double power, double l_per_rev, double friction, mode_t mode, double target);
 
 	double get_flow() const; // L/s
 	double get_flow_target() const; // L/s

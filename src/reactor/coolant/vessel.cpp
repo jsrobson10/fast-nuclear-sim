@@ -13,7 +13,7 @@ constexpr static double calc_cylinder(double h, double d)
 {
 	double r = d / 2;
 	
-	return M_PI * r * r * h;
+	return M_PI * r * r * h * 1000;
 }
 
 vessel::vessel(sim::coolant::fluid_t fluid, double height, double diameter, double mass, double level) :

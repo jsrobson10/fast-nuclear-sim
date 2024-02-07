@@ -6,14 +6,16 @@
 
 using namespace sim::coolant;
 
-pump::pump(fluid_holder* src, fluid_holder* dst, double mass, double radius, double power, double l_per_rev, double friction) :
+pump::pump(fluid_holder* src, fluid_holder* dst, double mass, double radius, double power, double l_per_rev, double friction, mode_t mode, double target) :
 		src(src),
 		dst(dst),
 		mass(mass),
 		radius(radius),
 		l_per_rev(l_per_rev),
 		friction(friction),
-		max_power(power)
+		max_power(power),
+		mode(mode),
+		target(target)
 {
 	
 }
@@ -66,21 +68,34 @@ void pump::update(double dt)
 {
 	if(powered)
 	{
-		power = pid.calculate(dt, src->get_volume() / 2, src->get_steam_volume());
+		switch(mode)
+		{
+		case mode_t::SRC:
+			power = pid.calculate(dt, target, src->get_steam_volume());
+			break;
+		case mode_t::DST:
+			power = pid.calculate(dt, target, dst->get_level());
+			break;
+		case mode_t::NONE:
+			power = 1;
+			break;
+		}
+
 		velocity += calc_work(dt * power * max_power, mass);
 	}
-	
-	fluid_holder fh_src(*src);
-	fluid_holder fh_dst(*dst);
 
+	else
+	{
+		power = 0;
+	}
+	
 	double src_heat = src->get_heat();
 	double p_diff_1 = dst->get_pressure() - src->get_pressure();
-	double src_volume = fh_src.extract_fluid(get_flow_target() * dt);
-	double dst_volume = fh_dst.add_fluid(src_volume, src_heat);
 
-	src->extract_fluid(dst_volume);
-	dst->add_fluid(dst_volume, src_heat);
-	
+	double max_volume = std::min(src->get_level(), dst->get_level());
+	double src_volume = src->extract_fluid(std::min(get_flow_target() * dt, max_volume));
+	double dst_volume = dst->add_fluid(src_volume, src_heat);
+
 	double p_diff_2 = dst->get_pressure() - src->get_pressure();
 	double p_diff = (p_diff_1 + p_diff_2) / 2;
 	double work = p_diff * dst_volume * 0.001 + get_rpm() * 60 * dt * friction;

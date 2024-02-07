@@ -1,17 +1,20 @@
 
 #include "condenser_secondary.hpp"
+#include "../conversions/temperature.hpp"
+#include "../util/constants.hpp"
+#include "../system.hpp"
 
 using namespace sim::coolant;
 
-condenser_secondary::condenser_secondary(condenser* primary, double volume, double level) :
-		primary(primary), fluid_holder(primary->fluid, volume, 0)
+condenser_secondary::condenser_secondary(condenser* primary, evaporator* source) :
+		primary(primary), source(source), fluid_holder(primary->fluid, 0, 0)
 {
-	this->level = level;
+	
 }
 
-void condenser_secondary::update(double dt)
+double condenser_secondary::add_fluid(double amount, double heat)
 {
-	((fluid_holder*)this)->update(dt);
-	heat = primary->add_heat(get_thermal_mass(), heat);
+	heat = primary->add_heat(fluid.l_to_g(amount), heat);
+	return source->add_fluid(amount, heat);
 }
 

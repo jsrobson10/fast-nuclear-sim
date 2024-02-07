@@ -11,7 +11,7 @@ constexpr static double calc_cylinder(double h, double d)
 {
 	double r = d / 2;
 	
-	return M_PI * r * r * h;
+	return M_PI * r * r * h * 1000;
 }
 
 turbine::turbine(coolant::fluid_t type, coolant::condenser* condenser, double length, double diameter, double mass) :

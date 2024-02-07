@@ -37,6 +37,9 @@ public:
 	virtual double get_thermal_mass() const { return get_mass() + extra_mass; } // grams
 	virtual double get_pressure() const; // pascals
 	virtual double get_steam_density() const; // g/L
+	
+	static double calc_pressure(double temp, double volume, double mass);
+	static double calc_pressure_mol(double temp, double volume, double pressure);
 
 	void update(double dt);
 };

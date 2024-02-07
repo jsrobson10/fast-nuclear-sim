@@ -23,18 +23,16 @@ secondary_loop::secondary_loop()
 void secondary_loop::toggle_secondary_pump()
 {
 	system& sys = sim::system::active;
-	static bool state = false;
-	state = !state;
-//	sys.secondary_pump->powered = state = !sys.secondary_pump->powered;
+	bool state = false;
+	sys.secondary_pump->powered = state = !sys.secondary_pump->powered;
 	gm_switch_2.model_matrix = glm::translate(glm::mat4(1), glm::vec3(0, state ? 0.07 : 0, 0));
 }
 
 void secondary_loop::toggle_freight_pump()
 {
 	system& sys = sim::system::active;
-	static bool state = false;
-	state = !state;
-//	sys.freight_pump->powered = state = !sys.freight_pump->powered;
+	bool state = false;
+	sys.freight_pump->powered = state = !sys.freight_pump->powered;
 	gm_switch_3.model_matrix = glm::translate(glm::mat4(1), glm::vec3(0, state ? 0.07 : 0, 0));
 }
 
@@ -53,7 +51,12 @@ void secondary_loop::init()
 	std::stringstream ss;
 	sim::graphics::mesh rmesh;
 
-	ss << "Secondary Loop\n";
+	ss << "Cooling Tower\n\n";
+	ss << "Heat\nSteam\nPressure\nLevel\n\n";
+	ss << "Secondary Pump\n\n";
+	ss << "Power\nSpeed\nFlow\n\n";
+	ss << "Freight Pump\n\n";
+	ss << "Power\nSpeed\nFlow\n\n";
 
 	rmesh.load_text(ss.str().c_str(), 0.04);
 	mesh1.bind();
@@ -79,8 +82,19 @@ void secondary_loop::update(double dt)
 	sim::graphics::mesh rmesh;
 	system& sys = sim::system::active;
 
-	//TODO
-	ss << "TODO\n";
+	ss << "\n\n\n";
+	ss << show( sys.evaporator->get_heat() ) << " C\n";
+	ss << show( sys.evaporator->get_steam_output() ) << " g/s\n";
+	ss << show( sys.evaporator->get_pressure() ) << " Pa\n";
+	ss << show( sys.evaporator->get_level() / 1000 ) << " / " << show( sys.evaporator->get_volume() / 1000 ) << " kL\n";
+	ss << "\n\n\n";
+	ss << show( sys.secondary_pump->get_power() * 100 ) << " %\n";
+	ss << show( sys.secondary_pump->get_rpm() ) << " r/min\n";
+	ss << show( sys.secondary_pump->get_flow_mass() / 1000 ) << " kg/s\n";
+	ss << "\n\n\n";
+	ss << show( sys.freight_pump->get_power() * 100 ) << " %\n";
+	ss << show( sys.freight_pump->get_rpm() ) << " r/min\n";
+	ss << show( sys.freight_pump->get_flow_mass() / 1000 ) << " kg/s\n";
 
 	rmesh.load_text(ss.str().c_str(), 0.04);
 	mesh2.bind();

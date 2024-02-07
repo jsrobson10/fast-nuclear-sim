@@ -18,6 +18,7 @@
 #include "graphics/camera.hpp"
 
 #include "system.hpp"
+#include "tests.hpp"
 
 using namespace sim;
 
@@ -32,6 +33,9 @@ int main()
 {
 	feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
 	
+//	tests::run();
+//	return 0;
+
 	graphics::window::create();
 
 	long clock = get_now();
