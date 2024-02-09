@@ -78,27 +78,34 @@ void secondary_loop::init()
 
 void secondary_loop::update(double dt)
 {
-	std::stringstream ss;
-	sim::graphics::mesh rmesh;
 	system& sys = sim::system::active;
+	clock_now += dt;
 
-	ss << "\n\n\n";
-	ss << show( sys.evaporator->get_heat() ) << " C\n";
-	ss << show( sys.evaporator->get_steam_output() ) << " g/s\n";
-	ss << show( sys.evaporator->get_pressure() ) << " Pa\n";
-	ss << show( sys.evaporator->get_level() / 1000 ) << " / " << show( sys.evaporator->get_volume() / 1000 ) << " kL\n";
-	ss << "\n\n\n";
-	ss << show( sys.secondary_pump->get_power() * 100 ) << " %\n";
-	ss << show( sys.secondary_pump->get_rpm() ) << " r/min\n";
-	ss << show( sys.secondary_pump->get_flow_mass() / 1000 ) << " kg/s\n";
-	ss << "\n\n\n";
-	ss << show( sys.freight_pump->get_power() * 100 ) << " %\n";
-	ss << show( sys.freight_pump->get_rpm() ) << " r/min\n";
-	ss << show( sys.freight_pump->get_flow_mass() / 1000 ) << " kg/s\n";
+	if(clock_at + 1.0/30.0 < clock_now)
+	{
+		std::stringstream ss;
+		sim::graphics::mesh rmesh;
+		clock_at += 1.0/30.0;
 
-	rmesh.load_text(ss.str().c_str(), 0.04);
-	mesh2.bind();
-	mesh2.set(rmesh, GL_DYNAMIC_DRAW);
+		ss << "\n\n\n";
+		ss << show( sys.evaporator->get_heat() ) << " C\n";
+		ss << show( sys.evaporator->get_steam_output() ) << " g/s\n";
+		ss << show( sys.evaporator->get_pressure() ) << " Pa\n";
+		ss << show( sys.evaporator->get_level() / 1000 ) << " / " << show( sys.evaporator->get_volume() / 1000 ) << " kL\n";
+		ss << "\n\n\n";
+		ss << show( sys.secondary_pump->get_power() * 100 ) << " %\n";
+		ss << show( sys.secondary_pump->get_rpm() ) << " r/min\n";
+		ss << show( sys.secondary_pump->get_flow_mass() / 1000 ) << " kg/s\n";
+		ss << "\n\n\n";
+		ss << show( sys.freight_pump->get_power() * 100 ) << " %\n";
+		ss << show( sys.freight_pump->get_rpm() ) << " r/min\n";
+		ss << show( sys.freight_pump->get_flow_mass() / 1000 ) << " kg/s\n";
+
+		rmesh.load_text(ss.str().c_str(), 0.04);
+		mesh2.bind();
+		mesh2.set(rmesh, GL_DYNAMIC_DRAW);
+	}
+
 
 	if(m_switch_2.check_focus())
 		toggle_secondary_pump();

@@ -84,11 +84,11 @@ void system::update(double dt)
 	turbine->update(dt);
 	condenser->update(dt);
 
-//	evaporator->update(dt);
-//	condenser_secondary->update(dt);
+	evaporator->update(dt);
+	condenser_secondary->update(dt);
 
-//	primary_pump->update(dt);
-//	secondary_pump->update(dt);
-//	freight_pump->update(dt);
+	primary_pump->update(dt);
+	secondary_pump->update(dt);
+	freight_pump->update(dt);
 }
 

@@ -100,7 +100,7 @@ void pump::update(double dt)
 	double p_diff = (p_diff_1 + p_diff_2) / 2;
 	double work = p_diff * dst_volume * 0.001 + get_rpm() * 60 * dt * friction;
 
-	velocity -= calc_work(work, mass);
+	velocity = std::max(velocity - calc_work(work, mass), 0.0);
 	flow = dst_volume / dt;
 }
 

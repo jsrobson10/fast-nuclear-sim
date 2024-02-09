@@ -21,7 +21,7 @@ condenser::condenser(fluid_t type, double height, double diameter, double mass, 
 
 void condenser::update(double secs)
 {
-	((sim::coolant::fluid_holder*)this)->update(secs);
+	((fluid_holder*)this)->update(secs);
 }
 
 

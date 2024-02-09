@@ -94,6 +94,13 @@ double fluid_holder::calc_pressure_mol(double heat, double volume, double pressu
 	return (V * pressure) / (T * constants::R);
 }
 
+double fluid_holder::calc_pressure_vol(double heat, double pressure, double mol)
+{
+	double T = conversions::temperature::c_to_k(heat);
+	
+	return 1000 * (mol * T * constants::R) / pressure;
+}
+
 double fluid_holder::get_pressure() const
 {
 	return calc_pressure(heat, get_steam_volume(), fluid.g_to_mol(get_steam()));
@@ -111,32 +118,28 @@ void fluid_holder::update(double secs)
 
 	if(mass > 0)
 	{
-		double V = get_steam_volume() * 0.001;
-		double P = fluid.vapor_pressure.calc_p(heat);
-		double T = conversions::temperature::c_to_k(heat);
-		double n = fluid.mol_to_g((V * P) / (T * constants::R)) - steam;
+		// use ideal gas law to get target steam density in mol/L
+		double heat_k = conversions::temperature::c_to_k(heat);
+		double target_pressure = fluid.vapor_pressure.calc_p(heat);
+		double density = target_pressure / (constants::R * heat_k) / 1000;
+		
+		double m_c = fluid.l_to_mol(1);
+		double n_t = fluid.l_to_mol(level) + fluid.g_to_mol(steam);
+		double v_l = (n_t - density * volume) / (m_c - density);
+		double n_l = fluid.l_to_mol(v_l);
 
-		double s = steam + n;
-		double l = fluid.l_to_g(level) - n;
-		double v = fluid.l_to_g(volume);
-
-		if(l < 0)
+		if(n_l < 0)
 		{
-			s += l;
-			l = 0;
+			v_l = 0;
+			n_l = 0;
 		}
 
-		if(l > v)
-		{
-			l = v;
-			s = 0;
-		}
+		double n_diff = n_l - fluid.l_to_mol(level);
+		double steam_add = -fluid.mol_to_g(n_diff);
 
-		double diff = s - steam;
-
-		steam = s;
-		level = fluid.g_to_l(l);
-		heat -= diff * fluid.jPg / mass;
+		level += fluid.mol_to_l(n_diff);
+		steam += steam_add;
+		heat -= steam_add * fluid.jPg / mass;
 	}
 }
 

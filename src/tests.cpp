@@ -22,23 +22,55 @@ std::ostream& operator<<(std::ostream& o, const fluid_holder& fh)
 
 void tests::run()
 {
-	fluid_holder src(WATER, 1e6, 0);
-	fluid_holder dst(WATER, 1e6, 0);
+	fluid_holder fhs[] = {
+		fluid_holder(WATER, 75398, 0),
+		fluid_holder(WATER, 75398, 0),
+	};
 
-	src.add_fluid(1e5, 11);
+	valve vs[] = {
+		valve(&fhs[0], &fhs[1], 1, 0.1),
+	};
 
-	valve v(&src, &dst, 1, 0.5);
-	double dt = 0.001;
+	fhs[0].level = 100;
+	fhs[0].steam = 0;
+	fhs[0].heat = 100;
+
+	double dt = 0.1;
 	double at = 0;
+
+	std::cout << "time";
+
+	for(fluid_holder& fh : fhs)
+	{
+		std::cout << "\t\tlevel (L)\tsteam (g)\theat (C)\tpressure (Pa)";
+	}
+
+	std::cout << "\n";
 
 	for(int i = 0; i < 10000; i++)
 	{
-		src.update(dt);
-		dst.update(dt);
-		v.update(dt);
+		for(fluid_holder& fh : fhs)
+		{
+			fh.update(dt);
+		}
+		
+		for(valve& v : vs)
+		{
+			v.update(dt);
+		}
 
-		std::cout << at << "\t" << src.get_pressure() << "\t" << dst.get_pressure() << "\n";
+		std::cout << at;
+
+		for(const fluid_holder& fh : fhs)
+		{
+			std::cout << "\t\t" << fh.get_level() << "\t" << fh.get_steam() << "\t" << fh.get_heat() << "\t" << fh.get_pressure();
+		}
+		
+		std::cout << "\n";
 		at += dt;
 	}
+	
+	std::cout << "\n" << fhs[0] << "\n";
+
 }
 

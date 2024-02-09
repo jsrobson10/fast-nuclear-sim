@@ -42,10 +42,21 @@ void valve::update(double dt)
 	double m = max * state;
 	double diff = (pressure1 - pressure2);
 	double remove = diff - diff * std::pow(1 - m, dt);
-
-	double mol = fluid_holder::calc_pressure_mol(src->get_heat(), src->get_steam_volume(), pressure1 - remove);
-	double mass = src->get_steam() - src->fluid.mol_to_g(mol);
 	
+	double mol, mass;
+
+	if(remove < 0)
+	{
+		mol = fluid_holder::calc_pressure_mol(src->get_heat(), src->get_steam_volume(), pressure1 - remove);
+		mass = src->get_steam() - src->fluid.mol_to_g(mol);
+	}
+
+	else
+	{
+		mol = fluid_holder::calc_pressure_mol(dst->get_heat(), dst->get_steam_volume(), pressure2 - remove);
+		mass = dst->get_steam() - dst->fluid.mol_to_g(mol);
+	}
+
 	double heat1 = src->get_heat(); // C
 	double heat2 = dst->get_heat();
 

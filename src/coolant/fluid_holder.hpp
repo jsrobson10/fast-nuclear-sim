@@ -8,7 +8,7 @@ namespace sim::coolant
 
 class fluid_holder
 {
-protected:
+		public://protected:
 
 	double level = 0; // litres
 	double steam = 0; // grams
@@ -40,6 +40,7 @@ public:
 	
 	static double calc_pressure(double temp, double volume, double mass);
 	static double calc_pressure_mol(double temp, double volume, double pressure);
+	static double calc_pressure_vol(double heat, double pressure, double mol);
 
 	void update(double dt);
 };

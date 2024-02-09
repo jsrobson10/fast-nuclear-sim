@@ -56,10 +56,17 @@ void vessel::update(double dt)
 	std::stringstream ss;
 	sim::graphics::mesh rmesh;
 	sim::system& sys = sim::system::active;
+	clock_now += dt;
+
+	if(clock_at + 1.0/30.0 > clock_now)
+	{
+		return;
+	}
 
 	double temp_min, temp_max;
 	double crod_min = INFINITY, crod_max = -INFINITY;
 
+	clock_at += 1.0/30.0;
 	sys.reactor->get_stats(sim::reactor::rod::val_t::HEAT, temp_min, temp_max);
 
 	for(int i = 0; i < sys.reactor->size; i++)

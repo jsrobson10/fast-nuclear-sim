@@ -105,29 +105,35 @@ void primary_loop::init()
 
 void primary_loop::update(double dt)
 {
-	std::stringstream ss;
-	sim::graphics::mesh rmesh;
 	system& sys = sim::system::active;
+	clock_now += dt;
 
-	ss << "\n\n";
-	ss << show( sys.turbine_bypass_valve->get_state() * 100 ) << " %\n";
-	ss << show( sys.turbine_bypass_valve->get_flow() / 1000 ) << " kg/s\n";
-	ss << "\n\n\n";
-	ss << show( sys.turbine_inlet_valve->get_state() * 100 ) << " %\n";
-	ss << show( sys.turbine_inlet_valve->get_flow() / 1000 ) << " kg/s\n";
-	ss << "\n\n\n";
-	ss << show( sys.primary_pump->get_power() * 100 ) << " %\n";
-	ss << show( sys.primary_pump->get_rpm() ) << " r/min\n";
-	ss << show( sys.primary_pump->get_flow_mass() / 1000 ) << " kg/s\n";
-	ss << "\n\n\n";
-	ss << show( sys.condenser->get_heat() ) << " C\n";
-	ss << show( sys.condenser->get_steam() ) << " g\n";
-	ss << show( sys.condenser->get_pressure() / 1000 ) << " kPa\n";
-	ss << show( sys.condenser->get_level() / 1000 ) << " / " << show( sys.condenser->get_volume() / 1000 ) << " kL\n";
+	if(clock_at + 1.0/30.0 < clock_now)
+	{
+		std::stringstream ss;
+		sim::graphics::mesh rmesh;
+		clock_at += 1.0/30.0;
 
-	rmesh.load_text(ss.str().c_str(), 0.04);
-	mesh2.bind();
-	mesh2.set(rmesh, GL_DYNAMIC_DRAW);
+		ss << "\n\n";
+		ss << show( sys.turbine_bypass_valve->get_state() * 100 ) << " %\n";
+		ss << show( sys.turbine_bypass_valve->get_flow() / 1000 ) << " kg/s\n";
+		ss << "\n\n\n";
+		ss << show( sys.turbine_inlet_valve->get_state() * 100 ) << " %\n";
+		ss << show( sys.turbine_inlet_valve->get_flow() / 1000 ) << " kg/s\n";
+		ss << "\n\n\n";
+		ss << show( sys.primary_pump->get_power() * 100 ) << " %\n";
+		ss << show( sys.primary_pump->get_rpm() ) << " r/min\n";
+		ss << show( sys.primary_pump->get_flow_mass() / 1000 ) << " kg/s\n";
+		ss << "\n\n\n";
+		ss << show( sys.condenser->get_heat() ) << " C\n";
+		ss << show( sys.condenser->get_steam() ) << " g\n";
+		ss << show( sys.condenser->get_pressure() / 1000 ) << " kPa\n";
+		ss << show( sys.condenser->get_level() / 1000 ) << " / " << show( sys.condenser->get_volume() / 1000 ) << " kL\n";
+
+		rmesh.load_text(ss.str().c_str(), 0.04);
+		mesh2.bind();
+		mesh2.set(rmesh, GL_DYNAMIC_DRAW);
+	}
 
 	if(m_joystick_turbine_bypass.check_focus())
 		focus::set(std::make_unique<valve_joystick>(sys.turbine_bypass_valve.get()));
