@@ -24,11 +24,9 @@ void tests::run()
 {
 	fluid_holder fhs[] = {
 		fluid_holder(WATER, 75398, 0),
-		fluid_holder(WATER, 75398, 0),
 	};
 
 	valve vs[] = {
-		valve(&fhs[0], &fhs[1], 1, 0.1),
 	};
 
 	fhs[0].level = 100;

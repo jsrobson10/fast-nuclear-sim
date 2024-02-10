@@ -6,8 +6,11 @@
 
 #include <cmath>
 #include <iostream>
+#include <complex>
 
 using namespace sim::coolant;
+
+typedef std::complex<double> complex;
 
 fluid_holder::fluid_holder(fluid_t fluid, double volume, double extra_mass) : fluid(fluid), volume(volume), extra_mass(extra_mass)
 {
@@ -118,28 +121,37 @@ void fluid_holder::update(double secs)
 
 	if(mass > 0)
 	{
-		// use ideal gas law to get target steam density in mol/L
+		// use ideal gas law to get target steam pressure
 		double heat_k = conversions::temperature::c_to_k(heat);
 		double target_pressure = fluid.vapor_pressure.calc_p(heat);
-		double density = target_pressure / (constants::R * heat_k) / 1000;
-		
-		double m_c = fluid.l_to_mol(1);
-		double n_t = fluid.l_to_mol(level) + fluid.g_to_mol(steam);
-		double v_l = (n_t - density * volume) / (m_c - density);
-		double n_l = fluid.l_to_mol(v_l);
 
-		if(n_l < 0)
+		double K = heat_k;
+		double R = 1000 * constants::R;
+		double P = target_pressure;
+		double J_m = fluid.jPg * fluid.gPmol;
+		double L_m = fluid.gPmol / fluid.gPl;
+		double n_g = fluid.g_to_mol(steam);
+		double n_l = fluid.l_to_mol(level);
+		double V_t = volume;
+
+		double n = (-K*R*n_g - L_m*P*n_l + P*V_t)/(K*R - L_m*P) * 0.5;
+
+		/*if(std::abs(n.imag()) > std::numeric_limits<double>::epsilon())
 		{
-			v_l = 0;
-			n_l = 0;
+			throw std::runtime_error("Nonzero imaginary component");
+		}*/
+
+		double l = level - fluid.mol_to_l(n);
+
+		if(l < 0)
+		{
+			n -= fluid.l_to_mol(l);
+			l = 0;
 		}
 
-		double n_diff = n_l - fluid.l_to_mol(level);
-		double steam_add = -fluid.mol_to_g(n_diff);
-
-		level += fluid.mol_to_l(n_diff);
-		steam += steam_add;
-		heat -= steam_add * fluid.jPg / mass;
+		level = l;
+		steam += fluid.mol_to_g(n);
+		heat -= n * J_m / mass;
 	}
 }
 
