@@ -18,7 +18,7 @@ public:
 	condenser_secondary(condenser* primary, evaporator* source, double volume);
 
 	virtual double add_heat(double m, double t) { return source->add_heat(m, t); }
-	virtual void add_gas(double steam, double gas, double t) { return source->add_gas(steam, gas, t); }
+	virtual void add_gas(double steam, double gas, double t, double e) { return source->add_gas(steam, gas, t, e); }
 	virtual double extract_fluid(double amount) { return source->extract_fluid(amount); }
 
 	virtual double add_fluid(double amount, double heat);

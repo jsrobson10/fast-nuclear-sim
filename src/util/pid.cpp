@@ -28,6 +28,22 @@ using namespace std;
 using namespace sim::util;
 
 
+PID::operator Json::Value() const
+{
+	Json::Value node;
+
+	node["max"] = _max;
+	node["min"] = _min;
+	node["Kp"] = _Kp;
+	node["Ki"] = _Ki;
+	node["Kd"] = _Kd;
+	node["pre_error"] = _pre_error;
+	node["integral"] = _integral;
+
+	return node;
+}
+
+
 /**
  * Implementation
  */

@@ -22,6 +22,8 @@
 
 #pragma once
 
+#include <json/json.h>
+
 namespace sim::util
 {
 
@@ -41,6 +43,8 @@ class PID
 		// sp - current setpoint
 		// pv - current process value
         double calculate( double dt, double sp, double pv );
+	
+		operator Json::Value() const;
 
     private:
         double _max;

@@ -14,15 +14,18 @@ public:
 	
 	const double height; // meters
 	const double diameter; // meters
+	const double bubble_hl; // seconds
+
 	double steam_suspended = 0; // grams
 
-	vessel(sim::coolant::fluid_t fluid, double height, double diameter, double mass, double level);
+	vessel(sim::coolant::fluid_t fluid, double height, double diameter, double mass, double level, double bubble_hl);
 
 	double get_steam_suspended() const; // grams
 	double get_void_ratio() const;
-	double get_bubble_hl() const;
 
 	void update(double secs);
+	
+	virtual operator Json::Value() const;
 
 	friend std::ostream& operator<<(std::ostream& o, const vessel& v)
 	{

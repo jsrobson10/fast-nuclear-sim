@@ -1,11 +1,14 @@
 
 #include "system.hpp"
 
+#include <fstream>
+
 #include "reactor/builder.hpp"
 #include "reactor/control/boron_rod.hpp"
 #include "reactor/fuel/fuel_rod.hpp"
 #include "reactor/coolant/pipe.hpp"
 #include "reactor/coolant/heater.hpp"
+#include "graphics/camera.hpp"
 
 using namespace sim;
 
@@ -35,8 +38,8 @@ system::system()
 		"      C C C C      "
 	};
 	
-	vessel = std::make_unique<reactor::coolant::vessel>(sim::coolant::WATER, 8, 10, 6e6, 5e5);
-	reactor = std::make_unique<reactor::reactor>(sim::reactor::builder(19, 19, 1.0 / 4.0, 4, reactor::fuel::fuel_rod(0.5), vessel.get(), layout));
+	vessel = std::make_unique<reactor::coolant::vessel>(sim::coolant::WATER, 8, 10, 6e6, 5e5, 10);
+	reactor = std::make_unique<reactor::reactor>(sim::reactor::builder(19, 19, 1.0 / 4.0, 4, reactor::fuel::fuel_rod(0.2), vessel.get(), layout));
 	condenser = std::make_unique<coolant::condenser>(sim::coolant::WATER, 6, 4, 3e6, 30000);
 	turbine = std::make_unique<electric::turbine>(sim::coolant::WATER, condenser.get(), 6, 3, 2e6);
 	
@@ -87,5 +90,38 @@ void system::update(double dt)
 	condenser->update(dt);
 	evaporator->update(dt);
 	condenser_secondary->update(dt);
+}
+
+system::operator Json::Value() const
+{
+	Json::Value node;
+
+	node["vessel"] = *vessel;
+	node["turbine"] = *turbine;
+	node["condenser"] = *condenser;
+	node["evaporator"] = *evaporator;
+	node["primary_pump"] = *primary_pump;
+	node["secondary_pump"] = *secondary_pump;
+	node["freight_pump"] = *freight_pump;
+	node["turbine_inlet_valve"] = *turbine_inlet_valve;
+	node["turbine_bypass_valve"] = *turbine_bypass_valve;
+	node["camera"] = graphics::camera::serialize();
+	node["reactor"] = *reactor;
+
+	return node;
+}
+
+void system::save()
+{
+	Json::Value root(*this);
+
+	Json::StreamWriterBuilder builder;
+	builder["commentStyle"] = "None";
+	builder["indentation"] = "";
+
+	std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
+	std::ofstream savefile("savefile.json");
+	writer->write(root, &savefile);
+	savefile.close();
 }
 

@@ -36,7 +36,6 @@ public:
 	const double max_power; // W
 	const double target; // L
 	
-	bool ignore_dst_level = false;
 	bool powered = false;
 
 	pump(fluid_holder* src, fluid_holder* dst, double mass, double radius, double power, double l_per_rev, double friction, mode_t mode, double target);
@@ -46,6 +45,8 @@ public:
 	double get_flow_mass() const; // g/s
 	double get_rpm() const; // rev/min
 	double get_power() const; // W
+	
+	operator Json::Value() const;
 
 	const char* get_state_string();
 	void update(double dt);

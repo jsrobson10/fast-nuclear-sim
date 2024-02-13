@@ -24,4 +24,13 @@ void condenser::update(double secs)
 	update_base(secs);
 }
 
+condenser::operator Json::Value() const
+{
+	Json::Value node(fluid_holder::operator::Json::Value());
+
+	node["height"] = height;
+	node["diameter"] = diameter;
+	
+	return node;
+}
 

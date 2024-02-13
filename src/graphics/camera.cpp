@@ -20,6 +20,36 @@ static glm::vec<3, double> pos(0, 0, 2);
 static glm::vec<3, double> velocity(0);
 static glm::mat4 camera_mat;
 
+Json::Value camera::serialize()
+{
+	Json::Value node;
+
+	node["on_ground"] = on_ground;
+	node["yaw"] = yaw;
+	node["pitch"] = pitch;
+	node["pos"]["x"] = pos[0];
+	node["pos"]["y"] = pos[1];
+	node["pos"]["z"] = pos[2];
+	node["velocity"]["x"] = velocity[0];
+	node["velocity"]["y"] = velocity[1];
+	node["velocity"]["z"] = velocity[2];
+
+	return node;
+}
+
+void camera::load(const Json::Value& node)
+{
+	on_ground = node["on_ground"].asBool();
+	yaw = node["yaw"].asDouble();
+	pitch = node["pitch"].asDouble();
+	pos[0] = node["pos"]["x"].asDouble();
+	pos[1] = node["pos"]["y"].asDouble();
+	pos[2] = node["pos"]["z"].asDouble();
+	velocity[0] = node["velocity"]["x"].asDouble();
+	velocity[1] = node["velocity"]["y"].asDouble();
+	velocity[2] = node["velocity"]["z"].asDouble();
+}
+
 void camera::rotate(double y, double p)
 {
 	yaw += y * 0.05;

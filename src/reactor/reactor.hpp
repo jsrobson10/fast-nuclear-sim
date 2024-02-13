@@ -39,6 +39,8 @@ struct reactor
 	double get_total(rod::val_t type);
 	int move_cursor(int d);
 	void toggle_selected();
+
+	operator Json::Value() const;
 	
 private:
 

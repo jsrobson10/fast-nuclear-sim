@@ -45,3 +45,14 @@ void evaporator::update(double dt)
 	update_base(dt);
 }
 
+evaporator::operator Json::Value() const
+{
+	Json::Value node(fluid_holder::operator::Json::Value());
+
+	node["height"] = height;
+	node["diameter"] = diameter;
+	node["steam_output"] = steam_output;
+	
+	return node;
+}
+

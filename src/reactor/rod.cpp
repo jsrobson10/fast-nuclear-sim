@@ -82,3 +82,24 @@ void rod::update_rod(double secs)
 	}
 }
 
+rod::operator Json::Value() const
+{
+	Json::Value node;
+	Json::Value j_vals;
+	
+	for(int i = 0; i < VAL_N; i++)
+	{
+		Json::Value j_val;
+
+		j_val.append(vals[i]);
+		j_val.append(vals_n[i]);
+		j_vals.append(std::move(j_val));
+	}
+
+	node["selected"] = selected;
+	node["vals"] = std::move(j_vals);
+	node["id"] = get_id();
+
+	return node;
+}
+

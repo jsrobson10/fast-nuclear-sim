@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include <json/json.h>
+
 #include "fluid_t.hpp"
 #include "../conversions/temperature.hpp"
 
@@ -28,7 +30,7 @@ public:
 	virtual double extract_fluid(double amount);
 
 	virtual double add_fluid(double amount, double heat);
-	virtual void add_gas(double steam, double air, double t);
+	virtual void add_gas(double steam, double air, double heat, double energy);
 
 	virtual double get_volume() const { return volume; } // litres
 	virtual double get_level() const { return level; } // litres
@@ -42,6 +44,8 @@ public:
 	virtual double get_thermal_mass() const { return get_mass() + extra_mass; } // grams
 	virtual double get_pressure() const; // pascals
 	virtual double get_gas_density() const; // g/L
+	
+	virtual operator Json::Value() const;
 	
 	static double calc_pressure(double heat, double pressure, double mol);
 	static double calc_pressure_mol(double heat, double pressure, double volume);

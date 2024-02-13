@@ -21,13 +21,24 @@ turbine::turbine(coolant::fluid_t type, coolant::condenser* condenser, double le
 	
 }
 
-void turbine::update(double secs)
+void turbine::update(double dt)
 {
 	
 }
 
-void turbine::add_gas(double steam, double air, double t)
+void turbine::add_gas(double steam, double air, double t, double e)
 {
-	condenser->add_gas(steam, air, t);
+	condenser->add_gas(steam, air, t, e);
+}
+
+turbine::operator Json::Value() const
+{
+	Json::Value node(fluid_holder::operator::Json::Value());
+
+	node["length"] = length;
+	node["diameter"] = diameter;
+	node["velocity"] = velocity;
+	
+	return node;
 }
 

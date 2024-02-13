@@ -14,6 +14,8 @@ class turbine : public sim::coolant::fluid_holder
 	const double length;
 	const double diameter;
 	
+	double velocity = 0; // m/s
+	
 public:
 
 	turbine(coolant::fluid_t type, coolant::condenser* condenser, double length, double diameter, double mass);
@@ -23,7 +25,7 @@ public:
 	virtual double add_heat(double m, double t) { return condenser->add_heat(m, t); }
 	virtual double extract_fluid(double amount) { return condenser->extract_fluid(amount); }
 	virtual double add_fluid(double amount, double heat) { return condenser->add_fluid(amount, heat); }
-	virtual void add_gas(double steam, double gas, double t);
+	virtual void add_gas(double steam, double gas, double t, double e);
 
 	virtual double get_volume() const { return condenser->get_volume(); }
 	virtual double get_level() const { return condenser->get_level(); }
@@ -37,6 +39,8 @@ public:
 	virtual double get_thermal_mass() const { return condenser->get_thermal_mass(); } // grams
 	virtual double get_pressure() const { return condenser->get_pressure(); } // pascals
 	virtual double get_gas_density() const { return condenser->get_gas_density(); } // g/L
+	
+	virtual operator Json::Value() const;
 };
 
 };

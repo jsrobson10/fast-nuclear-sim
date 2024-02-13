@@ -25,6 +25,8 @@ public:
 	void add_open_speed(double v);
 	void clear_open_speed();
 	
+	operator Json::Value() const;
+	
 	constexpr double get_state() const { return state; }
 	constexpr double get_flow() const { return flow; }
 };

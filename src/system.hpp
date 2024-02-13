@@ -2,6 +2,7 @@
 #pragma once
 
 #include <memory>
+#include <json/json.h>
 
 #include "reactor/coolant/vessel.hpp"
 #include "reactor/reactor.hpp"
@@ -45,6 +46,9 @@ struct system
 	system(const system& o) = delete;
 
 	void update(double dt);
+	void save();
+
+	operator Json::Value() const;
 };
 
 };

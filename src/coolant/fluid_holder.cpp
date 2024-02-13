@@ -69,7 +69,7 @@ double fluid_holder::extract_fluid(double amount)
 	return amount;
 }
 
-void fluid_holder::add_gas(double m_s2, double m_a2, double t_2)
+void fluid_holder::add_gas(double m_s2, double m_a2, double t_2, double e_2)
 {
 	double m_2 = m_a2 + m_s2;
 	double m_1 = get_thermal_mass();
@@ -109,6 +109,22 @@ double fluid_holder::get_gas_density() const
 {
 	double v = get_gas_volume();
 	return v > 0 ? get_gas() / v : 0;
+}
+
+fluid_holder::operator Json::Value() const
+{
+	Json::Value node;
+
+	node["level"] = level;
+	node["steam"] = steam;
+	node["air"] = air;
+	node["heat"] = heat;
+
+	node["volume"] = volume;
+	node["extra_mass"] = extra_mass;
+	node["fluid"] = fluid;
+
+	return node;
 }
 
 void fluid_holder::update_base(double secs)

@@ -75,9 +75,21 @@ void valve::update(double dt)
 	double heat1 = src->get_heat(); // C
 	double heat2 = dst->get_heat();
 
-	src->add_gas(-mass_s, mass_a, heat2);
-	dst->add_gas(mass_s, mass_a, heat1);
+	src->add_gas(-mass_s, mass_a, heat2, 0);
+	dst->add_gas(mass_s, mass_a, heat1, 0);
 
 	this->flow = (mass_s + mass_a) / dt;
+}
+
+valve::operator Json::Value() const
+{
+	Json::Value node;
+
+	node["max"] = max;
+	node["speed"] = speed;
+	node["state"] = state;
+	node["flow"] = flow;
+
+	return node;
 }
 

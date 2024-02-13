@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include <json/json.h>
+
 #include <ostream>
 #include <glm/vec4.hpp>
 #include <memory>
@@ -14,7 +16,7 @@ public:
 	
 	bool selected = false;
 	void* reactor = nullptr;
-	static const int VAL_N = 4;
+	static const int VAL_N = 3;
 	
 	enum val_t
 	{
@@ -59,6 +61,8 @@ public:
 
 		return o;
 	}
+
+	operator Json::Value() const;
 
 protected:
 

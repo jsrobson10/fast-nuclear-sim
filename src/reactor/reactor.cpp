@@ -239,3 +239,38 @@ void reactor::get_stats(rod::val_t type, double& min, double& max)
 	}
 }
 
+reactor::operator Json::Value() const
+{
+	Json::Value node;
+
+	node["cell_width"] = cell_width;
+	node["cell_height"] = cell_height;
+	node["width"] = width;
+	node["height"] = height;
+	node["size"] = size;
+	node["rod_speed"] = rod_speed;
+	node["cursor"] = cursor;
+
+	Json::Value j_rods;
+
+	for(int i = 0; i < size; i++)
+	{
+		int x = i % width;
+		int y = i / width;
+
+		if(rods[i]->get_id() == 0)
+		{
+			continue;
+		}
+
+		Json::Value j_rod(*rods[i]);
+		j_rod["pos"]["x"] = x;
+		j_rod["pos"]["y"] = y;
+		j_rods.append(std::move(j_rod));
+	}
+
+	node["rods"] = std::move(j_rods);
+
+	return node;
+}
+

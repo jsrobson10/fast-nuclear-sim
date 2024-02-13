@@ -92,7 +92,7 @@ void pump::update(double dt)
 	double src_heat = src->get_heat();
 	double p_diff_1 = dst->get_pressure() - src->get_pressure();
 
-	double max_volume = ignore_dst_level ? src->get_level() : std::min(src->get_level(), dst->get_volume() - dst->get_level());
+	double max_volume = std::min(src->get_level(), dst->get_volume() - dst->get_level());
 	double src_volume = src->extract_fluid(std::min(get_flow_target() * dt, max_volume));
 	double dst_volume = dst->add_fluid(src_volume, src_heat);
 
@@ -102,5 +102,37 @@ void pump::update(double dt)
 
 	velocity = std::max(velocity - calc_work(work, mass), 0.0);
 	flow = dst_volume / dt;
+}
+
+pump::operator Json::Value() const
+{
+	Json::Value node;
+
+	node["pid"] = pid;
+	node["flow"] = flow;
+	node["velocity"] = velocity;
+	node["power"] = power;
+	node["mass"] = mass;
+	node["radius"] = radius;
+	node["l_per_rev"] = l_per_rev;
+	node["friction"] = friction;
+	node["max_power"] = max_power;
+	node["target"] = target;
+	node["powered"] = powered;
+
+	switch(mode)
+	{
+	case mode_t::SRC:
+		node["mode"] = "SRC";
+		break;
+	case mode_t::DST:
+		node["mode"] = "DST";
+		break;
+	case mode_t::NONE:
+		node["mode"] = "NONE";
+		break;
+	}
+
+	return node;
 }
 

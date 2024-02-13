@@ -15,3 +15,14 @@ double vapor_pressure::calc_t(double p) const
 	return B / (A - std::log(p) / std::log(10)) - C;
 }
 
+vapor_pressure::operator Json::Value() const
+{
+	Json::Value node;
+
+	node["A"] = A;
+	node["B"] = B;
+	node["C"] = C;
+
+	return node;
+}
+

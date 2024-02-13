@@ -16,6 +16,8 @@ public:
 	condenser(fluid_t type, double height, double diameter, double mass, double level);
 	
 	void update(double dt);
+
+	virtual operator Json::Value() const;
 };
 
 };
