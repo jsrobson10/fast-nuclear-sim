@@ -92,7 +92,7 @@ void pump::update(double dt)
 	double src_heat = src->get_heat();
 	double p_diff_1 = dst->get_pressure() - src->get_pressure();
 
-	double max_volume = std::min(src->get_level(), dst->get_level());
+	double max_volume = ignore_dst_level ? src->get_level() : std::min(src->get_level(), dst->get_volume() - dst->get_level());
 	double src_volume = src->extract_fluid(std::min(get_flow_target() * dt, max_volume));
 	double dst_volume = dst->add_fluid(src_volume, src_heat);
 

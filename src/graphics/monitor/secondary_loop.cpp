@@ -87,10 +87,10 @@ void secondary_loop::update(double dt)
 		sim::graphics::mesh rmesh;
 		clock_at += 1.0/30.0;
 
-		ss << "\n\n\n";
+		ss << "\n\n";
 		ss << show( sys.evaporator->get_heat() ) << " C\n";
 		ss << show( sys.evaporator->get_steam_output() ) << " g/s\n";
-		ss << show( sys.evaporator->get_pressure() ) << " Pa\n";
+		ss << show( sys.evaporator->get_pressure() / 1000 ) << " kPa\n";
 		ss << show( sys.evaporator->get_level() / 1000 ) << " / " << show( sys.evaporator->get_volume() / 1000 ) << " kL\n";
 		ss << "\n\n\n";
 		ss << show( sys.secondary_pump->get_power() * 100 ) << " %\n";

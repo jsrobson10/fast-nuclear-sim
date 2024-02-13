@@ -55,17 +55,15 @@ double vessel::get_bubble_hl() const
 
 void vessel::update(double secs)
 {
-	double s = steam;
+	double steam_last = steam;
 
-	((sim::coolant::fluid_holder*)this)->update(secs);
-
-	double diff = steam - s;
+	update_base(secs);
+	
+	double diff = steam - steam_last;
 	double hl = get_bubble_hl();
 
-	if(diff > 0)
-	{
-		steam_suspended += diff;
-	}
+	steam_last = steam;
+	steam_suspended += diff;
 
 	if(hl > 0)
 	{

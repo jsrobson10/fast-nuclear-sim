@@ -28,12 +28,6 @@ double evaporator::get_steam_output()
 
 void evaporator::update(double dt)
 {
-	((fluid_holder*)this)->update(dt);
-/*
-	double m = std::pow(0.5, dt / 3600);
-	double steam_out = steam * (1 - m);
-	steam *= m;
-
-	steam_output = steam_out / dt;*/
+	update_base(dt);
 }
 

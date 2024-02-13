@@ -31,7 +31,7 @@ struct fluid_t
 	constexpr double l_to_mol(double l) const { return g_to_mol(l_to_g(l)); }
 };
 
-constexpr const fluid_t WATER = fluid_t(1000, 18, 2257, 4.1816, {8.07131, 1730.63, 233.426, 108.266, 8.14019, 1810.94, 244.485});
+constexpr const fluid_t WATER = fluid_t(1000, 18, 2257, 4.1816, {8.07131 + 2.124903, 1730.63, 233.426 - 273.15});
 
 }
 

@@ -2,6 +2,7 @@
 #pragma once
 
 #include "fluid_t.hpp"
+#include "../conversions/temperature.hpp"
 
 namespace sim::coolant
 {
@@ -31,6 +32,7 @@ public:
 	virtual double get_volume() const { return volume; } // litres
 	virtual double get_level() const { return level; } // litres
 	virtual double get_heat() const { return heat; } // celsius
+	virtual double get_heat_k() const { return conversions::temperature::c_to_k(get_heat()); } // kelvin
 	virtual double get_steam() const { return steam; } // grams
 	virtual double get_steam_volume() const { return get_volume() - get_level(); } // litres
 	virtual double get_mass() const { return fluid.l_to_g(get_level()) + get_steam(); } // grams
@@ -38,11 +40,10 @@ public:
 	virtual double get_pressure() const; // pascals
 	virtual double get_steam_density() const; // g/L
 	
-	static double calc_pressure(double temp, double volume, double mass);
-	static double calc_pressure_mol(double temp, double volume, double pressure);
-	static double calc_pressure_vol(double heat, double pressure, double mol);
-
-	void update(double dt);
+	static double calc_pressure(double heat, double pressure, double mol);
+	static double calc_pressure_mol(double heat, double pressure, double volume);
+	
+	void update_base(double dt);
 };
 
 };

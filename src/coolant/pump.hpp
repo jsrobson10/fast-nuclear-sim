@@ -35,7 +35,8 @@ public:
 	const double friction; // J/rev
 	const double max_power; // W
 	const double target; // L
-
+	
+	bool ignore_dst_level = false;
 	bool powered = false;
 
 	pump(fluid_holder* src, fluid_holder* dst, double mass, double radius, double power, double l_per_rev, double friction, mode_t mode, double target);

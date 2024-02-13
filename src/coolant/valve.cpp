@@ -47,13 +47,13 @@ void valve::update(double dt)
 
 	if(remove < 0)
 	{
-		mol = fluid_holder::calc_pressure_mol(src->get_heat(), src->get_steam_volume(), pressure1 - remove);
+		mol = fluid_holder::calc_pressure_mol(src->get_heat_k(), src->get_steam_volume(), pressure1 - remove);
 		mass = src->get_steam() - src->fluid.mol_to_g(mol);
 	}
 
 	else
 	{
-		mol = fluid_holder::calc_pressure_mol(dst->get_heat(), dst->get_steam_volume(), pressure2 - remove);
+		mol = fluid_holder::calc_pressure_mol(dst->get_heat_k(), dst->get_steam_volume(), pressure2 - remove);
 		mass = dst->get_steam() - dst->fluid.mol_to_g(mol);
 	}
 

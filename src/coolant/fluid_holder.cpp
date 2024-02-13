@@ -34,6 +34,11 @@ double fluid_holder::add_heat(double m1, double t1)
 
 double fluid_holder::add_fluid(double v2, double t2)
 {
+	if(level + v2 <= 0)
+	{
+		return 0;
+	}
+	
 	if(level + v2 > volume - 1e-3)
 	{
 		v2 = volume - level - 1e-3;
@@ -83,30 +88,21 @@ void fluid_holder::add_steam(double m2, double t2)
 
 double fluid_holder::calc_pressure(double heat, double volume, double mol)
 {
-	double T = conversions::temperature::c_to_k(heat);
 	double V = volume * 0.001;
 
-	return V == 0 ? 0 : (mol * T * constants::R) / V;
+	return V == 0 ? 0 : (mol * heat * constants::R) / V;
 }
 
 double fluid_holder::calc_pressure_mol(double heat, double volume, double pressure)
 {
-	double T = conversions::temperature::c_to_k(heat);
 	double V = volume * 0.001;
 
-	return (V * pressure) / (T * constants::R);
-}
-
-double fluid_holder::calc_pressure_vol(double heat, double pressure, double mol)
-{
-	double T = conversions::temperature::c_to_k(heat);
-	
-	return 1000 * (mol * T * constants::R) / pressure;
+	return (pressure * V) / (constants::R * heat);
 }
 
 double fluid_holder::get_pressure() const
 {
-	return calc_pressure(heat, get_steam_volume(), fluid.g_to_mol(get_steam()));
+	return calc_pressure(conversions::temperature::c_to_k(heat), get_steam_volume(), fluid.g_to_mol(steam));
 }
 
 double fluid_holder::get_steam_density() const
@@ -115,42 +111,47 @@ double fluid_holder::get_steam_density() const
 	return v > 0 ? steam / v : 0;
 }
 
-void fluid_holder::update(double secs)
+constexpr double calc_extra_steam(double K, double P, double L_m, double J_m, double n_g, double n_l, double V_t)
+{
+	double R = sim::constants::R * 1000;
+	double n = (P * (V_t - n_l * L_m)) / (R * K) - n_g;
+
+	return n;
+}
+
+void fluid_holder::update_base(double secs)
 {
 	double mass = get_thermal_mass();
 
 	if(mass > 0)
 	{
-		// use ideal gas law to get target steam pressure
-		double heat_k = conversions::temperature::c_to_k(heat);
-		double target_pressure = fluid.vapor_pressure.calc_p(heat);
+		double K = conversions::temperature::c_to_k(heat);	// K
+		double P = fluid.vapor_pressure.calc_p(K);			// Pa
+		double R = sim::constants::R;						// J/K/mol
 
-		double K = heat_k;
-		double R = 1000 * constants::R;
-		double P = target_pressure;
-		double J_m = fluid.jPg * fluid.gPmol;
-		double L_m = fluid.gPmol / fluid.gPl;
-		double n_g = fluid.g_to_mol(steam);
-		double n_l = fluid.l_to_mol(level);
-		double V_t = volume;
+		double J_m = fluid.jPg * fluid.gPmol;	// J/mol
+		double n_g = fluid.g_to_mol(steam);		// mol
+		double V_g = (volume - level) * 0.001;	// m^3
 
-		double n = (-K*R*n_g - L_m*P*n_l + P*V_t)/(K*R - L_m*P) * 0.5;
-
-		/*if(std::abs(n.imag()) > std::numeric_limits<double>::epsilon())
-		{
-			throw std::runtime_error("Nonzero imaginary component");
-		}*/
-
-		double l = level - fluid.mol_to_l(n);
+		double n = (P * V_g) / (R * K) - n_g;	// mol
+		double l = level - fluid.mol_to_l(n);	// L
 
 		if(l < 0)
 		{
 			n -= fluid.l_to_mol(l);
 			l = 0;
 		}
-
-		level = l;
+		
 		steam += fluid.mol_to_g(n);
+
+		if(steam < 0)
+		{
+			l -= fluid.g_to_l(steam);
+			n += fluid.g_to_mol(steam);
+			steam = 0;
+		}
+		
+		level = l;
 		heat -= n * J_m / mass;
 	}
 }
