@@ -71,7 +71,7 @@ void pump::update(double dt)
 		switch(mode)
 		{
 		case mode_t::SRC:
-			power = pid.calculate(dt, target, src->get_steam_volume());
+			power = pid.calculate(dt, target, src->get_gas_volume());
 			break;
 		case mode_t::DST:
 			power = pid.calculate(dt, target, dst->get_level());

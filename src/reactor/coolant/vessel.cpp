@@ -30,7 +30,7 @@ double vessel::get_steam_suspended() const
 
 double vessel::get_void_ratio() const
 {
-	double density = get_steam_density();
+	double density = get_gas_density();
 
 	if(density == 0)
 	{
@@ -70,7 +70,7 @@ void vessel::update(double secs)
 		steam_suspended *= reactor::fuel::half_life::get(secs, get_bubble_hl());
 	}
 
-	else
+	if(hl <= 0 || steam_suspended < 0)
 	{
 		steam_suspended = 0;
 	}

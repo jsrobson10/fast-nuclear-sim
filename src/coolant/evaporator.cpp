@@ -1,5 +1,6 @@
 
 #include "evaporator.hpp"
+#include "../util/constants.hpp"
 
 #include <cmath>
 #include <iostream>
@@ -28,6 +29,19 @@ double evaporator::get_steam_output()
 
 void evaporator::update(double dt)
 {
+	steam_output = steam / dt;
+	steam = 0;
+
+	double P = 10000;									// Pa
+	double K = conversions::temperature::c_to_k(heat);	// K
+	double R = sim::constants::R;						// J/K/mol
+
+	double n_g = air / constants::M_air;	// mol
+	double V_g = (volume - level) * 0.001;	// m^3
+
+	double n = (P * V_g) / (R * K);	// mol
+	
+	air = n * constants::M_air;
 	update_base(dt);
 }
 

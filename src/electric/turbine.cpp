@@ -26,9 +26,8 @@ void turbine::update(double secs)
 	
 }
 
-void turbine::add_steam(double amount, double t)
+void turbine::add_gas(double steam, double air, double t)
 {
-	condenser->add_steam(amount, t);
+	condenser->add_gas(steam, air, t);
 }
-
 

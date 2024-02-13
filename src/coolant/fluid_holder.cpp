@@ -6,11 +6,8 @@
 
 #include <cmath>
 #include <iostream>
-#include <complex>
 
 using namespace sim::coolant;
-
-typedef std::complex<double> complex;
 
 fluid_holder::fluid_holder(fluid_t fluid, double volume, double extra_mass) : fluid(fluid), volume(volume), extra_mass(extra_mass)
 {
@@ -72,18 +69,21 @@ double fluid_holder::extract_fluid(double amount)
 	return amount;
 }
 
-void fluid_holder::add_steam(double m2, double t2)
+void fluid_holder::add_gas(double m_s2, double m_a2, double t_2)
 {
-	double m1 = get_thermal_mass();
-	double t1 = heat;
-	double m = m1 + m2;
+	double m_2 = m_a2 + m_s2;
+	double m_1 = get_thermal_mass();
+	double t_1 = heat;
+	
+	double m = m_1 + m_2;
 
 	if(m > 0)
 	{
-		heat = t1 - (t1 - t2) * m2 / (m1 + m2);
+		heat = t_1 - (t_1 - t_2) * m_2 / m;
 	}
 
-	steam += m2;
+	steam += m_s2;
+	air += m_a2;
 }
 
 double fluid_holder::calc_pressure(double heat, double volume, double mol)
@@ -102,21 +102,13 @@ double fluid_holder::calc_pressure_mol(double heat, double volume, double pressu
 
 double fluid_holder::get_pressure() const
 {
-	return calc_pressure(conversions::temperature::c_to_k(heat), get_steam_volume(), fluid.g_to_mol(steam));
+	return calc_pressure(conversions::temperature::c_to_k(heat), get_gas_volume(), fluid.g_to_mol(steam) + air / constants::M_air);
 }
 
-double fluid_holder::get_steam_density() const
+double fluid_holder::get_gas_density() const
 {
-	double v = get_steam_volume();
-	return v > 0 ? steam / v : 0;
-}
-
-constexpr double calc_extra_steam(double K, double P, double L_m, double J_m, double n_g, double n_l, double V_t)
-{
-	double R = sim::constants::R * 1000;
-	double n = (P * (V_t - n_l * L_m)) / (R * K) - n_g;
-
-	return n;
+	double v = get_gas_volume();
+	return v > 0 ? get_gas() / v : 0;
 }
 
 void fluid_holder::update_base(double secs)
@@ -129,9 +121,9 @@ void fluid_holder::update_base(double secs)
 		double P = fluid.vapor_pressure.calc_p(K);			// Pa
 		double R = sim::constants::R;						// J/K/mol
 
-		double J_m = fluid.jPg * fluid.gPmol;	// J/mol
-		double n_g = fluid.g_to_mol(steam);		// mol
-		double V_g = (volume - level) * 0.001;	// m^3
+		double J_m = fluid.jPg * fluid.gPmol;							// J/mol
+		double n_g = fluid.g_to_mol(steam) + air / constants::M_air;	// mol
+		double V_g = (volume - level) * 0.001;							// m^3
 
 		double n = (P * V_g) / (R * K) - n_g;	// mol
 		double l = level - fluid.mol_to_l(n);	// L
@@ -146,8 +138,8 @@ void fluid_holder::update_base(double secs)
 
 		if(steam < 0)
 		{
-			l -= fluid.g_to_l(steam);
-			n += fluid.g_to_mol(steam);
+			l += fluid.g_to_l(steam);
+			n -= fluid.g_to_mol(steam);
 			steam = 0;
 		}
 		
