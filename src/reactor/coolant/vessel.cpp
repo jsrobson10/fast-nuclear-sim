@@ -23,6 +23,15 @@ vessel::vessel(sim::coolant::fluid_t fluid, double height, double diameter, doub
 	this->level = level;
 }
 
+vessel::vessel(const Json::Value& node) :
+		sim::coolant::fluid_holder(node),
+		height(node["height"].asDouble()),
+		diameter(node["diameter"].asDouble()),
+		bubble_hl(node["bubble_hl"].asDouble())
+{
+	steam_suspended = node["steam_suspended"].asDouble();
+}
+
 double vessel::get_steam_suspended() const
 {
 	return steam_suspended;

@@ -82,7 +82,20 @@ void rod::update_rod(double secs)
 	}
 }
 
-rod::operator Json::Value() const
+rod::rod(const Json::Value& node)
+{
+	const Json::Value& j_vals = node["vals"];
+	
+	selected = node["selected"].asBool();
+
+	for(int i = 0; i < VAL_N; i++)
+	{
+		vals[i] = j_vals[i][0].asDouble();
+		vals_n[i] = j_vals[i][1].asDouble();
+	}
+}
+
+Json::Value rod::serialize() const
 {
 	Json::Value node;
 	Json::Value j_vals;

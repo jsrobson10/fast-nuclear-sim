@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include <json/json.h>
+
 namespace sim::reactor::fuel
 {
 
@@ -14,6 +16,12 @@ class waste
 	double energy = 0;
 
 public:
+	
+	constexpr waste() { };
+
+	waste(const Json::Value& node);
+
+	operator Json::Value() const;
 
 	void update(double secs);
 	void add_fissile(double amount);

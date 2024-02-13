@@ -15,6 +15,18 @@ fuel_rod::fuel_rod(double fuel) : s(fuel)
 
 }
 
+fuel_rod::fuel_rod(const Json::Value& node) : s(node["sample"]), rod(node)
+{
+	
+}
+
+Json::Value fuel_rod::serialize() const
+{
+	Json::Value node(rod::serialize());
+	node["sample"] = s;
+	return node;
+}
+
 void fuel_rod::display(std::ostream& o) const
 {
 	double mol = fuel_molar_density * get_volume();

@@ -19,6 +19,14 @@ condenser::condenser(fluid_t type, double height, double diameter, double mass, 
 	this->level = level;
 }
 
+condenser::condenser(const Json::Value& node) :
+		height(node["height"].asDouble()),
+		diameter(node["diameter"].asDouble()),
+		fluid_holder(node)
+{
+
+}
+
 void condenser::update(double secs)
 {
 	update_base(secs);

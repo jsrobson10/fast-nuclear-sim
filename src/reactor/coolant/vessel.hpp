@@ -19,13 +19,14 @@ public:
 	double steam_suspended = 0; // grams
 
 	vessel(sim::coolant::fluid_t fluid, double height, double diameter, double mass, double level, double bubble_hl);
+	vessel(const Json::Value& node);
 
 	double get_steam_suspended() const; // grams
 	double get_void_ratio() const;
 
 	void update(double secs);
 	
-	virtual operator Json::Value() const;
+	operator Json::Value() const;
 
 	friend std::ostream& operator<<(std::ostream& o, const vessel& v)
 	{

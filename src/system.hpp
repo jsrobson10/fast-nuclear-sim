@@ -40,13 +40,15 @@ struct system
 
 	sim::graphics::mesh scene;
 	double speed = 1;
+	double clock = 0;
 
 	system();
-	system(system&& o);
-	system(const system& o) = delete;
+	system(const Json::Value& node);
 
 	void update(double dt);
-	void save();
+
+	static void save();
+	static void load();
 
 	operator Json::Value() const;
 };

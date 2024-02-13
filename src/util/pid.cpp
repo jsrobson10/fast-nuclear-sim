@@ -27,6 +27,17 @@
 using namespace std;
 using namespace sim::util;
 
+PID::PID(const Json::Value& node) :
+    _max(node["max"].asDouble()),
+    _min(node["min"].asDouble()),
+    _Kp(node["Kp"].asDouble()),
+    _Kd(node["Kd"].asDouble()),
+    _Ki(node["Ki"].asDouble()),
+    _pre_error(node["pre_error"].asDouble()),
+    _integral(node["integral"].asDouble())
+{
+	
+}
 
 PID::operator Json::Value() const
 {

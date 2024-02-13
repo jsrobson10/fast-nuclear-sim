@@ -1,6 +1,7 @@
 
 #include "reactor.hpp"
 #include "../util/random.hpp"
+#include "builder.hpp"
 
 #include <algorithm>
 
@@ -239,6 +240,24 @@ void reactor::get_stats(rod::val_t type, double& min, double& max)
 	}
 }
 
+reactor::reactor(const Json::Value& node, coolant::vessel* v) :
+		cell_width(node["cell_width"].asDouble()),
+		cell_height(node["cell_height"].asDouble()),
+		width(node["width"].asDouble()),
+		height(node["height"].asDouble()),
+		size(node["size"].asDouble())
+{
+	const Json::Value& j_rods = node["rods"];
+	
+	rod_speed = node["rod_speed"].asDouble();
+	cursor = node["cursor"].asInt();
+
+	for(int i = 0; i < size; i++)
+	{
+		rods.push_back(load_rod(j_rods[i], v));
+	}
+}
+
 reactor::operator Json::Value() const
 {
 	Json::Value node;
@@ -260,13 +279,16 @@ reactor::operator Json::Value() const
 
 		if(rods[i]->get_id() == 0)
 		{
-			continue;
+			Json::Value j_rod;
+			j_rod["id"] = 0;
+			j_rods.append(std::move(j_rod));
 		}
 
-		Json::Value j_rod(*rods[i]);
-		j_rod["pos"]["x"] = x;
-		j_rod["pos"]["y"] = y;
-		j_rods.append(std::move(j_rod));
+		else
+		{
+			Json::Value j_rod(rods[i]->serialize());
+			j_rods.append(std::move(j_rod));
+		}
 	}
 
 	node["rods"] = std::move(j_rods);

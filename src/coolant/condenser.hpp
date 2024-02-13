@@ -14,10 +14,11 @@ class condenser : public fluid_holder
 public:
 
 	condenser(fluid_t type, double height, double diameter, double mass, double level);
+	condenser(const Json::Value& node);
 	
 	void update(double dt);
 
-	virtual operator Json::Value() const;
+	operator Json::Value() const;
 };
 
 };

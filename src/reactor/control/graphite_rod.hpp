@@ -19,7 +19,12 @@ class graphite_rod : public sim::reactor::rod
 	double get_inserted() { return inserted; }
 
 public:
+	
+	constexpr graphite_rod() {}
 
+	graphite_rod(const Json::Value& node);
+
+	virtual Json::Value serialize() const;
 	virtual void update(double secs);
 	void set_reactivity(double a);
 	

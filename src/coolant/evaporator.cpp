@@ -22,6 +22,14 @@ evaporator::evaporator(fluid_t type, double height, double diameter, double mass
 	this->level = level;
 }
 
+evaporator::evaporator(const Json::Value& node) :
+		height(node["height"].asDouble()),
+		diameter(node["diameter"].asDouble()),
+		fluid_holder(node)
+{
+	steam_output = node["steam_output"].asDouble();
+}
+
 double evaporator::get_steam_output()
 {
 	return steam_output;

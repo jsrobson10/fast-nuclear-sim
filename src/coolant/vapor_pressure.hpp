@@ -12,6 +12,7 @@ struct vapor_pressure
 	
 	constexpr vapor_pressure(double A, double B, double C) : A(A), B(B), C(C) { }
 
+	vapor_pressure(const Json::Value& node);
 	operator Json::Value() const;
 
 	double calc_p(double t) const;

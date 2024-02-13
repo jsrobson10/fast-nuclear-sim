@@ -44,6 +44,7 @@ class PID
 		// pv - current process value
         double calculate( double dt, double sp, double pv );
 	
+		PID(const Json::Value& node);
 		operator Json::Value() const;
 
     private:

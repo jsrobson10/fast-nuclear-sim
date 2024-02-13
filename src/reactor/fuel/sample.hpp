@@ -33,7 +33,10 @@ class sample
 public:
 
 	sample(double fuel);
+	sample(const Json::Value& node);
 
+	operator Json::Value() const;
+	
 	void update(double secs);
 
 	constexpr double get_fuel() const { return fuel; }

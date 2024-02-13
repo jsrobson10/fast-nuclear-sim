@@ -2,6 +2,7 @@
 #pragma once
 
 #include "rod.hpp"
+#include "coolant/vessel.hpp"
 
 #include <iostream>
 #include <memory>
@@ -24,6 +25,7 @@ struct reactor
 	int cursor;
 
 	reactor(std::unique_ptr<rod>* rods, int width, int height, double cell_width, double cell_height);
+	reactor(const Json::Value& node, coolant::vessel* v);
 	reactor(const reactor& r);
 	reactor(reactor&& r);
 	

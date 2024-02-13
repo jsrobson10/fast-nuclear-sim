@@ -18,7 +18,12 @@ class heater : public sim::reactor::rod
 	virtual int get_id() const { return 3; }
 
 public:
+	
+	constexpr heater() {}
+	
+	heater(const Json::Value& node);
 
+	virtual Json::Value serialize() const;
 	virtual void update(double secs);
 	virtual bool should_display() const { return true; }
 	virtual bool should_select() const { return true; }

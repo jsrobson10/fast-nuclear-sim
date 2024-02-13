@@ -16,8 +16,9 @@ class evaporator : public fluid_holder
 public:
 
 	evaporator(fluid_t type, double height, double diameter, double mass, double level);
+	evaporator(const Json::Value& node);
 	
-	virtual operator Json::Value() const;
+	operator Json::Value() const;
 
 	double get_steam_output();
 	void update(double dt);

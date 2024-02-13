@@ -55,28 +55,31 @@ system::system()
 	freight_pump = std::make_unique<coolant::pump>(sink.get(), evaporator.get(), 1e5, 1, 1e4, 0.1, 10, coolant::pump::mode_t::DST, 1e6);
 }
 
-system::system(system&& o)
+system::system(const Json::Value& node)
 {
-	vessel = std::move(o.vessel);
-	reactor = std::move(o.reactor);
-	condenser = std::move(o.condenser);
-	turbine = std::move(o.turbine);
+	clock = node["clock"].asDouble();
 
-	sink = std::move(o.sink);
-	condenser_secondary = std::move(o.condenser_secondary);
-	evaporator = std::move(o.evaporator);
+	vessel = std::make_unique<reactor::coolant::vessel>(node["vessel"]);
+	reactor = std::make_unique<reactor::reactor>(node["reactor"], vessel.get());
+	condenser = std::make_unique<coolant::condenser>(node["condenser"]);
+	turbine = std::make_unique<electric::turbine>(node["turbine"], condenser.get());
 
-	turbine_bypass_valve = std::move(o.turbine_bypass_valve);
-	turbine_inlet_valve = std::move(o.turbine_inlet_valve);
+	evaporator = std::make_unique<coolant::evaporator>(node["evaporator"]);
+	sink = std::make_unique<coolant::sink>(evaporator->fluid, 11, 0, 0);
+	condenser_secondary = std::make_unique<coolant::condenser_secondary>(condenser.get(), evaporator.get(), 1000);
 
-	primary_pump = std::move(o.primary_pump);
-	secondary_pump = std::move(o.secondary_pump);
-	freight_pump = std::move(o.freight_pump);
+	turbine_inlet_valve = std::make_unique<coolant::valve>(node["valve"]["turbine"]["inlet"], vessel.get(), turbine.get());
+	turbine_bypass_valve = std::make_unique<coolant::valve>(node["valve"]["turbine"]["bypass"], vessel.get(), condenser.get());
+
+	primary_pump = std::make_unique<coolant::pump>(node["pump"]["primary"], condenser.get(), vessel.get());
+	secondary_pump = std::make_unique<coolant::pump>(node["pump"]["secondary"], evaporator.get(), condenser_secondary.get());
+	freight_pump = std::make_unique<coolant::pump>(node["pump"]["freight"], sink.get(), evaporator.get());
 }
 
 void system::update(double dt)
 {
 	dt *= speed;
+	clock += dt;
 	
 	turbine_inlet_valve->update(dt);
 	turbine_bypass_valve->update(dt);
@@ -100,20 +103,21 @@ system::operator Json::Value() const
 	node["turbine"] = *turbine;
 	node["condenser"] = *condenser;
 	node["evaporator"] = *evaporator;
-	node["primary_pump"] = *primary_pump;
-	node["secondary_pump"] = *secondary_pump;
-	node["freight_pump"] = *freight_pump;
-	node["turbine_inlet_valve"] = *turbine_inlet_valve;
-	node["turbine_bypass_valve"] = *turbine_bypass_valve;
-	node["camera"] = graphics::camera::serialize();
+	node["pump"]["primary"] = *primary_pump;
+	node["pump"]["secondary"] = *secondary_pump;
+	node["pump"]["freight"] = *freight_pump;
+	node["valve"]["turbine"]["inlet"] = *turbine_inlet_valve;
+	node["valve"]["turbine"]["bypass"] = *turbine_bypass_valve;
 	node["reactor"] = *reactor;
+	node["clock"] = clock;
 
 	return node;
 }
 
 void system::save()
 {
-	Json::Value root(*this);
+	Json::Value root(active);
+	root["camera"] = graphics::camera::serialize();
 
 	Json::StreamWriterBuilder builder;
 	builder["commentStyle"] = "None";
@@ -123,5 +127,17 @@ void system::save()
 	std::ofstream savefile("savefile.json");
 	writer->write(root, &savefile);
 	savefile.close();
+}
+
+void system::load()
+{
+	Json::Value root;
+	std::ifstream savefile("savefile.json");
+	savefile >> root;
+	savefile.close();
+
+	system sys(root);
+	graphics::camera::load(root["camera"]);
+	active = std::move(sys);
 }
 

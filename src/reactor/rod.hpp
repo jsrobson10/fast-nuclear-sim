@@ -25,6 +25,9 @@ public:
 		N_FAST = 2,
 	};
 
+	constexpr rod() {};
+	rod(const Json::Value& node);
+
 	virtual ~rod() {};
 	virtual void interact(rod* o, double secs);
 	virtual void update(double secs) { }
@@ -62,7 +65,7 @@ public:
 		return o;
 	}
 
-	operator Json::Value() const;
+	virtual Json::Value serialize() const;
 
 protected:
 

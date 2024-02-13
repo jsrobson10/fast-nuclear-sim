@@ -3,6 +3,18 @@
 
 using namespace sim::reactor::coolant;
 
+heater::heater(const Json::Value& node) : rod(node)
+{
+	rate = node["rate"].asDouble();
+}
+
+Json::Value heater::serialize() const
+{
+	Json::Value node(rod::serialize());
+	node["rate"] = rate;
+	return node;
+}
+
 void heater::update(double secs)
 {
 	update_rod(secs);

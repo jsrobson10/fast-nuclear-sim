@@ -23,7 +23,9 @@ class fuel_rod : public sim::reactor::rod
 public:
 
 	fuel_rod(double fuel);
+	fuel_rod(const Json::Value& node);
 	
+	virtual Json::Value serialize() const;
 	virtual std::unique_ptr<rod> clone() const { return std::make_unique<fuel_rod>(*this); }
 	virtual bool should_display() const { return true; }
 	virtual void update(double secs);

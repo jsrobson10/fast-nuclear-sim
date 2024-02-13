@@ -19,7 +19,9 @@ class boron_rod : public coolant::pipe
 public:
 	
 	boron_rod(coolant::vessel* v);
+	boron_rod(const Json::Value& node, coolant::vessel* v);
 
+	virtual Json::Value serialize() const;
 	virtual void update(double secs);
 	void set_reactivity(double a);
 	double get_inserted() { return inserted; }

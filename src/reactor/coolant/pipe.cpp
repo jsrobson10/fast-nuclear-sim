@@ -10,6 +10,18 @@ pipe::pipe(coolant::vessel* v)
 	this->steam = 0;
 }
 
+pipe::pipe(const Json::Value& node, coolant::vessel* v) : vessel(v)
+{
+	steam = node["steam"].asDouble();
+}
+
+Json::Value pipe::serialize() const
+{
+	Json::Value node(rod::serialize());
+	node["steam"] = steam;
+	return node;
+}
+
 double pipe::get_k(val_t type) const
 {
 	return vessel->get_level() / vessel->get_volume() * 0.5;

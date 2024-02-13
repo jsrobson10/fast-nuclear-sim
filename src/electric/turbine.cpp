@@ -21,6 +21,15 @@ turbine::turbine(coolant::fluid_t type, coolant::condenser* condenser, double le
 	
 }
 
+turbine::turbine(const Json::Value& node, coolant::condenser* condenser) :
+		condenser(condenser),
+		length(node["length"].asDouble()),
+		diameter(node["diameter"].asDouble()),
+		sim::coolant::fluid_holder(node)
+{
+	velocity = node["velocity"].asDouble();
+}
+
 void turbine::update(double dt)
 {
 	

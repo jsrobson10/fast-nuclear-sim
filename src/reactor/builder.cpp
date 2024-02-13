@@ -1,5 +1,9 @@
 
 #include "builder.hpp"
+#include "control/boron_rod.hpp"
+#include "control/graphite_rod.hpp"
+#include "coolant/pipe.hpp"
+#include "coolant/heater.hpp"
 
 #include <cmath>
 #include <vector>
@@ -43,5 +47,26 @@ sim::reactor::reactor sim::reactor::builder(const int W, const int H, const doub
 	}
 
 	return reactor(&arr[0], W, H, CW, CH);
+}
+
+std::unique_ptr<rod> sim::reactor::load_rod(const Json::Value& node, coolant::vessel* v)
+{
+	int id = node["id"].asInt();
+
+	switch(id)
+	{
+	case 1:
+		return std::make_unique<fuel::fuel_rod>(node);
+	case 2:
+		return std::make_unique<coolant::pipe>(node, v);
+	case 3:
+		return std::make_unique<coolant::heater>(node);
+	case 4:
+		return std::make_unique<control::graphite_rod>(node);
+	case 5:
+		return std::make_unique<control::boron_rod>(node, v);
+	}
+
+	return std::make_unique<rod>();
 }
 

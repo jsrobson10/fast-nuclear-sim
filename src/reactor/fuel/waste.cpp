@@ -4,6 +4,40 @@
 
 using namespace sim::reactor::fuel;
 
+waste::waste(const Json::Value& node)
+{
+	const Json::Value& j_ladder = node["ladder"];
+	
+	for(int i = 0; i < N; i++)
+	{
+		high[i] = j_ladder[i][0].asDouble();
+		low[i] = j_ladder[i][1].asDouble();
+	}
+
+	neutrons = node["neutrons"].asDouble();
+	energy = node["energy"].asDouble();
+}
+
+waste::operator Json::Value() const
+{
+	Json::Value node;
+	Json::Value j_ladder;
+	
+	for(int i = 0; i < N; i++)
+	{
+		Json::Value j_step;
+		j_step.append(high[i]);
+		j_step.append(low[i]);
+		j_ladder.append(std::move(j_step));
+	}
+
+	node["ladder"] = std::move(j_ladder);
+	node["neutrons"] = neutrons;
+	node["energy"] = energy;
+
+	return node;
+}
+
 void waste::update(double secs)
 {
 	double next[waste::N - 1] = {0};

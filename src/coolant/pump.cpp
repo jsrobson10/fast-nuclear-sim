@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <string>
 
 using namespace sim::coolant;
 
@@ -102,6 +103,34 @@ void pump::update(double dt)
 
 	velocity = std::max(velocity - calc_work(work, mass), 0.0);
 	flow = dst_volume / dt;
+}
+
+static pump::mode_t get_mode(std::string mode)
+{
+	if(mode == "SRC")
+		return pump::mode_t::SRC;
+	if(mode == "DST")
+		return pump::mode_t::DST;
+
+	return pump::mode_t::NONE;
+}
+
+pump::pump(const Json::Value& node, fluid_holder* src, fluid_holder* dst) :
+		mode(get_mode(node["mode"].asString())),
+		mass(node["mass"].asDouble()),
+		radius(node["radius"].asDouble()),
+		l_per_rev(node["l_per_rev"].asDouble()),
+		friction(node["friction"].asDouble()),
+		max_power(node["max_power"].asDouble()),
+		target(node["target"].asDouble()),
+		pid(node["pid"]),
+		src(src),
+		dst(dst)
+{
+	flow = node["flow"].asDouble();
+	velocity = node["velocity"].asDouble();
+	power = node["power"].asDouble();
+	powered = node["powered"].asBool();
 }
 
 pump::operator Json::Value() const

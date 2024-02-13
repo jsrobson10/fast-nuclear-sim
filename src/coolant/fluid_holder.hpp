@@ -21,6 +21,7 @@ class fluid_holder
 public:
 	
 	fluid_holder(fluid_t fluid, double volume, double extra_mass);
+	fluid_holder(const Json::Value& node);
 	
 	const fluid_t fluid;
 	const double volume; // litres
@@ -45,7 +46,7 @@ public:
 	virtual double get_pressure() const; // pascals
 	virtual double get_gas_density() const; // g/L
 	
-	virtual operator Json::Value() const;
+	operator Json::Value() const;
 	
 	static double calc_pressure(double heat, double pressure, double mol);
 	static double calc_pressure_mol(double heat, double pressure, double volume);

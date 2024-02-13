@@ -23,7 +23,9 @@ protected:
 public:
 
 	pipe(coolant::vessel* v);
+	pipe(const Json::Value& node, coolant::vessel* v);
 
+	virtual Json::Value serialize() const;
 	virtual std::unique_ptr<rod> clone() const { return std::make_unique<pipe>(*this); }
 	virtual bool should_display() const { return true; }
 	virtual void update(double secs);

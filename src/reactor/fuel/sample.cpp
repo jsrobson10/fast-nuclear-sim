@@ -15,6 +15,41 @@ sample::sample(double fuel)
 	this->mass = 1;
 }
 
+sample::sample(const Json::Value& node) : waste(node["waste"])
+{
+	fuel = node["fuel"].asDouble();
+	i_135 = node["i_135"].asDouble();
+	xe_135 = node["xe_135"].asDouble();
+	te_135 = node["te_135"].asDouble();
+	u_238 = node["u_238"].asDouble();
+	mass = node["mass"].asDouble();
+
+	energy = node["energy"].asDouble();
+	fast_neutrons = node["neutrons"]["fast"].asDouble();
+	slow_neutrons = node["neutrons"]["slow"].asDouble();
+	efficiency = node["efficiency"].asDouble();
+}
+
+sample::operator Json::Value() const
+{
+	Json::Value node;
+
+	node["waste"] = waste;
+	node["fuel"] = fuel;
+	node["i_135"] = i_135;
+	node["xe_135"] = xe_135;
+	node["te_135"] = te_135;
+	node["u_238"] = u_238;
+	node["mass"] = mass;
+
+	node["energy"] = energy;
+	node["neutrons"]["fast"] = fast_neutrons;
+	node["neutrons"]["slow"] = slow_neutrons;
+	node["efficiency"] = efficiency;
+
+	return node;
+}
+
 void sample::update(double secs)
 {
 	double m;

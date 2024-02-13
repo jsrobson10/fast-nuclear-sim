@@ -21,6 +21,7 @@ using namespace sim::graphics::widget;
 void clock::update(double dt)
 {
 	mesh m;
+	double at = 3600 * 12 + system::active.clock;
 	glm::vec2 wsize(resize::get_size() / 2);
 	std::stringstream ss;
 
@@ -32,7 +33,6 @@ void clock::update(double dt)
    	ss << std::setfill('0') << std::setw(2) << t_m << ":";
 	ss << std::setfill('0') << std::setw(2) << t_s << "\n";
 	ss << "Day: " << std::floor(at / (3600 * 24)) << "\n";
-	at += dt * sim::system::active.speed;
 
 	m.load_text(ss.str().c_str(), 20);
 	

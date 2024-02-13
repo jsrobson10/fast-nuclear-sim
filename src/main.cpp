@@ -37,13 +37,10 @@ int main()
 //	tests::run();
 //	return 0;
 
-	std::ofstream log("log.csv");
 	graphics::window::create();
 
 	long clock = get_now();
 	double at = 0;
-
-	log << R"("clock","level","steam","heat","pressure")" << "\n";
 
 	while(!graphics::window::should_close())
 	{
@@ -59,12 +56,6 @@ int main()
 		graphics::window::update(dt);
 		graphics::focus::update(dt);
 		graphics::window::render();
-
-		log << at << ",";
-		log << sim::system::active.condenser->get_level() << ",";
-		log << sim::system::active.condenser->get_steam() << ",";
-		log << sim::system::active.condenser->get_heat() << ",";
-		log << sim::system::active.condenser->get_pressure() << "\n";
 	}
 
 	graphics::window::destroy();

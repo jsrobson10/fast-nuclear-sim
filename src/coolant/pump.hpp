@@ -39,6 +39,7 @@ public:
 	bool powered = false;
 
 	pump(fluid_holder* src, fluid_holder* dst, double mass, double radius, double power, double l_per_rev, double friction, mode_t mode, double target);
+	pump(const Json::Value& node, fluid_holder* src, fluid_holder* dst);
 
 	double get_flow() const; // L/s
 	double get_flow_target() const; // L/s

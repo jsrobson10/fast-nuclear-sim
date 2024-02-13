@@ -19,6 +19,7 @@ class turbine : public sim::coolant::fluid_holder
 public:
 
 	turbine(coolant::fluid_t type, coolant::condenser* condenser, double length, double diameter, double mass);
+	turbine(const Json::Value& node, coolant::condenser* condenser);
 	
 	void update(double dt);
 	
@@ -40,7 +41,7 @@ public:
 	virtual double get_pressure() const { return condenser->get_pressure(); } // pascals
 	virtual double get_gas_density() const { return condenser->get_gas_density(); } // g/L
 	
-	virtual operator Json::Value() const;
+	operator Json::Value() const;
 };
 
 };

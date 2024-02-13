@@ -14,6 +14,14 @@ fluid_holder::fluid_holder(fluid_t fluid, double volume, double extra_mass) : fl
 
 }
 
+fluid_holder::fluid_holder(const Json::Value& node) : fluid(node["fluid"]), volume(node["volume"].asDouble()), extra_mass(node["extra_mass"].asDouble())
+{
+	level = node["level"].asDouble();
+	steam = node["steam"].asDouble();
+	air = node["air"].asDouble();
+	heat = node["heat"].asDouble();
+}
+
 double fluid_holder::add_heat(double m1, double t1)
 {
 	double t2 = get_heat();

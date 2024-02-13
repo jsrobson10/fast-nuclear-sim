@@ -5,6 +5,18 @@
 
 using namespace sim::reactor::control;
 
+graphite_rod::graphite_rod(const Json::Value& node) : rod(node)
+{
+	inserted = node["inserted"].asDouble();
+}
+
+Json::Value graphite_rod::serialize() const
+{
+	Json::Value node(rod::serialize());
+	node["inserted"] = inserted;
+	return node;
+}
+
 void graphite_rod::display(std::ostream& o) const
 {
 	o << "Inserted: " << (inserted * 100) << "%\n";

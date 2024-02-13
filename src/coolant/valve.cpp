@@ -81,6 +81,13 @@ void valve::update(double dt)
 	this->flow = (mass_s + mass_a) / dt;
 }
 
+valve::valve(const Json::Value& node, fluid_holder* src, fluid_holder* dst) : src(src), dst(dst), max(node["max"].asDouble())
+{
+	speed = node["speed"].asDouble();
+	state = node["state"].asDouble();
+	flow = node["flow"].asDouble();
+}
+
 valve::operator Json::Value() const
 {
 	Json::Value node;

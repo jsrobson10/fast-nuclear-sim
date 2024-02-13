@@ -23,6 +23,15 @@ struct fluid_t
 
 	}
 
+	fluid_t(const Json::Value& node) :
+			gPl(node["gPl"].asDouble()),
+			gPmol(node["gPmol"].asDouble()),
+			jPg(node["jPg"].asDouble()),
+			vapor_pressure(node["vapor_pressure"])
+	{
+
+	}
+
 	operator Json::Value() const
 	{
 		Json::Value node;
