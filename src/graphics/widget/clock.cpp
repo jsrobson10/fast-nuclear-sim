@@ -21,7 +21,7 @@ using namespace sim::graphics::widget;
 void clock::update(double dt)
 {
 	mesh m;
-	double at = 3600 * 12 + system::active.clock;
+	double at = system::active.clock;
 	glm::vec2 wsize(resize::get_size() / 2);
 	std::stringstream ss;
 

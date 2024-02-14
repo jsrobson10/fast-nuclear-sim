@@ -17,6 +17,8 @@ struct focus_t
 	virtual void on_cursor_pos(double x, double y) { }
 	virtual void on_charcode(unsigned int c) { }
 	virtual void update(double dt) { }
+	virtual void render_ui() { }
+	virtual void render() { }
 };
 
 bool is_focused();
@@ -32,6 +34,8 @@ void on_mouse_button(int button, int action, int mods);
 void on_cursor_pos(double x, double y);
 void on_charcode(unsigned int c);
 void update(double dt);
+void render_ui();
+void render();
 
 };
 

@@ -13,6 +13,7 @@ class turbine : public sim::coolant::fluid_holder
 	
 	const double length;
 	const double diameter;
+	const double friction = 1;
 	
 	double velocity = 0; // m/s
 	
@@ -22,11 +23,13 @@ public:
 	turbine(const Json::Value& node, coolant::condenser* condenser);
 	
 	void update(double dt);
+	double get_rpm() const;
 	
 	virtual double add_heat(double m, double t) { return condenser->add_heat(m, t); }
 	virtual double extract_fluid(double amount) { return condenser->extract_fluid(amount); }
 	virtual double add_fluid(double amount, double heat) { return condenser->add_fluid(amount, heat); }
-	virtual void add_gas(double steam, double gas, double t, double e);
+
+	virtual void add_gas(double steam, double gas, double t);
 
 	virtual double get_volume() const { return condenser->get_volume(); }
 	virtual double get_level() const { return condenser->get_level(); }

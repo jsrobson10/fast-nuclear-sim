@@ -12,6 +12,7 @@
 #include "mesh/arrays.hpp"
 #include "input/keyboard.hpp"
 #include "input/mouse.hpp"
+#include "input/focus.hpp"
 #include "camera.hpp"
 #include "resize.hpp"
 #include "window.hpp"
@@ -22,6 +23,7 @@
 #include "monitor/core.hpp"
 #include "monitor/primary_loop.hpp"
 #include "monitor/secondary_loop.hpp"
+#include "monitor/turbine.hpp"
 #include "mesh/texture.hpp"
 #include "ui.hpp"
 
@@ -35,6 +37,7 @@ static monitor::vessel monitor_vessel;
 static monitor::core monitor_core;
 static monitor::primary_loop monitor_primary_loop;
 static monitor::secondary_loop monitor_secondary_loop;
+static monitor::turbine monitor_turbine;
 
 glm::mat4 window::projection_matrix;
 
@@ -116,6 +119,7 @@ void window::create()
 	monitor_vessel.init();
 	monitor_primary_loop.init();
 	monitor_secondary_loop.init();
+	monitor_turbine.init();
 
 	glfwShowWindow(win);
 	glViewport(0, 0, 800, 600);
@@ -129,6 +133,7 @@ void window::update(double dt)
 	monitor_vessel.update(dt);
 	monitor_primary_loop.update(dt);
 	monitor_secondary_loop.update(dt);
+	monitor_turbine.update(dt);
 
 	ui::update(dt);
 }
@@ -152,8 +157,11 @@ void window::render()
 	monitor_vessel.render();
 	monitor_primary_loop.render();
 	monitor_secondary_loop.render();
+	monitor_turbine.render();
 
+	focus::render();
 	ui::render();
+	focus::render_ui();
 
 	glfwSwapBuffers(win);
 }

@@ -101,6 +101,13 @@ void mesh::load_text(const char* text, double size)
 	float x = 0, y = size;
 	unsigned int at = 0;
 
+	if(text[0] == '\0')
+	{
+		this->vertices.clear();
+		this->indices.clear();
+		return;
+	}
+
 	for(unsigned int i = 0; text[i] != '\0'; i++)
 	{
 		char c = text[i];
@@ -139,7 +146,7 @@ void mesh::load_text(const char* text, double size)
 		x += ch.advance * size;
 	}
 
-	set_vertices(&vertices[0], vertices.size());
-	set_indices(&indices[0], indices.size());
+	this->vertices = std::move(vertices);
+	this->indices = std::move(indices);
 }
 

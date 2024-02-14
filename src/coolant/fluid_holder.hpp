@@ -31,7 +31,7 @@ public:
 	virtual double extract_fluid(double amount);
 
 	virtual double add_fluid(double amount, double heat);
-	virtual void add_gas(double steam, double air, double heat, double energy);
+	virtual void add_gas(double steam, double air, double heat);
 
 	virtual double get_volume() const { return volume; } // litres
 	virtual double get_level() const { return level; } // litres

@@ -1,5 +1,6 @@
 
 #include "pump.hpp"
+#include "../util/math.hpp"
 
 #include <cmath>
 #include <iostream>
@@ -53,18 +54,6 @@ const char* pump::get_state_string()
 	return "On";
 }
 
-static double calc_work(double j, double mass)
-{
-	double m = 1;
-
-	if(j < 0)
-	{
-		m = -1;
-	}
-
-	return m * std::sqrt(m * j / (mass * 0.001));
-}
-
 void pump::update(double dt)
 {
 	if(powered)
@@ -82,7 +71,7 @@ void pump::update(double dt)
 			break;
 		}
 
-		velocity += calc_work(dt * power * max_power, mass);
+		velocity += util::calc_work(dt * power * max_power, mass);
 	}
 
 	else
@@ -99,9 +88,9 @@ void pump::update(double dt)
 
 	double p_diff_2 = dst->get_pressure() - src->get_pressure();
 	double p_diff = (p_diff_1 + p_diff_2) / 2;
-	double work = p_diff * dst_volume * 0.001 + get_rpm() * 60 * dt * friction;
+	double work = p_diff * dst_volume * 0.001 + get_rpm() / 60 * dt * friction;
 
-	velocity = std::max(velocity - calc_work(work, mass), 0.0);
+	velocity = std::max(velocity - util::calc_work(work, mass), 0.0);
 	flow = dst_volume / dt;
 }
 

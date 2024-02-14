@@ -77,7 +77,7 @@ double fluid_holder::extract_fluid(double amount)
 	return amount;
 }
 
-void fluid_holder::add_gas(double m_s2, double m_a2, double t_2, double e_2)
+void fluid_holder::add_gas(double m_s2, double m_a2, double t_2)
 {
 	double m_2 = m_a2 + m_s2;
 	double m_1 = get_thermal_mass();

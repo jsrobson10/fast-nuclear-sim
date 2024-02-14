@@ -1,6 +1,7 @@
 
 #include "turbine.hpp"
 #include "../system.hpp"
+#include "../util/math.hpp"
 
 #include <cmath>
 #include <iostream>
@@ -25,6 +26,7 @@ turbine::turbine(const Json::Value& node, coolant::condenser* condenser) :
 		condenser(condenser),
 		length(node["length"].asDouble()),
 		diameter(node["diameter"].asDouble()),
+		friction(node["friction"].asDouble()),
 		sim::coolant::fluid_holder(node)
 {
 	velocity = node["velocity"].asDouble();
@@ -32,12 +34,20 @@ turbine::turbine(const Json::Value& node, coolant::condenser* condenser) :
 
 void turbine::update(double dt)
 {
-	
+	double work = get_rpm() / 60 * dt * friction;
+	velocity = std::max(velocity - work, 0.0);
 }
 
-void turbine::add_gas(double steam, double air, double t, double e)
+double turbine::get_rpm() const
 {
-	condenser->add_gas(steam, air, t, e);
+	return velocity / (M_PI * extra_mass * 0.001 * diameter * diameter * 0.25);
+}
+
+void turbine::add_gas(double steam, double air, double t)
+{
+	double joules = (steam + air) * fluid.jPg;
+	velocity = std::max(velocity + util::calc_work(joules, extra_mass), 0.0);
+	condenser->add_gas(steam, air, t);
 }
 
 turbine::operator Json::Value() const
@@ -47,6 +57,7 @@ turbine::operator Json::Value() const
 	node["length"] = length;
 	node["diameter"] = diameter;
 	node["velocity"] = velocity;
+	node["friction"] = friction;
 	
 	return node;
 }

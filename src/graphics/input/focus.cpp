@@ -136,6 +136,22 @@ void focus::update(double dt)
 	}
 }
 
+void focus::render_ui()
+{
+	if(state)
+	{
+		state->render_ui();
+	}
+}
+
+void focus::render()
+{
+	if(state)
+	{
+		state->render();
+	}
+}
+
 bool focus::is_focused()
 {
 	return (state != nullptr);

@@ -38,7 +38,7 @@ struct system
 	std::unique_ptr<sim::coolant::valve> turbine_inlet_valve;
 
 	double speed = 1;
-	double clock = 0;
+	double clock = 3600 * 12;
 
 	system();
 	system(const Json::Value& node);

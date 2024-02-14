@@ -75,8 +75,8 @@ void valve::update(double dt)
 	double heat1 = src->get_heat(); // C
 	double heat2 = dst->get_heat();
 
-	src->add_gas(-mass_s, mass_a, heat2, 0);
-	dst->add_gas(mass_s, mass_a, heat1, 0);
+	src->add_gas(-mass_s, mass_a, heat2);
+	dst->add_gas(mass_s, mass_a, heat1);
 
 	this->flow = (mass_s + mass_a) / dt;
 }
