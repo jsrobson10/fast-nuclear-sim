@@ -54,7 +54,7 @@ void valve::update(double dt)
 
 		mol = fluid_holder::calc_pressure_mol(src->get_heat_k(), src->get_gas_volume(), pressure1 - remove);
 		
-		mass_a = src->get_air() - mol / constants::M_air;
+		mass_a = src->get_air() - mol / util::constants::M_air;
 		mass_s = src->get_steam() - src->fluid.mol_to_g(mol);
 	}
 
@@ -65,7 +65,7 @@ void valve::update(double dt)
 
 		mol = fluid_holder::calc_pressure_mol(dst->get_heat_k(), dst->get_gas_volume(), pressure2 - remove);
 
-		mass_a = dst->get_air() - mol / constants::M_air;
+		mass_a = dst->get_air() - mol / util::constants::M_air;
 		mass_s = dst->get_steam() - dst->fluid.mol_to_g(mol);
 	}
 

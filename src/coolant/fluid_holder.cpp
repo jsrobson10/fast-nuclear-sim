@@ -98,19 +98,19 @@ double fluid_holder::calc_pressure(double heat, double volume, double mol)
 {
 	double V = volume * 0.001;
 
-	return V == 0 ? 0 : (mol * heat * constants::R) / V;
+	return V == 0 ? 0 : (mol * heat * util::constants::R) / V;
 }
 
 double fluid_holder::calc_pressure_mol(double heat, double volume, double pressure)
 {
 	double V = volume * 0.001;
 
-	return (pressure * V) / (constants::R * heat);
+	return (pressure * V) / (util::constants::R * heat);
 }
 
 double fluid_holder::get_pressure() const
 {
-	return calc_pressure(conversions::temperature::c_to_k(heat), get_gas_volume(), fluid.g_to_mol(steam) + air / constants::M_air);
+	return calc_pressure(conversions::temperature::c_to_k(heat), get_gas_volume(), fluid.g_to_mol(steam) + air / util::constants::M_air);
 }
 
 double fluid_holder::get_gas_density() const
@@ -143,10 +143,10 @@ void fluid_holder::update_base(double secs)
 	{
 		double K = conversions::temperature::c_to_k(heat);	// K
 		double P = fluid.vapor_pressure.calc_p(K);			// Pa
-		double R = sim::constants::R;						// J/K/mol
+		double R = util::constants::R;						// J/K/mol
 
-		double J_m = fluid.jPg * fluid.gPmol;							// J/mol
-		double n_g = fluid.g_to_mol(steam) + air / constants::M_air;	// mol
+		double J_m = fluid.jPg * fluid.gPmol;								// J/mol
+		double n_g = fluid.g_to_mol(steam) + air / util::constants::M_air;	// mol
 		double V_g = (volume - level) * 0.001;							// m^3
 
 		double n = (P * V_g) / (R * K) - n_g;	// mol

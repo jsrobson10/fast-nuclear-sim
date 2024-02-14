@@ -149,7 +149,7 @@ void reactor::toggle_selected()
 void reactor::update_tile(double secs, int i, int x, int y)
 {
 	int nb_lookup[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
-	std::shuffle(nb_lookup, &nb_lookup[3], sim::random::gen);
+	std::shuffle(nb_lookup, &nb_lookup[3], util::random::gen);
 
 	for(int j = 0; j < 4; j++)
 	{
@@ -165,7 +165,7 @@ void reactor::update_tile(double secs, int i, int x, int y)
 
 void reactor::update_interactions(int* rods_lookup, double secs)
 {
-	std::shuffle(rods_lookup, &rods_lookup[size - 1], sim::random::gen);
+	std::shuffle(rods_lookup, &rods_lookup[size - 1], util::random::gen);
 
 	for(int id = 0; id < size; id++)
 	{

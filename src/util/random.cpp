@@ -1,7 +1,7 @@
 
 #include "random.hpp"
 
-using namespace sim;
+using namespace sim::util;
 
 std::mt19937 random::gen;
 

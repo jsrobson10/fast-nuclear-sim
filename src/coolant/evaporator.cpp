@@ -42,14 +42,14 @@ void evaporator::update(double dt)
 
 	double P = 10000;									// Pa
 	double K = conversions::temperature::c_to_k(heat);	// K
-	double R = sim::constants::R;						// J/K/mol
+	double R = util::constants::R;						// J/K/mol
 
-	double n_g = air / constants::M_air;	// mol
-	double V_g = (volume - level) * 0.001;	// m^3
+	double n_g = air / util::constants::M_air;	// mol
+	double V_g = (volume - level) * 0.001;		// m^3
 
 	double n = (P * V_g) / (R * K);	// mol
 	
-	air = n * constants::M_air;
+	air = n * util::constants::M_air;
 	update_base(dt);
 }
 
