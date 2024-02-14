@@ -16,6 +16,7 @@ glm::vec<3, double> get_pos();
 Json::Value serialize();
 void load(const Json::Value& node);
 
+void init();
 void rotate(double pitch, double yaw);
 void move(double x, double y, double z);
 void update(double dt);

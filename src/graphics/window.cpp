@@ -30,11 +30,11 @@ using namespace sim::graphics;
 static GLFWwindow* win;
 static bool win_should_close = false;
 
-static glmesh MeshScene;
-static monitor::vessel MonitorVessel;
-static monitor::core MonitorCore;
-static monitor::primary_loop MonitorPrimaryLoop;
-static monitor::secondary_loop MonitorSecondaryLoop;
+static glmesh mesh_scene;
+static monitor::vessel monitor_vessel;
+static monitor::core monitor_core;
+static monitor::primary_loop monitor_primary_loop;
+static monitor::secondary_loop monitor_secondary_loop;
 
 glm::mat4 window::projection_matrix;
 
@@ -99,6 +99,7 @@ void window::create()
 	mouse::init();
 	resize::init();
 	texture::init();
+	camera::init();
 	font::init();
 	ui::init();
 
@@ -108,17 +109,13 @@ void window::create()
 	mesh m;
 
 	m.load_model("../assets", "scene-baked.glb");
-	MeshScene.bind();
-	MeshScene.set(m, GL_STATIC_DRAW);
+	mesh_scene.bind();
+	mesh_scene.set(m, GL_STATIC_DRAW);
 
-	sys.scene.load_model("../assets/model", "scene_collisions.stl");
-//	MeshCollisionScene.bind();
-//	MeshCollisionScene.set(sys.scene.to_lines(), GL_STATIC_DRAW);
-
-	MonitorCore.init();
-	MonitorVessel.init();
-	MonitorPrimaryLoop.init();
-	MonitorSecondaryLoop.init();
+	monitor_core.init();
+	monitor_vessel.init();
+	monitor_primary_loop.init();
+	monitor_secondary_loop.init();
 
 	glfwShowWindow(win);
 	glViewport(0, 0, 800, 600);
@@ -128,10 +125,10 @@ void window::update(double dt)
 {
 	glfwPollEvents();
 
-	MonitorCore.update(dt);
-	MonitorVessel.update(dt);
-	MonitorPrimaryLoop.update(dt);
-	MonitorSecondaryLoop.update(dt);
+	monitor_core.update(dt);
+	monitor_vessel.update(dt);
+	monitor_primary_loop.update(dt);
+	monitor_secondary_loop.update(dt);
 
 	ui::update(dt);
 }
@@ -147,14 +144,14 @@ void window::render()
 	glClearColor(0, 0, 0, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	MeshScene.bind();
-	MeshScene.uniform();
-	MeshScene.render();
+	mesh_scene.bind();
+	mesh_scene.uniform();
+	mesh_scene.render();
 
-	MonitorCore.render();
-	MonitorVessel.render();
-	MonitorPrimaryLoop.render();
-	MonitorSecondaryLoop.render();
+	monitor_core.render();
+	monitor_vessel.render();
+	monitor_primary_loop.render();
+	monitor_secondary_loop.render();
 
 	ui::render();
 

@@ -254,7 +254,10 @@ reactor::reactor(const Json::Value& node, coolant::vessel* v) :
 
 	for(int i = 0; i < size; i++)
 	{
-		rods.push_back(load_rod(j_rods[i], v));
+		std::unique_ptr<rod> r = load_rod(j_rods[i], v);
+		r->reactor = this;
+
+		rods.push_back(std::move(r));
 	}
 }
 

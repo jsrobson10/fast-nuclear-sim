@@ -3,6 +3,7 @@
 #include <GLFW/glfw3.h>
 
 #include "camera.hpp"
+#include "mesh/mesh.hpp"
 #include "input/keyboard.hpp"
 #include "../util/math.hpp"
 
@@ -18,6 +19,7 @@ static bool on_ground = false;
 static double yaw = 0, pitch = 0;
 static glm::vec<3, double> pos(0, 0, 2);
 static glm::vec<3, double> velocity(0);
+static mesh collision_scene;
 static glm::mat4 camera_mat;
 
 Json::Value camera::serialize()
@@ -77,6 +79,11 @@ glm::vec<3, double> camera::get_pos()
 	return pos;
 }
 
+void camera::init()
+{
+	collision_scene.load_model("../assets/model", "scene_collisions.stl");
+}
+
 void camera::update(double dt)
 {
 	glm::vec<2, double> off(0, 0);
@@ -119,8 +126,8 @@ void camera::update(double dt)
 	glm::vec<3, double> normal_last(0);
 	glm::vec<3, double> velocity2;
    
-	velocity2 = system::active.scene.calc_intersect(pos, velocity * dt, normal_last);
-	velocity2 = system::active.scene.calc_intersect(pos + glm::vec<3, double>(0, 0, -1.5), velocity2, normal_last) / dt;
+	velocity2 = collision_scene.calc_intersect(pos, velocity * dt, normal_last);
+	velocity2 = collision_scene.calc_intersect(pos + glm::vec<3, double>(0, 0, -1.5), velocity2, normal_last) / dt;
 
 	pos += velocity2 * dt;
 	on_ground = ((velocity * dt / dt).z != velocity2.z);

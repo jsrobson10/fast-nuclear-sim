@@ -13,7 +13,6 @@
 #include "coolant/evaporator.hpp"
 #include "coolant/sink.hpp"
 #include "electric/turbine.hpp"
-#include "graphics/mesh/mesh.hpp"
 
 namespace sim
 {
@@ -38,7 +37,6 @@ struct system
 	std::unique_ptr<sim::coolant::valve> turbine_bypass_valve;
 	std::unique_ptr<sim::coolant::valve> turbine_inlet_valve;
 
-	sim::graphics::mesh scene;
 	double speed = 1;
 	double clock = 0;
 
