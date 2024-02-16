@@ -10,7 +10,7 @@
 
 using namespace sim::graphics;
 
-void mesh::add(const mesh& o, glm::mat4 mat)
+void Mesh::add(const Mesh& o, glm::mat4 mat)
 {
 	unsigned int off = vertices.size();
 	glm::mat3 mat3(mat);
@@ -32,7 +32,7 @@ void mesh::add(const mesh& o, glm::mat4 mat)
 	}
 }
 
-void mesh::set_vertices(const arrays::vertex* data, size_t size)
+void Mesh::set_vertices(const arrays::vertex* data, size_t size)
 {
 	vertices.clear();
 	vertices.reserve(size);
@@ -43,7 +43,7 @@ void mesh::set_vertices(const arrays::vertex* data, size_t size)
 	}
 }
 
-void mesh::set_indices(const unsigned int* data, size_t size)
+void Mesh::set_indices(const unsigned int* data, size_t size)
 {
 	indices.clear();
 	indices.reserve(size);
@@ -96,7 +96,7 @@ bool ray_intersects_triangle(vec3 ray_origin,
         return false;
 }
 
-bool mesh::check_focus(double len) const
+bool Mesh::check_focus(double len) const
 {
 	auto near = focus::get_trigger_near();
 	auto far = focus::get_trigger_far();
@@ -104,12 +104,12 @@ bool mesh::check_focus(double len) const
 	return focus::is_triggered() && check_intersect(near, glm::normalize(far - near) * len);
 }
 
-bool mesh::check_focus() const
+bool Mesh::check_focus() const
 {
 	return check_focus(2.5);
 }
 
-bool mesh::check_intersect(vec3 pos, vec3 path) const
+bool Mesh::check_intersect(vec3 pos, vec3 path) const
 {
 	double l = glm::length(path);
 
@@ -145,7 +145,7 @@ bool mesh::check_intersect(vec3 pos, vec3 path) const
 	return false;
 }
 
-vec3 mesh::calc_intersect(vec3 pos, vec3 path) const
+vec3 Mesh::calc_intersect(vec3 pos, vec3 path) const
 {
 	vec3 normal_last(0);
 	return calc_intersect(pos, path, normal_last);
@@ -187,7 +187,7 @@ static bool calc_intercept_vert(vec3 v[3], vec3 pos, vec3& path, vec3& path_n, v
 	return true;
 }
 
-vec3 mesh::calc_intersect(vec3 pos, vec3 path, vec3& normal_last) const
+vec3 Mesh::calc_intersect(vec3 pos, vec3 path, vec3& normal_last) const
 {
 	double l = glm::length(path);
 
@@ -237,9 +237,9 @@ vec3 mesh::calc_intersect(vec3 pos, vec3 path, vec3& normal_last) const
 	return path;
 }
 
-mesh mesh::to_lines() const
+Mesh Mesh::to_lines() const
 {
-	mesh m;
+	Mesh m;
 	m.vertices = vertices;
 
 	for(int i = 0; i < indices.size(); i += 3)

@@ -10,24 +10,24 @@ constexpr double fuel_molar_mass = 238.029; // g/mol
 constexpr double fuel_molar_density = fuel_density / fuel_molar_mass; // mol/m^3
 constexpr double energy_density = 165e11; // J/mol
 
-fuel_rod::fuel_rod(double fuel) : s(fuel)
+FuelRod::FuelRod(double fuel) : s(fuel)
 {
 
 }
 
-fuel_rod::fuel_rod(const Json::Value& node) : s(node["sample"]), rod(node)
+FuelRod::FuelRod(const Json::Value& node) : s(node["sample"]), Rod(node)
 {
 	
 }
 
-Json::Value fuel_rod::serialize() const
+Json::Value FuelRod::serialize() const
 {
-	Json::Value node(rod::serialize());
+	Json::Value node(Rod::serialize());
 	node["sample"] = s;
 	return node;
 }
 
-void fuel_rod::display(std::ostream& o) const
+void FuelRod::display(std::ostream& o) const
 {
 	double mol = fuel_molar_density * get_volume();
 	
@@ -38,14 +38,14 @@ void fuel_rod::display(std::ostream& o) const
 	o << "Xenon: " << (s.get_xe_135() * mol) << " mol\n";
 }
 
-double fuel_rod::get_energy_output() const
+double FuelRod::get_energy_output() const
 {
 	double mol = fuel_molar_density * get_volume();
 
 	return s.get_energy() * mol * energy_density;
 }
 
-void fuel_rod::update(double secs)
+void FuelRod::update(double secs)
 {
 	update_rod(secs);
 	

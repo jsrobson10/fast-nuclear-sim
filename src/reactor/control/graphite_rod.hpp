@@ -6,7 +6,7 @@
 namespace sim::reactor::control
 {
 
-class graphite_rod : public sim::reactor::rod
+class GraphiteRod : public sim::reactor::Rod
 {
 	double inserted = 0;
 	
@@ -20,9 +20,9 @@ class graphite_rod : public sim::reactor::rod
 
 public:
 	
-	constexpr graphite_rod() {}
+	constexpr GraphiteRod() {}
 
-	graphite_rod(const Json::Value& node);
+	GraphiteRod(const Json::Value& node);
 
 	virtual Json::Value serialize() const;
 	virtual void update(double secs);
@@ -31,7 +31,7 @@ public:
 	virtual bool should_display() const { return true; }
 	virtual bool should_select() const { return true; }
 	virtual void update_selected(double a);
-	virtual std::unique_ptr<rod> clone() const { return std::make_unique<graphite_rod>(*this); }
+	virtual std::unique_ptr<Rod> clone() const { return std::make_unique<GraphiteRod>(*this); }
 };
 
 }

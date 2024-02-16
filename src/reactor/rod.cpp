@@ -10,17 +10,17 @@ using namespace sim::reactor;
 // Avogadro's Number
 static double N_a = 6.02214076e23;
 
-double rod::get(val_t type) const
+double Rod::get(val_t type) const
 {
 	return vals[type];
 }
 
-void rod::add(val_t type, double v)
+void Rod::add(val_t type, double v)
 {
 	vals[type] += v;
 }
 
-double rod::extract(val_t type, double s, double k, double o)
+double Rod::extract(val_t type, double s, double k, double o)
 {
 	k *= get_k(type);
 
@@ -38,9 +38,9 @@ double rod::extract(val_t type, double s, double k, double o)
 	return v;
 }
 
-void rod::interact(rod* o, double secs)
+void Rod::interact(Rod* o, double secs)
 {
-	for(int i = 0; i < rod::VAL_N; i++)
+	for(int i = 0; i < Rod::VAL_N; i++)
 	{
 		val_t t = (val_t)i;
 		double v = o->extract(t, secs, get_k(t), get(t));
@@ -52,7 +52,7 @@ void rod::interact(rod* o, double secs)
 	}
 }
 
-glm::vec4 rod::get_heat_colour() const
+glm::vec4 Rod::get_heat_colour() const
 {
 	double temp = vals[val_t::HEAT];
 
@@ -90,24 +90,24 @@ glm::vec4 rod::get_heat_colour() const
 	return {1, 0, 0, 1};
 }
 
-double rod::get_flux() const
+double Rod::get_flux() const
 {
 	return (vals_n[val_t::N_FAST] + vals_n[val_t::N_SLOW]) * N_a / (get_side_area() * 10000) / 4;
 }
 
-double rod::get_volume() const
+double Rod::get_volume() const
 {
-	auto r = (sim::reactor::reactor*)reactor;
+	auto r = (sim::reactor::Reactor*)reactor;
 	return r->cell_width * r->cell_width * r->cell_height;
 }
 
-double rod::get_side_area() const
+double Rod::get_side_area() const
 {
-	auto r = (sim::reactor::reactor*)reactor;
+	auto r = (sim::reactor::Reactor*)reactor;
 	return r->cell_width * r->cell_height;
 }
 
-void rod::update_rod(double secs)
+void Rod::update_rod(double secs)
 {
 	// decay the free neutrons
 	double m = std::pow(0.5, secs / 879.4);
@@ -115,13 +115,13 @@ void rod::update_rod(double secs)
 	vals[val_t::N_SLOW] *= m;
 
 	// clear data
-	for(int i = 0; i < rod::VAL_N; i++)
+	for(int i = 0; i < Rod::VAL_N; i++)
 	{
 		vals_n[(val_t)i] = 0;
 	}
 }
 
-rod::rod(const Json::Value& node)
+Rod::Rod(const Json::Value& node)
 {
 	const Json::Value& j_vals = node["vals"];
 	
@@ -134,7 +134,7 @@ rod::rod(const Json::Value& node)
 	}
 }
 
-Json::Value rod::serialize() const
+Json::Value Rod::serialize() const
 {
 	Json::Value node;
 	Json::Value j_vals;

@@ -6,7 +6,7 @@
 namespace sim::reactor::coolant
 {
 
-class heater : public sim::reactor::rod
+class Heater : public sim::reactor::Rod
 {
 	double rate = 0;
 
@@ -19,16 +19,16 @@ class heater : public sim::reactor::rod
 
 public:
 	
-	constexpr heater() {}
+	constexpr Heater() {}
 	
-	heater(const Json::Value& node);
+	Heater(const Json::Value& node);
 
 	virtual Json::Value serialize() const;
 	virtual void update(double secs);
 	virtual bool should_display() const { return true; }
 	virtual bool should_select() const { return true; }
 	virtual void update_selected(double a);
-	virtual std::unique_ptr<rod> clone() const { return std::make_unique<heater>(*this); }
+	virtual std::unique_ptr<Rod> clone() const { return std::make_unique<Heater>(*this); }
 };
 
 };

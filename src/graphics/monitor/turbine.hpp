@@ -6,18 +6,18 @@
 namespace sim::graphics::monitor
 {
 
-class turbine
+class Turbine
 {
-	sim::graphics::glmesh mesh1, mesh2;
+	sim::graphics::GLMesh mesh1, mesh2;
 	double clock_at = 0, clock_now = 0;
 
-	sim::graphics::glmesh gm_synchroscope_dial;
-	sim::graphics::glmesh gm_switch_breaker;
-	sim::graphics::mesh m_switch_breaker;
+	sim::graphics::GLMesh gm_synchroscope_dial;
+	sim::graphics::GLMesh gm_switch_breaker;
+	sim::graphics::Mesh m_switch_breaker;
 
 public:
 
-	turbine();
+	Turbine();
 	void init();
 	void update(double dt);
 	void render();

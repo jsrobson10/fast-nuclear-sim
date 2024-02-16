@@ -8,7 +8,7 @@
 namespace sim::reactor::coolant
 {
 
-class vessel : public sim::coolant::fluid_holder
+class Vessel : public sim::coolant::FluidHolder
 {
 public:
 	
@@ -18,8 +18,8 @@ public:
 
 	double steam_suspended = 0; // grams
 
-	vessel(sim::coolant::fluid_t fluid, double height, double diameter, double mass, double level, double bubble_hl);
-	vessel(const Json::Value& node);
+	Vessel(sim::coolant::Fluid fluid, double height, double diameter, double mass, double level, double bubble_hl);
+	Vessel(const Json::Value& node);
 
 	double get_steam_suspended() const; // grams
 	double get_void_ratio() const;
@@ -28,7 +28,7 @@ public:
 	
 	operator Json::Value() const;
 
-	friend std::ostream& operator<<(std::ostream& o, const vessel& v)
+	friend std::ostream& operator<<(std::ostream& o, const Vessel& v)
 	{
 		o << "Volume: " << v.get_volume() << " L\n";
 		o << "Level: " << v.get_level() << " L\n";

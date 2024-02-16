@@ -19,7 +19,7 @@ static bool on_ground = false;
 static double yaw = 0, pitch = 0;
 static glm::vec<3, double> pos(0, 0, 2);
 static glm::vec<3, double> velocity(0);
-static mesh collision_scene;
+static Mesh collision_scene;
 static glm::mat4 camera_mat;
 
 Json::Value camera::serialize()

@@ -32,12 +32,12 @@ using namespace sim::graphics;
 static GLFWwindow* win;
 static bool win_should_close = false;
 
-static glmesh mesh_scene;
-static monitor::vessel monitor_vessel;
-static monitor::core monitor_core;
-static monitor::primary_loop monitor_primary_loop;
-static monitor::secondary_loop monitor_secondary_loop;
-static monitor::turbine monitor_turbine;
+static GLMesh mesh_scene;
+static monitor::Vessel monitor_vessel;
+static monitor::Core monitor_core;
+static monitor::PrimaryLoop monitor_primary_loop;
+static monitor::SecondaryLoop monitor_secondary_loop;
+static monitor::Turbine monitor_turbine;
 
 glm::mat4 window::projection_matrix;
 
@@ -108,8 +108,8 @@ void window::create()
 
 	shader::init_program();
 
-	sim::system& sys = sim::system::active;
-	mesh m, m2;
+	sim::System& sys = sim::System::active;
+	Mesh m, m2;
 
 	m.load_model("../assets", "scene-baked.glb");
 	m2.load_model("../assets/model", "monitor_graphics.stl");

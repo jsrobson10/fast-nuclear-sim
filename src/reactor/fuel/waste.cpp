@@ -4,7 +4,7 @@
 
 using namespace sim::reactor::fuel;
 
-waste::waste(const Json::Value& node)
+Waste::Waste(const Json::Value& node)
 {
 	const Json::Value& j_ladder = node["ladder"];
 	
@@ -18,7 +18,7 @@ waste::waste(const Json::Value& node)
 	energy = node["energy"].asDouble();
 }
 
-waste::operator Json::Value() const
+Waste::operator Json::Value() const
 {
 	Json::Value node;
 	Json::Value j_ladder;
@@ -38,12 +38,12 @@ waste::operator Json::Value() const
 	return node;
 }
 
-void waste::update(double secs)
+void Waste::update(double secs)
 {
-	double next[waste::N - 1] = {0};
+	double next[Waste::N - 1] = {0};
 	double hl = 1;
 
-	for(int i = 0; i < waste::N - 1; hl *= 2, i++)
+	for(int i = 0; i < Waste::N - 1; hl *= 2, i++)
 	{
 		double m = 1 - half_life::get(secs, hl);
 		double h = high[i] * m;
@@ -57,31 +57,31 @@ void waste::update(double secs)
 		energy += h + l;
 	}
 
-	for(int i = 0; i < waste::N - 1; i++)
+	for(int i = 0; i < Waste::N - 1; i++)
 	{
 		low[i + 1] += next[i];
 	}
 }
 
-void waste::add_fissile(double amount)
+void Waste::add_fissile(double amount)
 {
 	double m = 0.5;
 
-	for(int i = 0; i < waste::N; i++)
+	for(int i = 0; i < Waste::N; i++)
 	{
 		high[i] += amount * m;
 		m *= 0.5;
 	}
 }
 
-double waste::extract_neutrons()
+double Waste::extract_neutrons()
 {
 	double v = neutrons;
 	neutrons = 0;
 	return v;
 }
 
-double waste::extract_energy()
+double Waste::extract_energy()
 {
 	double v = energy;
 	energy = 0;

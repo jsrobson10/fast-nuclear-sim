@@ -8,11 +8,11 @@
 namespace sim::reactor::fuel
 {
 
-class sample
+class Sample
 {
 	constexpr static const double Xe_135_M = 1e6;
 
-	sim::reactor::fuel::waste waste;
+	sim::reactor::fuel::Waste waste;
 	
 	// mol
 	double fuel = 0;
@@ -32,8 +32,8 @@ class sample
 
 public:
 
-	sample(double fuel);
-	sample(const Json::Value& node);
+	Sample(double fuel);
+	Sample(const Json::Value& node);
 
 	operator Json::Value() const;
 	
@@ -55,7 +55,7 @@ public:
 	constexpr void clear_slow_neutrons() { slow_neutrons = 0; }
 	constexpr void add_slow_neutrons(double a) { slow_neutrons += a; }
 
-	friend std::ostream& operator<<(std::ostream& o, const sample& s)
+	friend std::ostream& operator<<(std::ostream& o, const Sample& s)
 	{
 		s.display(o);
 		return o;

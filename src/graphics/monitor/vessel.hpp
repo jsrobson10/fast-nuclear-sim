@@ -6,14 +6,14 @@
 namespace sim::graphics::monitor
 {
 
-class vessel
+class Vessel
 {
-	sim::graphics::glmesh mesh1, mesh2;
+	sim::graphics::GLMesh mesh1, mesh2;
 	double clock_at = 0, clock_now = 0;
 	
 public:
 
-	vessel();
+	Vessel();
 	void init();
 	void update(double dt);
 	void render();

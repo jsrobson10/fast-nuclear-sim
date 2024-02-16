@@ -18,10 +18,10 @@
 
 using namespace sim::graphics::widget;
 
-void clock::update(double dt)
+void Clock::update(double dt)
 {
-	mesh m;
-	double at = system::active.clock;
+	Mesh m;
+	double at = System::active.clock;
 	glm::vec2 wsize(resize::get_size() / 2);
 	std::stringstream ss;
 
@@ -42,7 +42,7 @@ void clock::update(double dt)
 	data.set(m, GL_DYNAMIC_DRAW);
 }
 
-void clock::render()
+void Clock::render()
 {
 	data.bind();
 	data.uniform();

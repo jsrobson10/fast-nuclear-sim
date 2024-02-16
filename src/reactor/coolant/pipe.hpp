@@ -7,14 +7,14 @@
 namespace sim::reactor::coolant
 {
 
-class pipe : public sim::reactor::rod
+class Pipe : public sim::reactor::Rod
 {
 protected:
 	
-	coolant::vessel* vessel;
+	coolant::Vessel* vessel;
 	double steam;
 	
-	virtual double get_k(sim::reactor::rod::val_t type) const;
+	virtual double get_k(sim::reactor::Rod::val_t type) const;
 	virtual const char* get_name() const { return "Coolant"; }
 	virtual int get_id() const { return 2; }
 
@@ -22,11 +22,11 @@ protected:
 
 public:
 
-	pipe(coolant::vessel* v);
-	pipe(const Json::Value& node, coolant::vessel* v);
+	Pipe(coolant::Vessel* v);
+	Pipe(const Json::Value& node, coolant::Vessel* v);
 
 	virtual Json::Value serialize() const;
-	virtual std::unique_ptr<rod> clone() const { return std::make_unique<pipe>(*this); }
+	virtual std::unique_ptr<Rod> clone() const { return std::make_unique<Pipe>(*this); }
 	virtual bool should_display() const { return true; }
 	virtual void update(double secs);
 

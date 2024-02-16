@@ -5,17 +5,17 @@
 
 using namespace sim::coolant;
 
-double vapor_pressure::calc_p(double t) const
+double VaporPressure::calc_p(double t) const
 {
 	return t > -C ? std::pow(10, A - B / (C + t)) : 0;
 }
 
-double vapor_pressure::calc_t(double p) const
+double VaporPressure::calc_t(double p) const
 {
 	return B / (A - std::log(p) / std::log(10)) - C;
 }
 
-vapor_pressure::vapor_pressure(const Json::Value& node) :
+VaporPressure::VaporPressure(const Json::Value& node) :
 		A(node["A"].asDouble()),
 		B(node["B"].asDouble()),
 		C(node["C"].asDouble())
@@ -23,7 +23,7 @@ vapor_pressure::vapor_pressure(const Json::Value& node) :
 
 }
 
-vapor_pressure::operator Json::Value() const
+VaporPressure::operator Json::Value() const
 {
 	Json::Value node;
 

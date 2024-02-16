@@ -5,42 +5,42 @@
 
 using namespace sim::reactor::control;
 
-graphite_rod::graphite_rod(const Json::Value& node) : rod(node)
+GraphiteRod::GraphiteRod(const Json::Value& node) : Rod(node)
 {
 	inserted = node["inserted"].asDouble();
 }
 
-Json::Value graphite_rod::serialize() const
+Json::Value GraphiteRod::serialize() const
 {
-	Json::Value node(rod::serialize());
+	Json::Value node(Rod::serialize());
 	node["inserted"] = inserted;
 	return node;
 }
 
-void graphite_rod::display(std::ostream& o) const
+void GraphiteRod::display(std::ostream& o) const
 {
 	o << "Inserted: " << (inserted * 100) << "%\n";
 };
 
-glm::vec4 graphite_rod::get_colour() const
+glm::vec4 GraphiteRod::get_colour() const
 {
 	double v = inserted * 0.75 + 0.25;
 	return {v, v, v, 1};
 }
 
-double graphite_rod::get_k(val_t type) const
+double GraphiteRod::get_k(val_t type) const
 {
 	if(type == val_t::HEAT) return 0.5;
 	
 	return inserted * 0.5;
 }
 
-void graphite_rod::set_reactivity(double a)
+void GraphiteRod::set_reactivity(double a)
 {
 	inserted = a;
 }
 
-void graphite_rod::update(double secs)
+void GraphiteRod::update(double secs)
 {
 	update_rod(secs);
 	
@@ -48,7 +48,7 @@ void graphite_rod::update(double secs)
 	vals[val_t::N_FAST] = 0;
 }
 
-void graphite_rod::update_selected(double a)
+void GraphiteRod::update_selected(double a)
 {
 	inserted += a;
 

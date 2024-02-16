@@ -11,7 +11,7 @@
 namespace sim::reactor
 {
 
-struct reactor
+struct Reactor
 {
 	const double cell_width;
 	const double cell_height;
@@ -20,27 +20,27 @@ struct reactor
 	const int height;
 	const int size;
 	
-	std::vector<std::unique_ptr<rod>> rods;
+	std::vector<std::unique_ptr<Rod>> rods;
 
 	double flux_rate = 0;
 	double rod_speed = 0;
 	int cursor;
 
-	reactor(std::unique_ptr<rod>* rods, int width, int height, double cell_width, double cell_height);
-	reactor(const Json::Value& node, coolant::vessel* v);
-	reactor(const reactor& r);
-	reactor(reactor&& r);
+	Reactor(std::unique_ptr<Rod>* rods, int width, int height, double cell_width, double cell_height);
+	Reactor(const Json::Value& node, coolant::Vessel* v);
+	Reactor(const Reactor& r);
+	Reactor(Reactor&& r);
 	
 	void scram();
 	void reset_rod_speed();
 	void add_rod_speed(double a);
 	void update(double secs);
-	void get_stats(rod::val_t type, double& min, double& max);
+	void get_stats(Rod::val_t type, double& min, double& max);
 	void get_rod_stats(int type, double& min, double& max);
 	double get_flux();
 	double get_energy_output();
-	double get_average(rod::val_t type);
-	double get_total(rod::val_t type);
+	double get_average(Rod::val_t type);
+	double get_total(Rod::val_t type);
 	int move_cursor(int d);
 	void toggle_selected();
 

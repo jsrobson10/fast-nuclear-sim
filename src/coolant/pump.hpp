@@ -7,10 +7,10 @@
 namespace sim::coolant
 {
 
-class pump
+class Pump
 {
-	fluid_holder* const src;
-	fluid_holder* const dst;
+	FluidHolder* const src;
+	FluidHolder* const dst;
 
 	util::PID pid {1, 0, 100, 0, 0};
 
@@ -38,8 +38,8 @@ public:
 	
 	bool powered = false;
 
-	pump(fluid_holder* src, fluid_holder* dst, double mass, double radius, double power, double l_per_rev, double friction, mode_t mode, double target);
-	pump(const Json::Value& node, fluid_holder* src, fluid_holder* dst);
+	Pump(FluidHolder* src, FluidHolder* dst, double mass, double radius, double power, double l_per_rev, double friction, mode_t mode, double target);
+	Pump(const Json::Value& node, FluidHolder* src, FluidHolder* dst);
 
 	double get_flow() const; // L/s
 	double get_flow_target() const; // L/s

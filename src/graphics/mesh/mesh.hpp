@@ -13,21 +13,21 @@
 namespace sim::graphics
 {
 
-struct mesh
+struct Mesh
 {
 	std::vector<arrays::vertex> vertices;
 	std::vector<unsigned int> indices;
 
-	constexpr mesh() { }
+	constexpr Mesh() { }
 
 	void set_vertices(const arrays::vertex* data, size_t size);
 	void set_indices(const unsigned int* data, size_t size);
 	void load_model(std::string base, std::string path);
 	void load_model(std::string path) { load_model(".", path); }
 	void load_text(const char* text, double size);
-	void add(const mesh& o, glm::mat4 mat);
+	void add(const Mesh& o, glm::mat4 mat);
 
-	mesh to_lines() const;
+	Mesh to_lines() const;
 	bool check_focus() const;
 	bool check_focus(double len) const;
 	bool check_intersect(glm::vec<3, double> pos, glm::vec<3, double> path) const;

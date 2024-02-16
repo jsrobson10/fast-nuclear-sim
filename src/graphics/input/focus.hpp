@@ -8,9 +8,9 @@
 namespace sim::graphics::focus
 {
 
-struct focus_t
+struct Focus
 {
-	virtual ~focus_t() { }
+	virtual ~Focus() { }
 	virtual bool cursor_is_visible() { return true; }
 	virtual void on_keypress(int key, int sc, int action, int mods) { }
 	virtual void on_mouse_button(int button, int action, int mods) { }
@@ -28,7 +28,7 @@ bool is_mouse_locked();
 void clear_mouse_locked();
 glm::vec<3, double> get_trigger_near();
 glm::vec<3, double> get_trigger_far();
-void set(std::unique_ptr<focus_t> f);
+void set(std::unique_ptr<Focus> f);
 void on_keypress(int key, int sc, int action, int mods);
 void on_mouse_button(int button, int action, int mods);
 void on_cursor_pos(double x, double y);

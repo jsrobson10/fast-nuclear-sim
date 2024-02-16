@@ -143,7 +143,7 @@ static unsigned int proc_embedded_texture(aiTexture* tex)
 	return texture::load_mem((unsigned char*)tex->pcData, tex->mWidth, tex->mHeight, 4);
 }
 
-void mesh::load_model(std::string base, std::string filename)
+void Mesh::load_model(std::string base, std::string filename)
 {
 	proc_state state {.base = base};
 	std::string path = base + "/" + filename;

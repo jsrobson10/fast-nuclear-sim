@@ -6,7 +6,7 @@
 namespace sim::reactor::fuel
 {
 
-class waste
+class Waste
 {
 	static const int N = 64;
 	
@@ -17,9 +17,9 @@ class waste
 
 public:
 	
-	constexpr waste() { };
+	constexpr Waste() { };
 
-	waste(const Json::Value& node);
+	Waste(const Json::Value& node);
 
 	operator Json::Value() const;
 

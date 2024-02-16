@@ -6,15 +6,15 @@
 namespace sim::coolant
 {
 
-class condenser : public fluid_holder
+class Condenser : public FluidHolder
 {
 	const double height;
 	const double diameter;
 
 public:
 
-	condenser(fluid_t type, double height, double diameter, double mass, double level);
-	condenser(const Json::Value& node);
+	Condenser(Fluid type, double height, double diameter, double mass, double level);
+	Condenser(const Json::Value& node);
 	
 	void update(double dt);
 

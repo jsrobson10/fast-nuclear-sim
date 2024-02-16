@@ -18,12 +18,12 @@
 
 using namespace sim::graphics;
 
-static glmesh StaticMeshData;
-static widget::clock WidgetClock;
+static GLMesh StaticMeshData;
+static widget::Clock WidgetClock;
 
 void ui::init()
 {
-	mesh m;
+	Mesh m;
 
 	unsigned int handle = texture::handle_white;
 	const unsigned int indices[] = {0, 1, 3, 0, 3, 2};

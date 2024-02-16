@@ -20,9 +20,9 @@ using namespace sim::graphics::monitor;
 
 static void set_all(bool state)
 {
-	for(int i = 0; i < sim::system::active.reactor->rods.size(); i++)
+	for(int i = 0; i < sim::System::active.reactor->rods.size(); i++)
 	{
-		sim::reactor::rod* r = sim::system::active.reactor->rods[i].get();
+		sim::reactor::Rod* r = sim::System::active.reactor->rods[i].get();
 
 		if(r->should_select())
 		{
@@ -31,7 +31,7 @@ static void set_all(bool state)
 	}
 }
 
-struct core_monitor : public focus::focus_t
+struct core_monitor : public focus::Focus
 {
 	virtual void on_keypress(int key, int sc, int action, int mods)
 	{
@@ -40,7 +40,7 @@ struct core_monitor : public focus::focus_t
 			return;
 		}
 	
-		sim::system& sys = sim::system::active;
+		sim::System& sys = sim::System::active;
 
 		switch(key)
 		{
@@ -72,16 +72,16 @@ struct core_monitor : public focus::focus_t
 	}
 };
 
-struct core_joystick : public focus::focus_t
+struct core_joystick : public focus::Focus
 {
 	virtual void on_cursor_pos(double x, double y)
 	{
-		sim::system::active.reactor->add_rod_speed(y * 1e-6);
+		sim::System::active.reactor->add_rod_speed(y * 1e-6);
 	}
 
 	virtual ~core_joystick()
 	{
-		sim::system::active.reactor->reset_rod_speed();
+		sim::System::active.reactor->reset_rod_speed();
 	}
 
 	virtual void on_mouse_button(int button, int action, int mods)
@@ -98,16 +98,16 @@ struct core_joystick : public focus::focus_t
 	}
 };
 
-core::core()
+Core::Core()
 {
 }
 
-void core::init()
+void Core::init()
 {
 	mesh1.model_matrix = locations::monitors[2];
 	mesh1.colour_matrix = arrays::colour({1, 1, 1, 1});
 	
-	sim::graphics::mesh rmesh;
+	sim::graphics::Mesh rmesh;
 	
 	rmesh.load_text("Reactor Core", 0.04);
 	mesh1.bind();
@@ -140,9 +140,9 @@ void core::init()
 	m_scram.load_model("../assets/model/", "reactor_core_scram.stl");
 }
 
-void core::update(double dt)
+void Core::update(double dt)
 {
-	sim::system& sys = sim::system::active;
+	sim::System& sys = sim::System::active;
 	
 	if(m_monitor.check_focus())
 		focus::set(std::make_unique<core_monitor>());
@@ -168,9 +168,9 @@ void core::update(double dt)
 		sys.reactor->move_cursor(sys.reactor->height);
 }
 
-void core::render()
+void Core::render()
 {
-	sim::system& sys = sim::system::active;
+	sim::System& sys = sim::System::active;
 	
 	double step = 1 / (sys.vessel->diameter / sys.reactor->cell_width * 0.8);
 	double sx = 0.5 - (sys.reactor->width - 1) * step / 2.0;
@@ -195,7 +195,7 @@ void core::render()
 		double ox = sx + x * step;
 		double oy = sy + y * step;
 
-		reactor::rod* r = sys.reactor->rods[i].get();
+		reactor::Rod* r = sys.reactor->rods[i].get();
 
 		if(!r->should_display())
 		{

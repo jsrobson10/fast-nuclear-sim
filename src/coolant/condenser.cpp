@@ -13,28 +13,28 @@ constexpr static double calc_cylinder(double h, double d)
 	return M_PI * r * r * h * 1000;
 }
 
-condenser::condenser(fluid_t type, double height, double diameter, double mass, double level) :
-		height(height), diameter(diameter), fluid_holder(type, calc_cylinder(height, diameter), mass)
+Condenser::Condenser(Fluid type, double height, double diameter, double mass, double level) :
+		height(height), diameter(diameter), FluidHolder(type, calc_cylinder(height, diameter), mass)
 {
 	this->level = level;
 }
 
-condenser::condenser(const Json::Value& node) :
+Condenser::Condenser(const Json::Value& node) :
 		height(node["height"].asDouble()),
 		diameter(node["diameter"].asDouble()),
-		fluid_holder(node)
+		FluidHolder(node)
 {
 
 }
 
-void condenser::update(double secs)
+void Condenser::update(double secs)
 {
 	update_base(secs);
 }
 
-condenser::operator Json::Value() const
+Condenser::operator Json::Value() const
 {
-	Json::Value node(fluid_holder::operator::Json::Value());
+	Json::Value node(FluidHolder::operator::Json::Value());
 
 	node["height"] = height;
 	node["diameter"] = diameter;

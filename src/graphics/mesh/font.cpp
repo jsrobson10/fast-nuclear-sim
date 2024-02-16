@@ -93,7 +93,7 @@ void font::init()
 	FT_Done_FreeType(ft);
 }
 
-void mesh::load_text(const char* text, double size)
+void Mesh::load_text(const char* text, double size)
 {
 	std::vector<arrays::vertex> vertices;
 	std::vector<unsigned int> indices;

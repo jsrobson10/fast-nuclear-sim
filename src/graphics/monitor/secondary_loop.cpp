@@ -15,12 +15,12 @@
 using namespace sim::graphics;
 using namespace sim::graphics::monitor;
 
-secondary_loop::secondary_loop()
+SecondaryLoop::SecondaryLoop()
 {
 
 }
 
-void secondary_loop::init()
+void SecondaryLoop::init()
 {
 	mesh1.model_matrix = locations::monitors[5];
 	mesh2.model_matrix = glm::translate(mesh1.model_matrix, glm::vec3(0.5, 0, 0));
@@ -33,7 +33,7 @@ void secondary_loop::init()
 	};
 	
 	std::stringstream ss;
-	sim::graphics::mesh rmesh;
+	sim::graphics::Mesh rmesh;
 
 	ss << "Cooling Tower\n\n";
 	ss << "Heat\nSteam\nPressure\nLevel\n\n";
@@ -60,15 +60,15 @@ void secondary_loop::init()
 	m_switch_3.load_model("../assets/model", "pump_switch_click_3.stl");
 }
 
-void secondary_loop::update(double dt)
+void SecondaryLoop::update(double dt)
 {
-	system& sys = sim::system::active;
+	System& sys = sim::System::active;
 	clock_now += dt;
 
 	if(clock_at + 1.0/30.0 < clock_now)
 	{
 		std::stringstream ss;
-		sim::graphics::mesh rmesh;
+		sim::graphics::Mesh rmesh;
 		clock_at += 1.0/30.0;
 
 		ss << "\n\n";
@@ -99,7 +99,7 @@ void secondary_loop::update(double dt)
 	gm_switch_3.model_matrix = glm::translate(glm::mat4(1), glm::vec3(0, sys.freight_pump->powered ? 0.07 : 0, 0));
 }
 
-void secondary_loop::render()
+void SecondaryLoop::render()
 {
 	mesh1.bind();
 	mesh1.uniform();

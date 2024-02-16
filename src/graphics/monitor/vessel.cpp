@@ -14,12 +14,12 @@
 
 using namespace sim::graphics::monitor;
 
-vessel::vessel()
+Vessel::Vessel()
 {
 
 }
 
-void vessel::init()
+void Vessel::init()
 {
 	mesh1.model_matrix = locations::monitors[1];
 	mesh2.model_matrix = glm::translate(mesh1.model_matrix, glm::vec3(0.5, 0, 0));
@@ -32,7 +32,7 @@ void vessel::init()
 	};
 	
 	std::stringstream ss;
-	sim::graphics::mesh rmesh;
+	sim::graphics::Mesh rmesh;
 
 	ss << "Reactor Vessel\n\n";
 	ss << "Heat\n";
@@ -51,11 +51,11 @@ void vessel::init()
 	mesh1.set(rmesh, GL_STATIC_DRAW);
 }
 
-void vessel::update(double dt)
+void Vessel::update(double dt)
 {
 	std::stringstream ss;
-	sim::graphics::mesh rmesh;
-	sim::system& sys = sim::system::active;
+	sim::graphics::Mesh rmesh;
+	sim::System& sys = sim::System::active;
 	clock_now += dt;
 
 	if(clock_at + 1.0/30.0 > clock_now)
@@ -67,18 +67,18 @@ void vessel::update(double dt)
 	double crod_min = INFINITY, crod_max = -INFINITY;
 
 	clock_at += 1.0/30.0;
-	sys.reactor->get_stats(sim::reactor::rod::val_t::HEAT, temp_min, temp_max);
+	sys.reactor->get_stats(sim::reactor::Rod::val_t::HEAT, temp_min, temp_max);
 
 	for(int i = 0; i < sys.reactor->size; i++)
 	{
-		sim::reactor::rod* r = sys.reactor->rods[i].get();
+		sim::reactor::Rod* r = sys.reactor->rods[i].get();
 
 		if(r->get_id() != 5)
 		{
 			continue;
 		}
 
-		auto br = (sim::reactor::control::boron_rod*)r;
+		auto br = (sim::reactor::control::BoronRod*)r;
 		double v = br->get_inserted();
 
 		if(v > crod_max)
@@ -113,7 +113,7 @@ void vessel::update(double dt)
 	mesh2.set(rmesh, GL_DYNAMIC_DRAW);
 }
 
-void vessel::render()
+void Vessel::render()
 {
 	mesh1.bind();
 	mesh1.uniform();

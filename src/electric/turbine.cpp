@@ -15,26 +15,26 @@ constexpr static double calc_cylinder(double h, double d)
 	return M_PI * r * r * h * 1000;
 }
 
-turbine::turbine(coolant::fluid_t type, coolant::condenser* condenser, double length, double diameter, double mass) :
+Turbine::Turbine(coolant::Fluid type, coolant::Condenser* condenser, double length, double diameter, double mass) :
 		length(length), diameter(diameter), condenser(condenser),
-		sim::coolant::fluid_holder(type, calc_cylinder(length, diameter), mass)
+		sim::coolant::FluidHolder(type, calc_cylinder(length, diameter), mass)
 {
 	
 }
 
-turbine::turbine(const Json::Value& node, coolant::condenser* condenser) :
+Turbine::Turbine(const Json::Value& node, coolant::Condenser* condenser) :
 		condenser(condenser),
 		length(node["length"].asDouble()),
 		diameter(node["diameter"].asDouble()),
 		friction(node["friction"].asDouble()),
-		sim::coolant::fluid_holder(node)
+		sim::coolant::FluidHolder(node)
 {
 	velocity = node["velocity"].asDouble();
 	phase = node["phase"].asDouble();
 	breaker_closed = node["breaker_closed"].asBool();
 }
 
-void turbine::update(double dt)
+void Turbine::update(double dt)
 {
 	double work = get_rpm() / 60 * dt * friction;
 	phase = std::fmod(phase + util::map( get_rpm(), 0, 60, 0, 2 * M_PI ) * dt, 2 * M_PI);
@@ -61,27 +61,27 @@ void turbine::update(double dt)
 
 }
 
-double turbine::get_rpm() const
+double Turbine::get_rpm() const
 {
 	return velocity / (M_PI * extra_mass * 0.001 * diameter * diameter * 0.25);
 }
 
-double turbine::get_phase_diff() const
+double Turbine::get_phase_diff() const
 {
-	double phase_g = std::fmod(system::active.clock * 60, 1) * 2 * M_PI;
+	double phase_g = std::fmod(System::active.clock * 60, 1) * 2 * M_PI;
 	return util::mod(phase - phase_g + M_PI, 2*M_PI) - M_PI;
 }
 
-void turbine::add_gas(double steam, double air, double t)
+void Turbine::add_gas(double steam, double air, double t)
 {
 	double joules = (steam + air) * fluid.jPg;
 	velocity = std::max(velocity + util::calc_work(joules, extra_mass), 0.0);
 	condenser->add_gas(steam, air, t);
 }
 
-turbine::operator Json::Value() const
+Turbine::operator Json::Value() const
 {
-	Json::Value node(fluid_holder::operator::Json::Value());
+	Json::Value node(FluidHolder::operator::Json::Value());
 
 	node["length"] = length;
 	node["diameter"] = diameter;

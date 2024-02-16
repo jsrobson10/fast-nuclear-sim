@@ -15,11 +15,11 @@
 using namespace sim::graphics;
 using namespace sim::graphics::monitor;
 
-struct valve_joystick : public focus::focus_t
+struct valve_joystick : public focus::Focus
 {
-	sim::coolant::valve* active;
+	sim::coolant::Valve* active;
 	
-	valve_joystick(sim::coolant::valve* v) : active(v)
+	valve_joystick(sim::coolant::Valve* v) : active(v)
 	{
 		
 	}
@@ -49,12 +49,12 @@ struct valve_joystick : public focus::focus_t
 };
 
 
-primary_loop::primary_loop()
+PrimaryLoop::PrimaryLoop()
 {
 
 }
 
-void primary_loop::init()
+void PrimaryLoop::init()
 {
 	mesh1.model_matrix = locations::monitors[3];
 	mesh2.model_matrix = glm::translate(mesh1.model_matrix, glm::vec3(0.5, 0, 0));
@@ -67,7 +67,7 @@ void primary_loop::init()
 	};
 	
 	std::stringstream ss;
-	sim::graphics::mesh rmesh;
+	sim::graphics::Mesh rmesh;
 
 	ss << "Turbine Bypass Valve\n\n";
 	ss << "Opened\nFlow\nSetpoint\n\n";
@@ -104,15 +104,15 @@ void primary_loop::init()
 	m_switch_inlet.load_model("../assets/model", "turbine_valve_inlet_switch_click.stl");
 }
 
-void primary_loop::update(double dt)
+void PrimaryLoop::update(double dt)
 {
-	system& sys = sim::system::active;
+	System& sys = sim::System::active;
 	clock_now += dt;
 
 	if(clock_at + 1.0/30.0 < clock_now)
 	{
 		std::stringstream ss;
-		sim::graphics::mesh rmesh;
+		sim::graphics::Mesh rmesh;
 		clock_at += 1.0/30.0;
 
 		ss << "\n\n";
@@ -174,7 +174,7 @@ void primary_loop::update(double dt)
 	gm_switch_pump.model_matrix = glm::translate(glm::mat4(1), glm::vec3(0, sys.primary_pump->powered ? 0.07 : 0, 0));
 }
 
-void primary_loop::render()
+void PrimaryLoop::render()
 {
 	mesh1.bind();
 	mesh1.uniform();

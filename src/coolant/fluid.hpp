@@ -8,22 +8,22 @@
 namespace sim::coolant
 {
 
-struct fluid_t
+struct Fluid
 {
 	const double gPl; // g/L
 	const double gPmol; // g/mol
 	const double jPg; // J/g		latent heat of vaporisation
 	
-	const coolant::vapor_pressure vapor_pressure;
+	const coolant::VaporPressure vapor_pressure;
 	
-	constexpr fluid_t(double gPl, double gPmol, double jPg, coolant::vapor_pressure vapor_pressure) :
+	constexpr Fluid(double gPl, double gPmol, double jPg, coolant::VaporPressure vapor_pressure) :
 			gPl(gPl), gPmol(gPmol), jPg(jPg),
 			vapor_pressure(vapor_pressure)
 	{
 
 	}
 
-	fluid_t(const Json::Value& node) :
+	Fluid(const Json::Value& node) :
 			gPl(node["gPl"].asDouble()),
 			gPmol(node["gPmol"].asDouble()),
 			jPg(node["jPg"].asDouble()),
@@ -53,7 +53,7 @@ struct fluid_t
 	constexpr double l_to_mol(double l) const { return g_to_mol(l_to_g(l)); }
 };
 
-constexpr const fluid_t WATER = fluid_t(1000, 18, 2257, {8.07131 + 2.124903, 1730.63, 233.426 - 273.15});
+constexpr const Fluid WATER = Fluid(1000, 18, 2257, {8.07131 + 2.124903, 1730.63, 233.426 - 273.15});
 
 }
 

@@ -6,7 +6,7 @@
 #include <cfenv>
 
 #include "reactor/coolant/vessel.hpp"
-#include "coolant/fluid_t.hpp"
+#include "coolant/fluid.hpp"
 #include "coolant/valve.hpp"
 #include "coolant/pump.hpp"
 
@@ -42,9 +42,9 @@ int main()
 		long passed = now - clock;
 		double dt = (double)passed / 1e6;
 		clock += passed;
-		at += dt * sim::system::active.speed;
+		at += dt * sim::System::active.speed;
 		
-		sim::system::active.update(dt);
+		sim::System::active.update(dt);
 
 		graphics::camera::update(dt);
 		graphics::window::update(dt);

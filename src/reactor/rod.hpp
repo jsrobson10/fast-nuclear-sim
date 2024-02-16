@@ -10,7 +10,7 @@
 namespace sim::reactor
 {
 
-class rod
+class Rod
 {
 public:
 	
@@ -25,16 +25,16 @@ public:
 		N_FAST = 2,
 	};
 
-	constexpr rod() {};
-	rod(const Json::Value& node);
+	constexpr Rod() {};
+	Rod(const Json::Value& node);
 
-	virtual ~rod() {};
-	virtual void interact(rod* o, double secs);
+	virtual ~Rod() {};
+	virtual void interact(Rod* o, double secs);
 	virtual void update(double secs) { }
 	virtual void add(val_t type, double v);
 	virtual double extract(val_t type, double s, double k, double o);
 	virtual double get(val_t type) const;
-	virtual std::unique_ptr<rod> clone() const { return std::make_unique<rod>(*this); }
+	virtual std::unique_ptr<Rod> clone() const { return std::make_unique<Rod>(*this); }
 	virtual double get_energy_output() const { return 0; }
 	virtual int get_id() const { return 0; }
 	
@@ -52,7 +52,7 @@ public:
 	
 	constexpr void toggle_selected() { selected = !selected; }
 
-	friend std::ostream& operator<<(std::ostream& o, const rod& r)
+	friend std::ostream& operator<<(std::ostream& o, const Rod& r)
 	{
 		if(!r.should_display()) return o;
 

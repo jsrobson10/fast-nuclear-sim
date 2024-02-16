@@ -11,62 +11,62 @@
 
 using namespace sim::reactor;
 
-sim::reactor::reactor sim::reactor::builder(const int W, const int H, const double CW, const double CH, fuel::fuel_rod fr, coolant::vessel* v, const char** lines)
+sim::reactor::Reactor sim::reactor::builder(const int W, const int H, const double CW, const double CH, fuel::FuelRod fr, coolant::Vessel* v, const char** lines)
 {
-	std::vector<std::unique_ptr<rod>> arr(W * H);
+	std::vector<std::unique_ptr<Rod>> arr(W * H);
 	
 	for(int y = 0; y < H; y++)
 	for(int x = 0; x < W; x++)
 	{
 		char c = lines[y][x];
-		std::unique_ptr<rod> r;
+		std::unique_ptr<Rod> r;
 
 		switch(c)
 		{
 		case 'F':
-			r = std::make_unique<fuel::fuel_rod>(fr);
+			r = std::make_unique<fuel::FuelRod>(fr);
 			break;
 		case 'C':
-			r = std::make_unique<control::boron_rod>(v);
+			r = std::make_unique<control::BoronRod>(v);
 			break;
 		case 'G':
-			r = std::make_unique<control::graphite_rod>();
+			r = std::make_unique<control::GraphiteRod>();
 			break;
 		case 'H':
-			r = std::make_unique<coolant::heater>();
+			r = std::make_unique<coolant::Heater>();
 			break;
 		case 'P':
-			r = std::make_unique<coolant::pipe>(v);
+			r = std::make_unique<coolant::Pipe>(v);
 			break;
 		default:
-			r = std::make_unique<rod>();
+			r = std::make_unique<Rod>();
 			break;
 		}
 
 		arr[y * W + x] = std::move(r);
 	}
 
-	return reactor(&arr[0], W, H, CW, CH);
+	return Reactor(&arr[0], W, H, CW, CH);
 }
 
-std::unique_ptr<rod> sim::reactor::load_rod(const Json::Value& node, coolant::vessel* v)
+std::unique_ptr<Rod> sim::reactor::load_rod(const Json::Value& node, coolant::Vessel* v)
 {
 	int id = node["id"].asInt();
 
 	switch(id)
 	{
 	case 1:
-		return std::make_unique<fuel::fuel_rod>(node);
+		return std::make_unique<fuel::FuelRod>(node);
 	case 2:
-		return std::make_unique<coolant::pipe>(node, v);
+		return std::make_unique<coolant::Pipe>(node, v);
 	case 3:
-		return std::make_unique<coolant::heater>(node);
+		return std::make_unique<coolant::Heater>(node);
 	case 4:
-		return std::make_unique<control::graphite_rod>(node);
+		return std::make_unique<control::GraphiteRod>(node);
 	case 5:
-		return std::make_unique<control::boron_rod>(node, v);
+		return std::make_unique<control::BoronRod>(node, v);
 	}
 
-	return std::make_unique<rod>();
+	return std::make_unique<Rod>();
 }
 

@@ -12,9 +12,9 @@
 
 using namespace sim;
 
-sim::system system::active;
+sim::System System::active;
 
-system::system()
+System::System()
 {
 	const char* layout[] = {
 		"      C C C C      ",
@@ -38,45 +38,45 @@ system::system()
 		"      C C C C      "
 	};
 	
-	vessel = std::make_unique<reactor::coolant::vessel>(sim::coolant::WATER, 8, 10, 6e6, 5e5, 10);
-	reactor = std::make_unique<reactor::reactor>(sim::reactor::builder(19, 19, 1.0 / 4.0, 4, reactor::fuel::fuel_rod(0.2), vessel.get(), layout));
-	condenser = std::make_unique<coolant::condenser>(sim::coolant::WATER, 6, 4, 3e6, 30000);
-	turbine = std::make_unique<electric::turbine>(sim::coolant::WATER, condenser.get(), 6, 3, 2e6);
+	vessel = std::make_unique<reactor::coolant::Vessel>(sim::coolant::WATER, 8, 10, 6e6, 5e5, 10);
+	reactor = std::make_unique<reactor::Reactor>(sim::reactor::builder(19, 19, 1.0 / 4.0, 4, reactor::fuel::FuelRod(0.2), vessel.get(), layout));
+	condenser = std::make_unique<coolant::Condenser>(sim::coolant::WATER, 6, 4, 3e6, 30000);
+	turbine = std::make_unique<electric::Turbine>(sim::coolant::WATER, condenser.get(), 6, 3, 2e6);
 	
-	sink = std::make_unique<coolant::sink>(sim::coolant::WATER, 11, 0, 0);
-	evaporator = std::make_unique<coolant::evaporator>(sim::coolant::WATER, 2, 30, 0, 1000);
-	condenser_secondary = std::make_unique<coolant::condenser_secondary>(condenser.get(), evaporator.get(), 1000);
+	sink = std::make_unique<coolant::Sink>(sim::coolant::WATER, 11, 0, 0);
+	evaporator = std::make_unique<coolant::Evaporator>(sim::coolant::WATER, 2, 30, 0, 1000);
+	condenser_secondary = std::make_unique<coolant::CondenserSecondary>(condenser.get(), evaporator.get(), 1000);
 	
-	turbine_inlet_valve = std::make_unique<coolant::valve>(vessel.get(), turbine.get(), 0, 0.5);
-	turbine_bypass_valve = std::make_unique<coolant::valve>(vessel.get(), condenser.get(), 0, 0.5);
+	turbine_inlet_valve = std::make_unique<coolant::Valve>(vessel.get(), turbine.get(), 0, 0.5);
+	turbine_bypass_valve = std::make_unique<coolant::Valve>(vessel.get(), condenser.get(), 0, 0.5);
 
-	primary_pump = std::make_unique<coolant::pump>(condenser.get(), vessel.get(), 1e5, 1, 1e5, 0.1, 10, coolant::pump::mode_t::SRC, 35000);
-	secondary_pump = std::make_unique<coolant::pump>(evaporator.get(), condenser_secondary.get(), 1e5, 1, 1e4, 0.1, 1, coolant::pump::mode_t::NONE, 0);
-	freight_pump = std::make_unique<coolant::pump>(sink.get(), evaporator.get(), 1e5, 1, 1e4, 0.1, 10, coolant::pump::mode_t::DST, 1e6);
+	primary_pump = std::make_unique<coolant::Pump>(condenser.get(), vessel.get(), 1e5, 1, 1e5, 0.1, 10, coolant::Pump::mode_t::SRC, 35000);
+	secondary_pump = std::make_unique<coolant::Pump>(evaporator.get(), condenser_secondary.get(), 1e5, 1, 1e4, 0.1, 1, coolant::Pump::mode_t::NONE, 0);
+	freight_pump = std::make_unique<coolant::Pump>(sink.get(), evaporator.get(), 1e5, 1, 1e4, 0.1, 10, coolant::Pump::mode_t::DST, 1e6);
 }
 
-system::system(const Json::Value& node)
+System::System(const Json::Value& node)
 {
 	clock = node["clock"].asDouble();
 
-	vessel = std::make_unique<reactor::coolant::vessel>(node["vessel"]);
-	reactor = std::make_unique<reactor::reactor>(node["reactor"], vessel.get());
-	condenser = std::make_unique<coolant::condenser>(node["condenser"]);
-	turbine = std::make_unique<electric::turbine>(node["turbine"], condenser.get());
+	vessel = std::make_unique<reactor::coolant::Vessel>(node["vessel"]);
+	reactor = std::make_unique<reactor::Reactor>(node["reactor"], vessel.get());
+	condenser = std::make_unique<coolant::Condenser>(node["condenser"]);
+	turbine = std::make_unique<electric::Turbine>(node["turbine"], condenser.get());
 
-	evaporator = std::make_unique<coolant::evaporator>(node["evaporator"]);
-	sink = std::make_unique<coolant::sink>(evaporator->fluid, 11, 0, 0);
-	condenser_secondary = std::make_unique<coolant::condenser_secondary>(condenser.get(), evaporator.get(), 1000);
+	evaporator = std::make_unique<coolant::Evaporator>(node["evaporator"]);
+	sink = std::make_unique<coolant::Sink>(evaporator->fluid, 11, 0, 0);
+	condenser_secondary = std::make_unique<coolant::CondenserSecondary>(condenser.get(), evaporator.get(), 1000);
 
-	turbine_inlet_valve = std::make_unique<coolant::valve>(node["valve"]["turbine"]["inlet"], vessel.get(), turbine.get());
-	turbine_bypass_valve = std::make_unique<coolant::valve>(node["valve"]["turbine"]["bypass"], vessel.get(), condenser.get());
+	turbine_inlet_valve = std::make_unique<coolant::Valve>(node["valve"]["turbine"]["inlet"], vessel.get(), turbine.get());
+	turbine_bypass_valve = std::make_unique<coolant::Valve>(node["valve"]["turbine"]["bypass"], vessel.get(), condenser.get());
 
-	primary_pump = std::make_unique<coolant::pump>(node["pump"]["primary"], condenser.get(), vessel.get());
-	secondary_pump = std::make_unique<coolant::pump>(node["pump"]["secondary"], evaporator.get(), condenser_secondary.get());
-	freight_pump = std::make_unique<coolant::pump>(node["pump"]["freight"], sink.get(), evaporator.get());
+	primary_pump = std::make_unique<coolant::Pump>(node["pump"]["primary"], condenser.get(), vessel.get());
+	secondary_pump = std::make_unique<coolant::Pump>(node["pump"]["secondary"], evaporator.get(), condenser_secondary.get());
+	freight_pump = std::make_unique<coolant::Pump>(node["pump"]["freight"], sink.get(), evaporator.get());
 }
 
-void system::update(double dt)
+void System::update(double dt)
 {
 	dt *= speed;
 	clock += dt;
@@ -95,7 +95,7 @@ void system::update(double dt)
 	condenser_secondary->update(dt);
 }
 
-system::operator Json::Value() const
+System::operator Json::Value() const
 {
 	Json::Value node;
 
@@ -114,7 +114,7 @@ system::operator Json::Value() const
 	return node;
 }
 
-void system::save()
+void System::save()
 {
 	Json::Value root(active);
 	root["camera"] = graphics::camera::serialize();
@@ -129,14 +129,14 @@ void system::save()
 	savefile.close();
 }
 
-void system::load()
+void System::load()
 {
 	Json::Value root;
 	std::ifstream savefile("savefile.json");
 	savefile >> root;
 	savefile.close();
 
-	system sys(root);
+	System sys(root);
 	graphics::camera::load(root["camera"]);
 	active = std::move(sys);
 }

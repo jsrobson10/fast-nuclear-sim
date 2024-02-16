@@ -10,7 +10,7 @@
 namespace sim::coolant
 {
 
-class sink : public fluid_holder
+class Sink : public FluidHolder
 {
 public:
 	
@@ -18,7 +18,7 @@ public:
 	double pressure;
 	double steam_density;
 
-	sink(fluid_t type, double heat, double pressure, double steam_density);
+	Sink(Fluid type, double heat, double pressure, double steam_density);
 	
 	virtual double add_heat(double m, double t) { return t; }
 	virtual double extract_fluid(double amount) { return amount; }

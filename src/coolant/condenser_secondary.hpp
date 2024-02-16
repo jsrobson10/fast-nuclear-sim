@@ -8,14 +8,14 @@
 namespace sim::coolant
 {
 
-class condenser_secondary : public fluid_holder
+class CondenserSecondary : public FluidHolder
 {
-	condenser* const primary;
-	evaporator* const source;
+	Condenser* const primary;
+	Evaporator* const source;
 	
 public:
 
-	condenser_secondary(condenser* primary, evaporator* source, double volume);
+	CondenserSecondary(Condenser* primary, Evaporator* source, double volume);
 
 	virtual double add_heat(double m, double t) { return source->add_heat(m, t); }
 	virtual double extract_fluid(double amount) { return source->extract_fluid(amount); }

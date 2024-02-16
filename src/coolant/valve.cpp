@@ -8,27 +8,27 @@
 
 using namespace sim::coolant;
 
-valve::valve(fluid_holder* src, fluid_holder* dst, double state, double max) : src(src), dst(dst), max(max)
+Valve::Valve(FluidHolder* src, FluidHolder* dst, double state, double max) : src(src), dst(dst), max(max)
 {
 	this->state = state;
 }
 
-void valve::add_open_speed(double v)
+void Valve::add_open_speed(double v)
 {
 	speed += v;
 }
 
-void valve::clear_open_speed()
+void Valve::clear_open_speed()
 {
 	speed = 0;
 }
 
-void valve::toggle_auto()
+void Valve::toggle_auto()
 {
 	set_auto(!auto_on);
 }
 
-void valve::set_auto(bool state)
+void Valve::set_auto(bool state)
 {
 	if(state)
 	{
@@ -44,7 +44,7 @@ void valve::set_auto(bool state)
 	speed = 0;
 }
 
-void valve::update(double dt)
+void Valve::update(double dt)
 {
 	if(auto_on)
 	{
@@ -82,7 +82,7 @@ void valve::update(double dt)
 		ratio_a = src->get_air() / src->get_gas();
 		ratio_s = src->get_steam() / src->get_gas();
 
-		mol = fluid_holder::calc_pressure_mol(src->get_heat_k(), src->get_gas_volume(), pressure1 - remove);
+		mol = FluidHolder::calc_pressure_mol(src->get_heat_k(), src->get_gas_volume(), pressure1 - remove);
 		
 		mass_a = src->get_air() - mol / util::constants::M_air;
 		mass_s = src->get_steam() - src->fluid.mol_to_g(mol);
@@ -93,7 +93,7 @@ void valve::update(double dt)
 		ratio_a = dst->get_air() / dst->get_gas();
 		ratio_s = dst->get_steam() / dst->get_gas();
 
-		mol = fluid_holder::calc_pressure_mol(dst->get_heat_k(), dst->get_gas_volume(), pressure2 - remove);
+		mol = FluidHolder::calc_pressure_mol(dst->get_heat_k(), dst->get_gas_volume(), pressure2 - remove);
 
 		mass_a = dst->get_air() - mol / util::constants::M_air;
 		mass_s = dst->get_steam() - dst->fluid.mol_to_g(mol);
@@ -111,7 +111,7 @@ void valve::update(double dt)
 	this->flow = (mass_s + mass_a) / dt;
 }
 
-valve::valve(const Json::Value& node, fluid_holder* src, fluid_holder* dst) : src(src), dst(dst), max(node["max"].asDouble()), pid(node["pid"])
+Valve::Valve(const Json::Value& node, FluidHolder* src, FluidHolder* dst) : src(src), dst(dst), max(node["max"].asDouble()), pid(node["pid"])
 {
 	state = node["state"].asDouble();
 	flow = node["flow"].asDouble();
@@ -119,7 +119,7 @@ valve::valve(const Json::Value& node, fluid_holder* src, fluid_holder* dst) : sr
 	auto_on = node["auto_on"].asBool();
 }
 
-valve::operator Json::Value() const
+Valve::operator Json::Value() const
 {
 	Json::Value node;
 

@@ -8,14 +8,14 @@ using namespace sim::reactor::fuel;
 
 constexpr double NEUTRON_BG = 1e-30;
 
-sample::sample(double fuel)
+Sample::Sample(double fuel)
 {
 	this->fuel = fuel;
 	this->u_238 = 1 - fuel;
 	this->mass = 1;
 }
 
-sample::sample(const Json::Value& node) : waste(node["waste"])
+Sample::Sample(const Json::Value& node) : waste(node["waste"])
 {
 	fuel = node["fuel"].asDouble();
 	i_135 = node["i_135"].asDouble();
@@ -30,7 +30,7 @@ sample::sample(const Json::Value& node) : waste(node["waste"])
 	efficiency = node["efficiency"].asDouble();
 }
 
-sample::operator Json::Value() const
+Sample::operator Json::Value() const
 {
 	Json::Value node;
 
@@ -50,7 +50,7 @@ sample::operator Json::Value() const
 	return node;
 }
 
-void sample::update(double secs)
+void Sample::update(double secs)
 {
 	double m;
 	
@@ -98,7 +98,7 @@ void sample::update(double secs)
 	waste.add_fissile(neutrons_fuel * 6);
 }
 
-void sample::display(std::ostream& o) const
+void Sample::display(std::ostream& o) const
 {
 	o << "Fuel: " << fuel << "\n";
 	o << "Mass: " << mass << "\n";

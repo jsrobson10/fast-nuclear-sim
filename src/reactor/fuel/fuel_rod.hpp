@@ -7,9 +7,9 @@
 namespace sim::reactor::fuel
 {
 
-class fuel_rod : public sim::reactor::rod
+class FuelRod : public sim::reactor::Rod
 {
-	sample s;
+	Sample s;
 	
 	virtual double get_k(val_t type) const { return 0.5; }
 	virtual void display(std::ostream& o) const;
@@ -21,11 +21,11 @@ class fuel_rod : public sim::reactor::rod
 	
 public:
 
-	fuel_rod(double fuel);
-	fuel_rod(const Json::Value& node);
+	FuelRod(double fuel);
+	FuelRod(const Json::Value& node);
 	
 	virtual Json::Value serialize() const;
-	virtual std::unique_ptr<rod> clone() const { return std::make_unique<fuel_rod>(*this); }
+	virtual std::unique_ptr<Rod> clone() const { return std::make_unique<FuelRod>(*this); }
 	virtual bool should_display() const { return true; }
 	virtual void update(double secs);
 };

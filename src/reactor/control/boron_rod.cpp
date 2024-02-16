@@ -9,26 +9,26 @@ constexpr double boron_density = 2340000; // g/m^3
 constexpr double boron_molar_mass = 10; // g/mol
 constexpr double boron_molar_density = boron_density / boron_molar_mass; // mol/m^3
 
-boron_rod::boron_rod(const Json::Value& node, coolant::vessel* v) : coolant::pipe(node, v)
+BoronRod::BoronRod(const Json::Value& node, coolant::Vessel* v) : coolant::Pipe(node, v)
 {
 	inserted = node["inserted"].asDouble();
 	absorbed = node["absorbed"].asDouble();
 }
 
-Json::Value boron_rod::serialize() const
+Json::Value BoronRod::serialize() const
 {
-	Json::Value node(coolant::pipe::serialize());
+	Json::Value node(coolant::Pipe::serialize());
 	node["inserted"] = inserted;
 	node["absorbed"] = absorbed;
 	return node;
 }
 
-boron_rod::boron_rod(coolant::vessel* v) : coolant::pipe(v)
+BoronRod::BoronRod(coolant::Vessel* v) : coolant::Pipe(v)
 {
 
 }
 
-void boron_rod::display(std::ostream& o) const
+void BoronRod::display(std::ostream& o) const
 {
 	double limit = get_volume() * boron_molar_density;
 	
@@ -36,18 +36,18 @@ void boron_rod::display(std::ostream& o) const
 	o << "Use: " << (absorbed * limit) << " / " << limit << "\n";
 };
 
-void boron_rod::set_reactivity(double a)
+void BoronRod::set_reactivity(double a)
 {
 	inserted = 1 - a;
 }
 
-glm::vec4 boron_rod::get_colour() const
+glm::vec4 BoronRod::get_colour() const
 {
 	double v = inserted * 0.75 + 0.25;
 	return {v, v, v, 1};
 }
 
-void boron_rod::update(double secs)
+void BoronRod::update(double secs)
 {
 	double limit = get_volume() * boron_molar_density;
 
@@ -62,7 +62,7 @@ void boron_rod::update(double secs)
 	update_pipe(secs);
 }
 
-void boron_rod::update_selected(double a)
+void BoronRod::update_selected(double a)
 {
 	inserted -= a;
 

@@ -6,9 +6,9 @@
 namespace sim::graphics::widget
 {
 
-struct clock
+struct Clock
 {
-	glmesh data;
+	GLMesh data;
 	
 	void update(double dt);
 	void render();

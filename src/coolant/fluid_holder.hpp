@@ -3,13 +3,13 @@
 
 #include <json/json.h>
 
-#include "fluid_t.hpp"
+#include "fluid.hpp"
 #include "../conversions/temperature.hpp"
 
 namespace sim::coolant
 {
 
-class fluid_holder
+class FluidHolder
 {
 		public://protected:
 
@@ -20,10 +20,10 @@ class fluid_holder
 
 public:
 	
-	fluid_holder(fluid_t fluid, double volume, double extra_mass);
-	fluid_holder(const Json::Value& node);
+	FluidHolder(Fluid fluid, double volume, double extra_mass);
+	FluidHolder(const Json::Value& node);
 	
-	const fluid_t fluid;
+	const Fluid fluid;
 	const double volume; // litres
 	const double extra_mass; // grams
 

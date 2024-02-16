@@ -7,12 +7,12 @@
 namespace sim::coolant
 {
 
-class valve
+class Valve
 {
 	const double max;
 
-	fluid_holder* const src;
-	fluid_holder* const dst;
+	FluidHolder* const src;
+	FluidHolder* const dst;
 
 	double speed = 0;
 	double state = 0;
@@ -25,8 +25,8 @@ class valve
 
 public:
 
-	valve(fluid_holder* src, fluid_holder* dst, double state, double max);
-	valve(const Json::Value& node, fluid_holder* src, fluid_holder* dst);
+	Valve(FluidHolder* src, FluidHolder* dst, double state, double max);
+	Valve(const Json::Value& node, FluidHolder* src, FluidHolder* dst);
 
 	void update(double secs);
 	void add_open_speed(double v);

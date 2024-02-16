@@ -17,31 +17,31 @@
 namespace sim
 {
 
-struct system
+struct System
 {
-	static system active;
+	static System active;
 
-	std::unique_ptr<sim::reactor::reactor> reactor;
-	std::unique_ptr<sim::reactor::coolant::vessel> vessel;
+	std::unique_ptr<sim::reactor::Reactor> reactor;
+	std::unique_ptr<sim::reactor::coolant::Vessel> vessel;
 
-	std::unique_ptr<sim::coolant::sink> sink;
-	std::unique_ptr<sim::coolant::condenser> condenser;
-	std::unique_ptr<sim::coolant::condenser_secondary> condenser_secondary;
-	std::unique_ptr<sim::coolant::evaporator> evaporator;
-	std::unique_ptr<sim::electric::turbine> turbine;
+	std::unique_ptr<sim::coolant::Sink> sink;
+	std::unique_ptr<sim::coolant::Condenser> condenser;
+	std::unique_ptr<sim::coolant::CondenserSecondary> condenser_secondary;
+	std::unique_ptr<sim::coolant::Evaporator> evaporator;
+	std::unique_ptr<sim::electric::Turbine> turbine;
 
-	std::unique_ptr<sim::coolant::pump> primary_pump;
-	std::unique_ptr<sim::coolant::pump> secondary_pump;
-	std::unique_ptr<sim::coolant::pump> freight_pump;
+	std::unique_ptr<sim::coolant::Pump> primary_pump;
+	std::unique_ptr<sim::coolant::Pump> secondary_pump;
+	std::unique_ptr<sim::coolant::Pump> freight_pump;
 
-	std::unique_ptr<sim::coolant::valve> turbine_bypass_valve;
-	std::unique_ptr<sim::coolant::valve> turbine_inlet_valve;
+	std::unique_ptr<sim::coolant::Valve> turbine_bypass_valve;
+	std::unique_ptr<sim::coolant::Valve> turbine_inlet_valve;
 
 	double speed = 1;
 	double clock = 3600 * 12;
 
-	system();
-	system(const Json::Value& node);
+	System();
+	System(const Json::Value& node);
 
 	void update(double dt);
 

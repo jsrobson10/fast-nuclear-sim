@@ -9,7 +9,7 @@
 
 using namespace sim::graphics;
 
-constexpr static void init(glmesh* m)
+constexpr static void init(GLMesh* m)
 {
 	if(m->vao != 0)
 	{
@@ -27,7 +27,7 @@ constexpr static void init(glmesh* m)
 	arrays::vertex_attrib_pointers();
 }
 
-glmesh::glmesh(glmesh&& o)
+GLMesh::GLMesh(GLMesh&& o)
 {
 	vbo = o.vbo;
 	ebo = o.ebo;
@@ -41,14 +41,14 @@ glmesh::glmesh(glmesh&& o)
 	o.vao = 0;
 }
 
-glmesh::~glmesh()
+GLMesh::~GLMesh()
 {
 	if(vbo) glDeleteBuffers(1, &vbo);
 	if(ebo) glDeleteBuffers(1, &ebo);
 	if(vao) glDeleteVertexArrays(1, &vao);
 }
 
-void glmesh::bind()
+void GLMesh::bind()
 {
 	init(this);
 
@@ -57,25 +57,25 @@ void glmesh::bind()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 }
 
-void glmesh::uniform()
+void GLMesh::uniform()
 {
 	glUniformMatrix4fv(shader::gl_model, 1, false, &model_matrix[0][0]);
 	glUniformMatrix4fv(shader::gl_tex_mat, 1, false, &colour_matrix[0][0]);
 }
 
-void glmesh::set(const mesh& m, int mode)
+void GLMesh::set(const Mesh& m, int mode)
 {
 	glBufferData(GL_ARRAY_BUFFER, m.vertices.size() * sizeof(m.vertices[0]), &m.vertices[0], mode);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m.indices.size() * sizeof(m.indices[0]), &m.indices[0], mode);
 	this->size = m.indices.size();
 }
 
-void glmesh::render()
+void GLMesh::render()
 {
 	render(GL_TRIANGLES);
 }
 
-void glmesh::render(int type)
+void GLMesh::render(int type)
 {
 	glDrawElements(type, size, GL_UNSIGNED_INT, 0);
 }

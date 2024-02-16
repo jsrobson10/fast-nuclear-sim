@@ -6,7 +6,7 @@
 namespace sim::reactor::control
 {
 
-class boron_rod : public coolant::pipe
+class BoronRod : public coolant::Pipe
 {
 	double inserted = 1;
 	double absorbed = 0;
@@ -18,8 +18,8 @@ class boron_rod : public coolant::pipe
 
 public:
 	
-	boron_rod(coolant::vessel* v);
-	boron_rod(const Json::Value& node, coolant::vessel* v);
+	BoronRod(coolant::Vessel* v);
+	BoronRod(const Json::Value& node, coolant::Vessel* v);
 
 	virtual Json::Value serialize() const;
 	virtual void update(double secs);
@@ -29,7 +29,7 @@ public:
 	virtual bool should_display() const { return true; }
 	virtual bool should_select() const { return true; }
 	virtual void update_selected(double a);
-	virtual std::unique_ptr<rod> clone() const { return std::make_unique<boron_rod>(*this); }
+	virtual std::unique_ptr<Rod> clone() const { return std::make_unique<BoronRod>(*this); }
 };
 
 }

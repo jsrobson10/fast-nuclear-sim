@@ -16,15 +16,15 @@ constexpr static double calc_cylinder(double h, double d)
 	return M_PI * r * r * h * 1000;
 }
 
-vessel::vessel(sim::coolant::fluid_t fluid, double height, double diameter, double mass, double level, double bubble_hl) :
-		sim::coolant::fluid_holder(fluid, calc_cylinder(height, diameter), mass),
+Vessel::Vessel(sim::coolant::Fluid fluid, double height, double diameter, double mass, double level, double bubble_hl) :
+		sim::coolant::FluidHolder(fluid, calc_cylinder(height, diameter), mass),
 		height(height), diameter(diameter), bubble_hl(bubble_hl)
 {
 	this->level = level;
 }
 
-vessel::vessel(const Json::Value& node) :
-		sim::coolant::fluid_holder(node),
+Vessel::Vessel(const Json::Value& node) :
+		sim::coolant::FluidHolder(node),
 		height(node["height"].asDouble()),
 		diameter(node["diameter"].asDouble()),
 		bubble_hl(node["bubble_hl"].asDouble())
@@ -32,12 +32,12 @@ vessel::vessel(const Json::Value& node) :
 	steam_suspended = node["steam_suspended"].asDouble();
 }
 
-double vessel::get_steam_suspended() const
+double Vessel::get_steam_suspended() const
 {
 	return steam_suspended;
 }
 
-double vessel::get_void_ratio() const
+double Vessel::get_void_ratio() const
 {
 	double density = get_gas_density();
 
@@ -57,7 +57,7 @@ double vessel::get_void_ratio() const
 	return s / m;
 }
 
-void vessel::update(double secs)
+void Vessel::update(double secs)
 {
 	double steam_last = steam;
 
@@ -75,9 +75,9 @@ void vessel::update(double secs)
 	}
 }
 
-vessel::operator Json::Value() const
+Vessel::operator Json::Value() const
 {
-	Json::Value node(fluid_holder::operator::Json::Value());
+	Json::Value node(FluidHolder::operator::Json::Value());
 
 	node["height"] = height;
 	node["diameter"] = diameter;

@@ -15,12 +15,12 @@
 using namespace sim::graphics;
 using namespace sim::graphics::monitor;
 
-turbine::turbine()
+Turbine::Turbine()
 {
 
 }
 
-void turbine::init()
+void Turbine::init()
 {
 	mesh1.model_matrix = mesh2.model_matrix = locations::monitors[4];
 	mesh1.colour_matrix = mesh2.colour_matrix = {
@@ -31,7 +31,7 @@ void turbine::init()
 	};
 	
 	std::stringstream ss;
-	sim::graphics::mesh rmesh, rmesh2;
+	sim::graphics::Mesh rmesh, rmesh2;
 
 	ss << "Turbine\n\n";
 	ss << "Heat\nPressure\nSpeed\n\n";
@@ -54,15 +54,15 @@ void turbine::init()
 	m_switch_breaker.load_model("../assets/model", "turbine_breaker_switch_click.stl");
 }
 
-void turbine::update(double dt)
+void Turbine::update(double dt)
 {
-	system& sys = sim::system::active;
+	System& sys = sim::System::active;
 	clock_now += dt;
 
 	if(clock_at + 1.0/30.0 < clock_now)
 	{
 		std::stringstream ss;
-		sim::graphics::mesh rmesh, rmesh2;
+		sim::graphics::Mesh rmesh, rmesh2;
 		clock_at += 1.0/30.0;
 
 		ss << "\n\n";
@@ -111,7 +111,7 @@ void turbine::update(double dt)
 	gm_switch_breaker.model_matrix = glm::translate(glm::mat4(1), glm::vec3(0, sys.turbine->breaker_closed ? 0.07 : 0, 0));
 }
 
-void turbine::render()
+void Turbine::render()
 {
 	mesh1.bind();
 	mesh1.uniform();
@@ -121,7 +121,7 @@ void turbine::render()
 	mesh2.uniform();
 	mesh2.render();
 
-	double rpm = system::active.turbine->get_rpm();
+	double rpm = System::active.turbine->get_rpm();
 
 	if(rpm > 3570 && rpm < 3630)
 	{

@@ -8,7 +8,7 @@
 
 using namespace sim::coolant;
 
-pump::pump(fluid_holder* src, fluid_holder* dst, double mass, double radius, double power, double l_per_rev, double friction, mode_t mode, double target) :
+Pump::Pump(FluidHolder* src, FluidHolder* dst, double mass, double radius, double power, double l_per_rev, double friction, mode_t mode, double target) :
 		src(src),
 		dst(dst),
 		mass(mass),
@@ -22,39 +22,39 @@ pump::pump(fluid_holder* src, fluid_holder* dst, double mass, double radius, dou
 	
 }
 
-double pump::get_flow_target() const
+double Pump::get_flow_target() const
 {
 	return l_per_rev * get_rpm() * 60;
 }
 
-double pump::get_flow() const
+double Pump::get_flow() const
 {
 	return flow;
 }
 
-double pump::get_flow_mass() const
+double Pump::get_flow_mass() const
 {
 	return src->fluid.l_to_g(flow);
 }
 
-double pump::get_rpm() const
+double Pump::get_rpm() const
 {
 	return velocity / (M_PI * mass * 0.001 * radius * radius);
 }
 
-double pump::get_power() const
+double Pump::get_power() const
 {
 	return power;
 }
 
-const char* pump::get_state_string()
+const char* Pump::get_state_string()
 {
 	if(!powered) return "Off";
 	if(power == 0) return "Idle";
 	return "On";
 }
 
-void pump::update(double dt)
+void Pump::update(double dt)
 {
 	if(powered)
 	{
@@ -94,17 +94,17 @@ void pump::update(double dt)
 	flow = dst_volume / dt;
 }
 
-static pump::mode_t get_mode(std::string mode)
+static Pump::mode_t get_mode(std::string mode)
 {
 	if(mode == "SRC")
-		return pump::mode_t::SRC;
+		return Pump::mode_t::SRC;
 	if(mode == "DST")
-		return pump::mode_t::DST;
+		return Pump::mode_t::DST;
 
-	return pump::mode_t::NONE;
+	return Pump::mode_t::NONE;
 }
 
-pump::pump(const Json::Value& node, fluid_holder* src, fluid_holder* dst) :
+Pump::Pump(const Json::Value& node, FluidHolder* src, FluidHolder* dst) :
 		mode(get_mode(node["mode"].asString())),
 		mass(node["mass"].asDouble()),
 		radius(node["radius"].asDouble()),
@@ -122,7 +122,7 @@ pump::pump(const Json::Value& node, fluid_holder* src, fluid_holder* dst) :
 	powered = node["powered"].asBool();
 }
 
-pump::operator Json::Value() const
+Pump::operator Json::Value() const
 {
 	Json::Value node;
 

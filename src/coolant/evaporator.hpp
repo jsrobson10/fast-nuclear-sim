@@ -6,7 +6,7 @@
 namespace sim::coolant
 {
 
-class evaporator : public fluid_holder
+class Evaporator : public FluidHolder
 {
 	const double height;
 	const double diameter;
@@ -15,8 +15,8 @@ class evaporator : public fluid_holder
 	
 public:
 
-	evaporator(fluid_t type, double height, double diameter, double mass, double level);
-	evaporator(const Json::Value& node);
+	Evaporator(Fluid type, double height, double diameter, double mass, double level);
+	Evaporator(const Json::Value& node);
 	
 	operator Json::Value() const;
 

@@ -6,18 +6,18 @@
 namespace sim::graphics::monitor
 {
 
-class core
+class Core
 {
-	sim::graphics::glmesh mesh1, mesh2;
+	sim::graphics::GLMesh mesh1, mesh2;
 
-	sim::graphics::mesh m_monitor;
-	sim::graphics::mesh m_buttons[9];
-	sim::graphics::mesh m_joystick;
-	sim::graphics::mesh m_scram;
+	sim::graphics::Mesh m_monitor;
+	sim::graphics::Mesh m_buttons[9];
+	sim::graphics::Mesh m_joystick;
+	sim::graphics::Mesh m_scram;
 	
 public:
 
-	core();
+	Core();
 	void init();
 	void update(double dt);
 	void render();

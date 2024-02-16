@@ -9,12 +9,12 @@
 
 using namespace sim::coolant;
 
-fluid_holder::fluid_holder(fluid_t fluid, double volume, double extra_mass) : fluid(fluid), volume(volume), extra_mass(extra_mass)
+FluidHolder::FluidHolder(Fluid fluid, double volume, double extra_mass) : fluid(fluid), volume(volume), extra_mass(extra_mass)
 {
 
 }
 
-fluid_holder::fluid_holder(const Json::Value& node) : fluid(node["fluid"]), volume(node["volume"].asDouble()), extra_mass(node["extra_mass"].asDouble())
+FluidHolder::FluidHolder(const Json::Value& node) : fluid(node["fluid"]), volume(node["volume"].asDouble()), extra_mass(node["extra_mass"].asDouble())
 {
 	level = node["level"].asDouble();
 	steam = node["steam"].asDouble();
@@ -22,7 +22,7 @@ fluid_holder::fluid_holder(const Json::Value& node) : fluid(node["fluid"]), volu
 	heat = node["heat"].asDouble();
 }
 
-double fluid_holder::add_heat(double m1, double t1)
+double FluidHolder::add_heat(double m1, double t1)
 {
 	double t2 = get_heat();
 	double t = t1 - t2;
@@ -37,7 +37,7 @@ double fluid_holder::add_heat(double m1, double t1)
 	return heat;
 }
 
-double fluid_holder::add_fluid(double v2, double t2)
+double FluidHolder::add_fluid(double v2, double t2)
 {
 	if(level + v2 <= 0)
 	{
@@ -61,7 +61,7 @@ double fluid_holder::add_fluid(double v2, double t2)
 	return v2;
 }
 
-double fluid_holder::extract_fluid(double amount)
+double FluidHolder::extract_fluid(double amount)
 {
 	if(amount < level - 1e-3)
 	{
@@ -77,7 +77,7 @@ double fluid_holder::extract_fluid(double amount)
 	return amount;
 }
 
-void fluid_holder::add_gas(double m_s2, double m_a2, double t_2)
+void FluidHolder::add_gas(double m_s2, double m_a2, double t_2)
 {
 	double m_2 = m_a2 + m_s2;
 	double m_1 = get_thermal_mass();
@@ -94,32 +94,32 @@ void fluid_holder::add_gas(double m_s2, double m_a2, double t_2)
 	air += m_a2;
 }
 
-double fluid_holder::calc_pressure(double heat, double volume, double mol)
+double FluidHolder::calc_pressure(double heat, double volume, double mol)
 {
 	double V = volume * 0.001;
 
 	return V == 0 ? 0 : (mol * heat * util::constants::R) / V;
 }
 
-double fluid_holder::calc_pressure_mol(double heat, double volume, double pressure)
+double FluidHolder::calc_pressure_mol(double heat, double volume, double pressure)
 {
 	double V = volume * 0.001;
 
 	return (pressure * V) / (util::constants::R * heat);
 }
 
-double fluid_holder::get_pressure() const
+double FluidHolder::get_pressure() const
 {
 	return calc_pressure(conversions::temperature::c_to_k(heat), get_gas_volume(), fluid.g_to_mol(steam) + air / util::constants::M_air);
 }
 
-double fluid_holder::get_gas_density() const
+double FluidHolder::get_gas_density() const
 {
 	double v = get_gas_volume();
 	return v > 0 ? get_gas() / v : 0;
 }
 
-fluid_holder::operator Json::Value() const
+FluidHolder::operator Json::Value() const
 {
 	Json::Value node;
 
@@ -135,7 +135,7 @@ fluid_holder::operator Json::Value() const
 	return node;
 }
 
-void fluid_holder::update_base(double secs)
+void FluidHolder::update_base(double secs)
 {
 	double mass = get_thermal_mass();
 

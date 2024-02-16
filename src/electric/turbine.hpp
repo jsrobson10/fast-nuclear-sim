@@ -7,9 +7,9 @@
 namespace sim::electric
 {
 
-class turbine : public sim::coolant::fluid_holder
+class Turbine : public sim::coolant::FluidHolder
 {
-	coolant::condenser* const condenser;
+	coolant::Condenser* const condenser;
 	
 	const double length;
 	const double diameter;
@@ -23,8 +23,8 @@ public:
 	
 	bool breaker_closed = false;
 
-	turbine(coolant::fluid_t type, coolant::condenser* condenser, double length, double diameter, double mass);
-	turbine(const Json::Value& node, coolant::condenser* condenser);
+	Turbine(coolant::Fluid type, coolant::Condenser* condenser, double length, double diameter, double mass);
+	Turbine(const Json::Value& node, coolant::Condenser* condenser);
 	
 	void update(double dt);
 	double get_rpm() const;
