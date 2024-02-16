@@ -26,6 +26,7 @@ struct Mesh
 	void load_model(std::string path) { load_model(".", path); }
 	void load_text(const char* text, double size);
 	void add(const Mesh& o, glm::mat4 mat);
+	void add(const Mesh& o) { add(o, glm::mat4(1)); }
 
 	Mesh to_lines() const;
 	bool check_focus() const;

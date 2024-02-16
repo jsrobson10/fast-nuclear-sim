@@ -10,8 +10,6 @@
 
 using namespace Sim::Graphics;
 
-static unsigned int vao, vbo, ebo;
-
 static void* ptr_diff(void* a, void* b)
 {
 	return (void*)((size_t)a - (size_t)b);
@@ -32,6 +30,9 @@ void Arrays::vertex_attrib_pointers()
 
 	glVertexAttribPointer(3, 3, GL_FLOAT, false, sizeof(v), ptr_diff(&v.normal, &v));
 	glEnableVertexAttribArray(3);
+	
+	glVertexAttribPointer(4, 4, GL_FLOAT, false, sizeof(v), ptr_diff(&v.colour, &v));
+	glEnableVertexAttribArray(4);
 }
 
 glm::mat4 Arrays::colour(glm::vec4 c)

@@ -2,7 +2,7 @@
 #version 460 core
 #extension GL_ARB_bindless_texture : require
 
-in float brightness;
+in vec4 colour;
 in flat sampler2D tex;
 in vec2 texPos;
 
@@ -13,7 +13,7 @@ uniform mat4 tex_mat;
 void main()
 {
 	vec4 texdata = texture2D(tex, texPos);
-	FragColour = tex_mat * texdata * vec4(vec3(brightness), 1);
+	FragColour = tex_mat * texdata * colour;
 
 	if(FragColour.a == 0) discard;
 }
