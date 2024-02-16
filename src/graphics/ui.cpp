@@ -18,8 +18,8 @@
 
 using namespace Sim::Graphics;
 
-static GLMesh StaticMeshData;
-static widget::Clock WidgetClock;
+static GLMesh s_mesh;
+static Widget::Clock w_clock;
 
 void UI::init()
 {
@@ -27,24 +27,24 @@ void UI::init()
 
 	unsigned int handle = Texture::handle_white;
 	const unsigned int indices[] = {0, 1, 3, 0, 3, 2};
-	const Arrays::vertex vertices[] = {
-		Arrays::vertex(handle, {0, 0}, {-1, -1, 0, 1}, {0, 0, -1}),
-		Arrays::vertex(handle, {0, 1}, {-1,  1, 0, 1}, {0, 0, -1}),
-		Arrays::vertex(handle, {1, 0}, { 1, -1, 0, 1}, {0, 0, -1}),
-		Arrays::vertex(handle, {1, 1}, { 1,  1, 0, 1}, {0, 0, -1}),
+	const Arrays::Vertex vertices[] = {
+		Arrays::Vertex(handle, {0, 0}, {-1, -1, 0, 1}, {0, 0, -1}),
+		Arrays::Vertex(handle, {0, 1}, {-1,  1, 0, 1}, {0, 0, -1}),
+		Arrays::Vertex(handle, {1, 0}, { 1, -1, 0, 1}, {0, 0, -1}),
+		Arrays::Vertex(handle, {1, 1}, { 1,  1, 0, 1}, {0, 0, -1}),
 	};
 
 	m.set_indices(indices, 6);
 	m.set_vertices(vertices, 4);
 
-	StaticMeshData.bind();
-	StaticMeshData.set(m, GL_STATIC_DRAW);
-	StaticMeshData.colour_matrix = glm::scale(glm::mat4(1), glm::vec3(1) * 0.75f);
+	s_mesh.bind();
+	s_mesh.set(m, GL_STATIC_DRAW);
+	s_mesh.colour_matrix = glm::scale(glm::mat4(1), glm::vec3(1) * 0.75f);
 }
 
 void UI::update(double dt)
 {
-	WidgetClock.update(dt);
+	w_clock.update(dt);
 }
 
 void UI::render()
@@ -58,10 +58,10 @@ void UI::render()
 	glUniformMatrix4fv(Shader::gl_projection, 1, false, &mat_projection[0][0]);
 	glUniformMatrix4fv(Shader::gl_camera, 1, false, &mat_camera[0][0]);
 
-	StaticMeshData.bind();
-	StaticMeshData.uniform();
-	StaticMeshData.render();
+	s_mesh.bind();
+	s_mesh.uniform();
+	s_mesh.render();
 
-	WidgetClock.render();
+	w_clock.render();
 }
 

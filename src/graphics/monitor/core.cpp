@@ -31,7 +31,7 @@ static void set_all(bool state)
 	}
 }
 
-struct core_monitor : public Focus::Focus
+struct CoreMonitor : public Focus::FocusType
 {
 	virtual void on_keypress(int key, int sc, int action, int mods)
 	{
@@ -72,14 +72,14 @@ struct core_monitor : public Focus::Focus
 	}
 };
 
-struct core_joystick : public Focus::Focus
+struct CoreJoystick : public Focus::FocusType
 {
 	virtual void on_cursor_pos(double x, double y)
 	{
 		Sim::System::active.reactor->add_rod_speed(y * 1e-6);
 	}
 
-	virtual ~core_joystick()
+	virtual ~CoreJoystick()
 	{
 		Sim::System::active.reactor->reset_rod_speed();
 	}
@@ -114,7 +114,7 @@ void Core::init()
 	mesh1.set(rmesh, GL_STATIC_DRAW);
 
 	unsigned int indices[] = {0, 1, 3, 0, 3, 2};
-	Arrays::vertex vertices[] = {
+	Arrays::Vertex vertices[] = {
 		{Texture::handle_white, {0, 0}, {-0.75, -0.75, 0, 1}, {0, 0, -1}}, 
 		{Texture::handle_white, {0, 1}, {-0.75,  0.75, 0, 1}, {0, 0, -1}}, 
 		{Texture::handle_white, {1, 0}, { 0.75, -0.75, 0, 1}, {0, 0, -1}}, 
@@ -145,9 +145,9 @@ void Core::update(double dt)
 	Sim::System& sys = Sim::System::active;
 	
 	if(m_monitor.check_focus())
-		Focus::set(std::make_unique<core_monitor>());
+		Focus::set(std::make_unique<CoreMonitor>());
 	if(m_joystick.check_focus())
-		Focus::set(std::make_unique<core_joystick>());
+		Focus::set(std::make_unique<CoreJoystick>());
 	if(m_scram.check_focus())
 		sys.reactor->scram();
 	if(m_buttons[0].check_focus())

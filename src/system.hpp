@@ -22,7 +22,7 @@ struct System
 	static System active;
 
 	std::unique_ptr<Sim::Reactor::Reactor> reactor;
-	std::unique_ptr<Sim::Reactor::coolant::Vessel> vessel;
+	std::unique_ptr<Sim::Reactor::Coolant::Vessel> vessel;
 
 	std::unique_ptr<Sim::Coolant::Sink> sink;
 	std::unique_ptr<Sim::Coolant::Condenser> condenser;

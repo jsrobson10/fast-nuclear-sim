@@ -20,7 +20,7 @@ void Mesh::add(const Mesh& o, glm::mat4 mat)
 
 	for(unsigned int i = 0; i < o.vertices.size(); i++)
 	{
-		Arrays::vertex v = o.vertices[i];
+		Arrays::Vertex v = o.vertices[i];
 		v.normal = mat3 * v.normal;
 		v.pos = mat * v.pos;
 		vertices.push_back(v);
@@ -32,7 +32,7 @@ void Mesh::add(const Mesh& o, glm::mat4 mat)
 	}
 }
 
-void Mesh::set_vertices(const Arrays::vertex* data, size_t size)
+void Mesh::set_vertices(const Arrays::Vertex* data, size_t size)
 {
 	vertices.clear();
 	vertices.reserve(size);

@@ -4,14 +4,14 @@
 #include "vessel.hpp"
 #include "../rod.hpp"
 
-namespace Sim::Reactor::coolant
+namespace Sim::Reactor::Coolant
 {
 
 class Pipe : public Sim::Reactor::Rod
 {
 protected:
 	
-	coolant::Vessel* vessel;
+	Coolant::Vessel* vessel;
 	double steam;
 	
 	virtual double get_k(Sim::Reactor::Rod::val_t type) const;
@@ -22,8 +22,8 @@ protected:
 
 public:
 
-	Pipe(coolant::Vessel* v);
-	Pipe(const Json::Value& node, coolant::Vessel* v);
+	Pipe(Coolant::Vessel* v);
+	Pipe(const Json::Value& node, Coolant::Vessel* v);
 
 	virtual Json::Value serialize() const;
 	virtual std::unique_ptr<Rod> clone() const { return std::make_unique<Pipe>(*this); }

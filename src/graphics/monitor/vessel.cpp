@@ -78,7 +78,7 @@ void Vessel::update(double dt)
 			continue;
 		}
 
-		auto br = (Sim::Reactor::control::BoronRod*)r;
+		auto br = (Sim::Reactor::Control::BoronRod*)r;
 		double v = br->get_inserted();
 
 		if(v > crod_max)

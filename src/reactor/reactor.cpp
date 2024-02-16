@@ -246,7 +246,7 @@ void Reactor::get_stats(Rod::val_t type, double& min, double& max)
 	}
 }
 
-Reactor::Reactor(const Json::Value& node, coolant::Vessel* v) :
+Reactor::Reactor(const Json::Value& node, Coolant::Vessel* v) :
 		cell_width(node["cell_width"].asDouble()),
 		cell_height(node["cell_height"].asDouble()),
 		width(node["width"].asInt()),

@@ -9,7 +9,7 @@ constexpr double boron_density = 2340000; // g/m^3
 constexpr double boron_molar_mass = 10; // g/mol
 constexpr double boron_molar_density = boron_density / boron_molar_mass; // mol/m^3
 
-BoronRod::BoronRod(const Json::Value& node, coolant::Vessel* v) : coolant::Pipe(node, v)
+BoronRod::BoronRod(const Json::Value& node, Coolant::Vessel* v) : Coolant::Pipe(node, v)
 {
 	inserted = node["inserted"].asDouble();
 	absorbed = node["absorbed"].asDouble();
@@ -17,13 +17,13 @@ BoronRod::BoronRod(const Json::Value& node, coolant::Vessel* v) : coolant::Pipe(
 
 Json::Value BoronRod::serialize() const
 {
-	Json::Value node(coolant::Pipe::serialize());
+	Json::Value node(Coolant::Pipe::serialize());
 	node["inserted"] = inserted;
 	node["absorbed"] = absorbed;
 	return node;
 }
 
-BoronRod::BoronRod(coolant::Vessel* v) : coolant::Pipe(v)
+BoronRod::BoronRod(Coolant::Vessel* v) : Coolant::Pipe(v)
 {
 
 }

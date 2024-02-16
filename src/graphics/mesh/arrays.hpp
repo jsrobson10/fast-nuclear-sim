@@ -6,7 +6,7 @@
 namespace Sim::Graphics::Arrays
 {
 
-struct vertex
+struct Vertex
 {
 	unsigned long texid = 0;
 	glm::vec2 texpos = {0, 0};

@@ -33,11 +33,11 @@ static GLFWwindow* win;
 static bool win_should_close = false;
 
 static GLMesh mesh_scene;
-static monitor::Vessel monitor_vessel;
-static monitor::Core monitor_core;
-static monitor::PrimaryLoop monitor_primary_loop;
-static monitor::SecondaryLoop monitor_secondary_loop;
-static monitor::Turbine monitor_turbine;
+static Monitor::Vessel monitor_vessel;
+static Monitor::Core monitor_core;
+static Monitor::PrimaryLoop monitor_primary_loop;
+static Monitor::SecondaryLoop monitor_secondary_loop;
+static Monitor::Turbine monitor_turbine;
 
 glm::mat4 Window::projection_matrix;
 

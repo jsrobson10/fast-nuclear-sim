@@ -19,8 +19,8 @@ using namespace Sim::Graphics;
 static glm::vec<3, double> trigger_near;
 static glm::vec<3, double> trigger_far;
 
-static std::vector<std::unique_ptr<Focus::Focus>> stack;
-static std::unique_ptr<Focus::Focus> state = nullptr;
+static std::vector<std::unique_ptr<Focus::FocusType>> stack;
+static std::unique_ptr<Focus::FocusType> state = nullptr;
 static bool mouse_visible = false;
 static bool mouse_locked = false;
 static bool triggered = false;
@@ -179,7 +179,7 @@ void Focus::clear_mouse_locked()
 	clear_focus();
 }
 
-void Focus::set(std::unique_ptr<Focus> f)
+void Focus::set(std::unique_ptr<FocusType> f)
 {
 	if(state != nullptr)
 	{

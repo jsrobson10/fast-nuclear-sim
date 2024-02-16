@@ -4,7 +4,7 @@
 #include "sample.hpp"
 #include "../rod.hpp"
 
-namespace Sim::Reactor::fuel
+namespace Sim::Reactor::Fuel
 {
 
 class FuelRod : public Sim::Reactor::Rod

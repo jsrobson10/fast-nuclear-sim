@@ -3,7 +3,7 @@
 
 #include "../mesh/glmesh.hpp"
 
-namespace Sim::Graphics::monitor
+namespace Sim::Graphics::Monitor
 {
 
 class Vessel

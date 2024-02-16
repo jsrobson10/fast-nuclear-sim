@@ -38,8 +38,8 @@ System::System()
 		"      C C C C      "
 	};
 	
-	vessel = std::make_unique<Reactor::coolant::Vessel>(Sim::Coolant::WATER, 8, 10, 6e6, 5e5, 10);
-	reactor = std::make_unique<Reactor::Reactor>(Sim::Reactor::Builder(19, 19, 1.0 / 4.0, 4, Reactor::fuel::FuelRod(0.2), vessel.get(), layout));
+	vessel = std::make_unique<Reactor::Coolant::Vessel>(Sim::Coolant::WATER, 8, 10, 6e6, 5e5, 10);
+	reactor = std::make_unique<Reactor::Reactor>(Sim::Reactor::Builder(19, 19, 1.0 / 4.0, 4, Reactor::Fuel::FuelRod(0.2), vessel.get(), layout));
 	condenser = std::make_unique<Coolant::Condenser>(Sim::Coolant::WATER, 6, 4, 3e6, 30000);
 	turbine = std::make_unique<Electric::Turbine>(Sim::Coolant::WATER, condenser.get(), 6, 3, 2e6);
 	
@@ -59,7 +59,7 @@ System::System(const Json::Value& node)
 {
 	clock = node["clock"].asDouble();
 
-	vessel = std::make_unique<Reactor::coolant::Vessel>(node["vessel"]);
+	vessel = std::make_unique<Reactor::Coolant::Vessel>(node["vessel"]);
 	reactor = std::make_unique<Reactor::Reactor>(node["reactor"], vessel.get());
 	condenser = std::make_unique<Coolant::Condenser>(node["condenser"]);
 	turbine = std::make_unique<Electric::Turbine>(node["turbine"], condenser.get());

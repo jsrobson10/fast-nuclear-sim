@@ -67,7 +67,7 @@ void Vessel::update(double secs)
 
 	steam_last = steam;
 	steam_suspended += diff;
-	steam_suspended *= Reactor::fuel::half_life::get(secs, bubble_hl);
+	steam_suspended *= Reactor::Fuel::half_life::get(secs, bubble_hl);
 
 	if(steam_suspended < 0)
 	{

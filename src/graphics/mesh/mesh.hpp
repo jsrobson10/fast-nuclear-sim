@@ -15,12 +15,12 @@ namespace Sim::Graphics
 
 struct Mesh
 {
-	std::vector<Arrays::vertex> vertices;
+	std::vector<Arrays::Vertex> vertices;
 	std::vector<unsigned int> indices;
 
 	constexpr Mesh() { }
 
-	void set_vertices(const Arrays::vertex* data, size_t size);
+	void set_vertices(const Arrays::Vertex* data, size_t size);
 	void set_indices(const unsigned int* data, size_t size);
 	void load_model(std::string base, std::string path);
 	void load_model(std::string path) { load_model(".", path); }

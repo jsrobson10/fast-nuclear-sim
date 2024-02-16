@@ -27,7 +27,7 @@ struct Reactor
 	int cursor;
 
 	Reactor(std::unique_ptr<Rod>* rods, int width, int height, double cell_width, double cell_height);
-	Reactor(const Json::Value& node, coolant::Vessel* v);
+	Reactor(const Json::Value& node, Coolant::Vessel* v);
 	Reactor(const Reactor& r);
 	Reactor(Reactor&& r);
 	

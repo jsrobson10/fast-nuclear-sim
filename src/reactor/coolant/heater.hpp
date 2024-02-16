@@ -3,7 +3,7 @@
 
 #include "../rod.hpp"
 
-namespace Sim::Reactor::coolant
+namespace Sim::Reactor::Coolant
 {
 
 class Heater : public Sim::Reactor::Rod

@@ -15,16 +15,16 @@
 using namespace Sim::Graphics;
 using namespace Sim::Graphics::Monitor;
 
-struct valve_joystick : public Focus::Focus
+struct ValveJoystick : public Focus::FocusType
 {
 	Sim::Coolant::Valve* active;
 	
-	valve_joystick(Sim::Coolant::Valve* v) : active(v)
+	ValveJoystick(Sim::Coolant::Valve* v) : active(v)
 	{
 		
 	}
 
-	virtual ~valve_joystick()
+	virtual ~ValveJoystick()
 	{
 		active->clear_open_speed();
 	}
@@ -159,9 +159,9 @@ void PrimaryLoop::update(double dt)
 	}
 
 	if(m_joystick_turbine_bypass.check_focus())
-		Focus::set(std::make_unique<valve_joystick>(sys.turbine_bypass_valve.get()));
+		Focus::set(std::make_unique<ValveJoystick>(sys.turbine_bypass_valve.get()));
 	if(m_joystick_turbine_inlet.check_focus())
-		Focus::set(std::make_unique<valve_joystick>(sys.turbine_inlet_valve.get()));
+		Focus::set(std::make_unique<ValveJoystick>(sys.turbine_inlet_valve.get()));
 	if(m_switch_pump.check_focus())
 		sys.primary_pump->powered = !sys.primary_pump->powered;
 	if(m_switch_inlet.check_focus())

@@ -19,7 +19,7 @@ static void* ptr_diff(void* a, void* b)
 
 void Arrays::vertex_attrib_pointers()
 {
-	vertex v;
+	Vertex v;
 	
 	glVertexAttribLPointer(0, 1, GL_UNSIGNED_INT64_ARB, sizeof(v), ptr_diff(&v.texid, &v));
 	glEnableVertexAttribArray(0);

@@ -3,10 +3,10 @@
 
 #include "../coolant/pipe.hpp"
 
-namespace Sim::Reactor::control
+namespace Sim::Reactor::Control
 {
 
-class BoronRod : public coolant::Pipe
+class BoronRod : public Coolant::Pipe
 {
 	double inserted = 1;
 	double absorbed = 0;
@@ -18,8 +18,8 @@ class BoronRod : public coolant::Pipe
 
 public:
 	
-	BoronRod(coolant::Vessel* v);
-	BoronRod(const Json::Value& node, coolant::Vessel* v);
+	BoronRod(Coolant::Vessel* v);
+	BoronRod(const Json::Value& node, Coolant::Vessel* v);
 
 	virtual Json::Value serialize() const;
 	virtual void update(double secs);

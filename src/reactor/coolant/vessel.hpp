@@ -5,7 +5,7 @@
 
 #include "../../coolant/fluid_holder.hpp"
 
-namespace Sim::Reactor::coolant
+namespace Sim::Reactor::Coolant
 {
 
 class Vessel : public Sim::Coolant::FluidHolder

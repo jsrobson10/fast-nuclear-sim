@@ -17,17 +17,17 @@
 
 using namespace Sim::Graphics;
 
-struct proc_state
+struct ProcState
 {
 	unsigned int offset = 0;
 
 	std::string base;
-	std::vector<Arrays::vertex> vertices;
+	std::vector<Arrays::Vertex> vertices;
 	std::vector<unsigned int> indices;
 	std::unordered_map<const aiTexture*, unsigned int> handles;
 };
 
-static unsigned int proc_texture(const proc_state& state, aiMaterial* mat, const aiScene* scene)
+static unsigned int proc_texture(const ProcState& state, aiMaterial* mat, const aiScene* scene)
 {
 	for(int i = 0; i < 0x0d; i++)
 	{
@@ -59,7 +59,7 @@ static unsigned int proc_texture(const proc_state& state, aiMaterial* mat, const
 	return Texture::handle_white;
 }
 
-static void proc_mesh(proc_state& state, glm::mat4 mat, aiMesh* mesh, const aiScene* scene)
+static void proc_mesh(ProcState& state, glm::mat4 mat, aiMesh* mesh, const aiScene* scene)
 {
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 	unsigned int handle = proc_texture(state, material, scene);
@@ -68,7 +68,7 @@ static void proc_mesh(proc_state& state, glm::mat4 mat, aiMesh* mesh, const aiSc
 	
 	for(unsigned int i = 0; i < mesh->mNumVertices; i++)
 	{
-		Arrays::vertex vertex;
+		Arrays::Vertex vertex;
 		
 		auto [x, y, z] = mesh->mVertices[i];
 		vertex.pos = glm::vec4(x, y, z, 1) * mat;
@@ -102,7 +102,7 @@ static void proc_mesh(proc_state& state, glm::mat4 mat, aiMesh* mesh, const aiSc
 	state.offset += mesh->mNumVertices;
 }
 
-static void proc_node(proc_state& state, glm::mat4 mat, aiNode* node, const aiScene* scene)
+static void proc_node(ProcState& state, glm::mat4 mat, aiNode* node, const aiScene* scene)
 {
 	auto m = node->mTransformation;
 	mat = glm::mat4(
@@ -145,7 +145,7 @@ static unsigned int proc_embedded_texture(aiTexture* tex)
 
 void Mesh::load_model(std::string base, std::string filename)
 {
-	proc_state state {.base = base};
+	ProcState state {.base = base};
 	std::string path = base + "/" + filename;
 	Assimp::Importer importer;
 

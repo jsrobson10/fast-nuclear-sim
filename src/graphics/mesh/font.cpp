@@ -15,7 +15,7 @@
 
 using namespace Sim::Graphics;
 
-struct character
+struct Character
 {
 	unsigned long handle;
 	float advance;
@@ -23,7 +23,7 @@ struct character
 	glm::vec2 bearing;
 };
 
-static character chars[128];
+static Character chars[128];
 
 void Font::init()
 {
@@ -63,7 +63,7 @@ void Font::init()
 		int offx = face->glyph->bitmap_left;
 		int offy = face->glyph->bitmap_top;
 		
-		character& c = chars[i];
+		Character& c = chars[i];
 		c.advance = face->glyph->advance.x * m / 64.0;
 		c.size = {width * m, height * m};
 		c.bearing = {offx * m, offy * m};
@@ -95,7 +95,7 @@ void Font::init()
 
 void Mesh::load_text(const char* text, double size)
 {
-	std::vector<Arrays::vertex> vertices;
+	std::vector<Arrays::Vertex> vertices;
 	std::vector<unsigned int> indices;
 
 	float x = 0, y = size;
@@ -111,7 +111,7 @@ void Mesh::load_text(const char* text, double size)
 	for(unsigned int i = 0; text[i] != '\0'; i++)
 	{
 		char c = text[i];
-		character ch = chars[c];
+		Character ch = chars[c];
 
 		if(c == '\n')
 		{
@@ -136,10 +136,10 @@ void Mesh::load_text(const char* text, double size)
 		float ex = sx + ch.size.x * size;
 		float ey = sy + ch.size.y * size;
 
-		vertices.push_back(Arrays::vertex(ch.handle, {0, 0}, {sx, sy, 0, 1}, {0, 0, -1}));
-		vertices.push_back(Arrays::vertex(ch.handle, {0, 1}, {sx, ey, 0, 1}, {0, 0, -1}));
-		vertices.push_back(Arrays::vertex(ch.handle, {1, 0}, {ex, sy, 0, 1}, {0, 0, -1}));
-		vertices.push_back(Arrays::vertex(ch.handle, {1, 1}, {ex, ey, 0, 1}, {0, 0, -1}));
+		vertices.push_back(Arrays::Vertex(ch.handle, {0, 0}, {sx, sy, 0, 1}, {0, 0, -1}));
+		vertices.push_back(Arrays::Vertex(ch.handle, {0, 1}, {sx, ey, 0, 1}, {0, 0, -1}));
+		vertices.push_back(Arrays::Vertex(ch.handle, {1, 0}, {ex, sy, 0, 1}, {0, 0, -1}));
+		vertices.push_back(Arrays::Vertex(ch.handle, {1, 1}, {ex, ey, 0, 1}, {0, 0, -1}));
 		indices.insert(indices.end(), &index[0], &index[6]);
 
 		at += 4;

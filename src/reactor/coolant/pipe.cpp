@@ -4,13 +4,13 @@
 
 using namespace Sim::Reactor::Coolant;
 
-Pipe::Pipe(coolant::Vessel* v)
+Pipe::Pipe(Coolant::Vessel* v)
 {
 	this->vessel = v;
 	this->steam = 0;
 }
 
-Pipe::Pipe(const Json::Value& node, coolant::Vessel* v) : vessel(v)
+Pipe::Pipe(const Json::Value& node, Coolant::Vessel* v) : vessel(v)
 {
 	steam = node["steam"].asDouble();
 }

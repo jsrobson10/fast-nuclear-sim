@@ -3,7 +3,7 @@
 
 #include "../rod.hpp"
 
-namespace Sim::Reactor::control
+namespace Sim::Reactor::Control
 {
 
 class GraphiteRod : public Sim::Reactor::Rod
