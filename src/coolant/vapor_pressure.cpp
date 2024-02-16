@@ -3,7 +3,7 @@
 
 #include <cmath>
 
-using namespace sim::coolant;
+using namespace Sim::Coolant;
 
 double VaporPressure::calc_p(double t) const
 {

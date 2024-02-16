@@ -12,14 +12,14 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <iostream>
 
-using namespace sim::graphics;
-using namespace sim::graphics::monitor;
+using namespace Sim::Graphics;
+using namespace Sim::Graphics::Monitor;
 
-struct valve_joystick : public focus::Focus
+struct valve_joystick : public Focus::Focus
 {
-	sim::coolant::Valve* active;
+	Sim::Coolant::Valve* active;
 	
-	valve_joystick(sim::coolant::Valve* v) : active(v)
+	valve_joystick(Sim::Coolant::Valve* v) : active(v)
 	{
 		
 	}
@@ -38,7 +38,7 @@ struct valve_joystick : public focus::Focus
 	{
 		if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
 		{
-			focus::clear_focus();
+			Focus::clear_focus();
 		}
 	}
 
@@ -56,7 +56,7 @@ PrimaryLoop::PrimaryLoop()
 
 void PrimaryLoop::init()
 {
-	mesh1.model_matrix = locations::monitors[3];
+	mesh1.model_matrix = Locations::monitors[3];
 	mesh2.model_matrix = glm::translate(mesh1.model_matrix, glm::vec3(0.5, 0, 0));
 
 	mesh1.colour_matrix = mesh2.colour_matrix = {
@@ -67,7 +67,7 @@ void PrimaryLoop::init()
 	};
 	
 	std::stringstream ss;
-	sim::graphics::Mesh rmesh;
+	Sim::Graphics::Mesh rmesh;
 
 	ss << "Turbine Bypass Valve\n\n";
 	ss << "Opened\nFlow\nSetpoint\n\n";
@@ -106,13 +106,13 @@ void PrimaryLoop::init()
 
 void PrimaryLoop::update(double dt)
 {
-	System& sys = sim::System::active;
+	System& sys = Sim::System::active;
 	clock_now += dt;
 
 	if(clock_at + 1.0/30.0 < clock_now)
 	{
 		std::stringstream ss;
-		sim::graphics::Mesh rmesh;
+		Sim::Graphics::Mesh rmesh;
 		clock_at += 1.0/30.0;
 
 		ss << "\n\n";
@@ -159,9 +159,9 @@ void PrimaryLoop::update(double dt)
 	}
 
 	if(m_joystick_turbine_bypass.check_focus())
-		focus::set(std::make_unique<valve_joystick>(sys.turbine_bypass_valve.get()));
+		Focus::set(std::make_unique<valve_joystick>(sys.turbine_bypass_valve.get()));
 	if(m_joystick_turbine_inlet.check_focus())
-		focus::set(std::make_unique<valve_joystick>(sys.turbine_inlet_valve.get()));
+		Focus::set(std::make_unique<valve_joystick>(sys.turbine_inlet_valve.get()));
 	if(m_switch_pump.check_focus())
 		sys.primary_pump->powered = !sys.primary_pump->powered;
 	if(m_switch_inlet.check_focus())

@@ -4,10 +4,10 @@
 #include "sample.hpp"
 #include "../rod.hpp"
 
-namespace sim::reactor::fuel
+namespace Sim::Reactor::fuel
 {
 
-class FuelRod : public sim::reactor::Rod
+class FuelRod : public Sim::Reactor::Rod
 {
 	Sample s;
 	

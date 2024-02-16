@@ -2,7 +2,7 @@
 #include "pipe.hpp"
 #include "../reactor.hpp"
 
-using namespace sim::reactor::coolant;
+using namespace Sim::Reactor::Coolant;
 
 Pipe::Pipe(coolant::Vessel* v)
 {
@@ -35,7 +35,7 @@ void Pipe::update(double secs)
 
 void Pipe::update_pipe(double secs)
 {
-	sim::reactor::Reactor* r = (sim::reactor::Reactor*)reactor;
+	Sim::Reactor::Reactor* r = (Sim::Reactor::Reactor*)reactor;
 	double m_heat = r->cell_width * r->cell_width * r->cell_height * 1e6;
 
 	vals[val_t::HEAT] = vessel->add_heat(m_heat, vals[val_t::HEAT]);

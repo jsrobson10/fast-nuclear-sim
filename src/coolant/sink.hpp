@@ -7,7 +7,7 @@
 // can kinda just do anything. for example, get rid of steam to the "outside", 
 // or pump in new coolant. 
 
-namespace sim::coolant
+namespace Sim::Coolant
 {
 
 class Sink : public FluidHolder

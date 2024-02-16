@@ -3,7 +3,7 @@
 
 #include "../mesh/glmesh.hpp"
 
-namespace sim::graphics::monitor
+namespace Sim::Graphics::monitor
 {
 
 class PrimaryLoop

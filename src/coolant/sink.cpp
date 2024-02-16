@@ -1,7 +1,7 @@
 
 #include "sink.hpp"
 
-using namespace sim::coolant;
+using namespace Sim::Coolant;
 
 Sink::Sink(Fluid type, double heat, double pressure, double steam_density) :
 		heat(heat),

@@ -3,7 +3,7 @@
 
 #include "../mesh/glmesh.hpp"
 
-namespace sim::graphics::widget
+namespace Sim::Graphics::widget
 {
 
 struct Clock

@@ -14,18 +14,18 @@
 #include <iostream>
 #include <vector>
 
-using namespace sim::graphics;
+using namespace Sim::Graphics;
 
 static glm::vec<3, double> trigger_near;
 static glm::vec<3, double> trigger_far;
 
-static std::vector<std::unique_ptr<focus::Focus>> stack;
-static std::unique_ptr<focus::Focus> state = nullptr;
+static std::vector<std::unique_ptr<Focus::Focus>> stack;
+static std::unique_ptr<Focus::Focus> state = nullptr;
 static bool mouse_visible = false;
 static bool mouse_locked = false;
 static bool triggered = false;
 
-void focus::on_keypress(int key, int sc, int action, int mods)
+void Focus::on_keypress(int key, int sc, int action, int mods)
 {
 	if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 	{
@@ -46,7 +46,7 @@ void focus::on_keypress(int key, int sc, int action, int mods)
 	}
 }
 
-void focus::on_mouse_button(int button, int action, int mods)
+void Focus::on_mouse_button(int button, int action, int mods)
 {
 	if(state)
 	{
@@ -58,27 +58,27 @@ void focus::on_mouse_button(int button, int action, int mods)
 		if(is_mouse_locked() && mouse_visible)
 		{
 			double mx, my;
-			mouse::get(mx, my);
+			Mouse::get(mx, my);
 
-			glm::vec2 wsize = resize::get_size();
+			glm::vec2 wsize = Resize::get_size();
 			glm::vec4 viewport = glm::vec4(0, 0, wsize);
 			glm::vec2 mouse(mx, wsize.y - my);
 
-			trigger_near = glm::unProject(glm::vec3(mouse, -1), camera::get_matrix(), window::projection_matrix, viewport);
-			trigger_far = glm::unProject(glm::vec3(mouse, 1), camera::get_matrix(), window::projection_matrix, viewport);
+			trigger_near = glm::unProject(glm::vec3(mouse, -1), Camera::get_matrix(), Window::projection_matrix, viewport);
+			trigger_far = glm::unProject(glm::vec3(mouse, 1), Camera::get_matrix(), Window::projection_matrix, viewport);
 			triggered = true;
 		}
 
 		else if(!mouse_visible)
 		{
-			trigger_near = camera::get_pos();
-			trigger_far = trigger_near + camera::get_normal();
+			trigger_near = Camera::get_pos();
+			trigger_far = trigger_near + Camera::get_normal();
 			triggered = true;
 		}
 	}
 }
 
-void focus::on_cursor_pos(double x, double y)
+void Focus::on_cursor_pos(double x, double y)
 {
 	if(state)
 	{
@@ -86,7 +86,7 @@ void focus::on_cursor_pos(double x, double y)
 	}
 }
 
-void focus::on_charcode(unsigned int c)
+void Focus::on_charcode(unsigned int c)
 {
 	if(state)
 	{
@@ -94,17 +94,17 @@ void focus::on_charcode(unsigned int c)
 	}
 }
 
-glm::vec<3, double> focus::get_trigger_near()
+glm::vec<3, double> Focus::get_trigger_near()
 {
 	return trigger_near;
 }
 
-glm::vec<3, double> focus::get_trigger_far()
+glm::vec<3, double> Focus::get_trigger_far()
 {
 	return trigger_far;
 }
 
-void focus::update(double dt)
+void Focus::update(double dt)
 {
 	triggered = false;
 
@@ -119,12 +119,12 @@ void focus::update(double dt)
 	{
 		if(c)
 		{
-			mouse::show_cursor();
+			Mouse::show_cursor();
 		}
 
 		else
 		{
-			mouse::hide_cursor();
+			Mouse::hide_cursor();
 		}
 
 		mouse_visible = c;
@@ -136,7 +136,7 @@ void focus::update(double dt)
 	}
 }
 
-void focus::render_ui()
+void Focus::render_ui()
 {
 	if(state)
 	{
@@ -144,7 +144,7 @@ void focus::render_ui()
 	}
 }
 
-void focus::render()
+void Focus::render()
 {
 	if(state)
 	{
@@ -152,12 +152,12 @@ void focus::render()
 	}
 }
 
-bool focus::is_focused()
+bool Focus::is_focused()
 {
 	return (state != nullptr);
 }
 
-void focus::clear_focus()
+void Focus::clear_focus()
 {
 	state = nullptr;
 
@@ -168,18 +168,18 @@ void focus::clear_focus()
 	}
 }
 
-bool focus::is_mouse_locked()
+bool Focus::is_mouse_locked()
 {
 	return is_focused() || mouse_locked;
 }
 
-void focus::clear_mouse_locked()
+void Focus::clear_mouse_locked()
 {
 	mouse_locked = false;
 	clear_focus();
 }
 
-void focus::set(std::unique_ptr<Focus> f)
+void Focus::set(std::unique_ptr<Focus> f)
 {
 	if(state != nullptr)
 	{
@@ -189,7 +189,7 @@ void focus::set(std::unique_ptr<Focus> f)
 	state = std::move(f);
 }
 
-bool focus::is_triggered()
+bool Focus::is_triggered()
 {
 	return triggered;
 }

@@ -9,9 +9,9 @@
 #include <vector>
 #include <cstdlib>
 
-using namespace sim::reactor;
+using namespace Sim::Reactor;
 
-sim::reactor::Reactor sim::reactor::builder(const int W, const int H, const double CW, const double CH, fuel::FuelRod fr, coolant::Vessel* v, const char** lines)
+Sim::Reactor::Reactor Sim::Reactor::Builder(const int W, const int H, const double CW, const double CH, fuel::FuelRod fr, coolant::Vessel* v, const char** lines)
 {
 	std::vector<std::unique_ptr<Rod>> arr(W * H);
 	
@@ -49,7 +49,7 @@ sim::reactor::Reactor sim::reactor::builder(const int W, const int H, const doub
 	return Reactor(&arr[0], W, H, CW, CH);
 }
 
-std::unique_ptr<Rod> sim::reactor::load_rod(const Json::Value& node, coolant::Vessel* v)
+std::unique_ptr<Rod> Sim::Reactor::load_rod(const Json::Value& node, coolant::Vessel* v)
 {
 	int id = node["id"].asInt();
 

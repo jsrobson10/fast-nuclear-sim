@@ -6,7 +6,7 @@
 #include "fluid.hpp"
 #include "../conversions/temperature.hpp"
 
-namespace sim::coolant
+namespace Sim::Coolant
 {
 
 class FluidHolder
@@ -36,7 +36,7 @@ public:
 	virtual double get_volume() const { return volume; } // litres
 	virtual double get_level() const { return level; } // litres
 	virtual double get_heat() const { return heat; } // celsius
-	virtual double get_heat_k() const { return conversions::temperature::c_to_k(get_heat()); } // kelvin
+	virtual double get_heat_k() const { return Conversions::Temperature::c_to_k(get_heat()); } // kelvin
 	virtual double get_steam() const { return steam; } // grams
 	virtual double get_gas() const { return steam + air; } // grams
 	virtual double get_air() const { return air; } // grams

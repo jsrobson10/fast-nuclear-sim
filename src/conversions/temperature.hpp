@@ -1,7 +1,7 @@
 
 #pragma once
 
-namespace sim::conversions::temperature
+namespace Sim::Conversions::Temperature
 {
 
 constexpr double k_to_c(double k) { return k - 273.15; }

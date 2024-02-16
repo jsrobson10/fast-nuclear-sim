@@ -4,7 +4,7 @@
 #include "fluid_holder.hpp"
 #include "../util/pid.hpp"
 
-namespace sim::coolant
+namespace Sim::Coolant
 {
 
 class Pump
@@ -12,7 +12,7 @@ class Pump
 	FluidHolder* const src;
 	FluidHolder* const dst;
 
-	util::PID pid {1, 0, 100, 0, 0};
+	Util::PID pid {1, 0, 100, 0, 0};
 
 	double flow = 0; // L/s
 	double velocity = 0; // m/s

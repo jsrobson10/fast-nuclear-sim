@@ -4,12 +4,12 @@
 #include "../coolant/fluid_holder.hpp"
 #include "../coolant/condenser.hpp"
 
-namespace sim::electric
+namespace Sim::Electric
 {
 
-class Turbine : public sim::coolant::FluidHolder
+class Turbine : public Sim::Coolant::FluidHolder
 {
-	coolant::Condenser* const condenser;
+	Coolant::Condenser* const condenser;
 	
 	const double length;
 	const double diameter;
@@ -23,8 +23,8 @@ public:
 	
 	bool breaker_closed = false;
 
-	Turbine(coolant::Fluid type, coolant::Condenser* condenser, double length, double diameter, double mass);
-	Turbine(const Json::Value& node, coolant::Condenser* condenser);
+	Turbine(Coolant::Fluid type, Coolant::Condenser* condenser, double length, double diameter, double mass);
+	Turbine(const Json::Value& node, Coolant::Condenser* condenser);
 	
 	void update(double dt);
 	double get_rpm() const;

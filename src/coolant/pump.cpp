@@ -6,7 +6,7 @@
 #include <iostream>
 #include <string>
 
-using namespace sim::coolant;
+using namespace Sim::Coolant;
 
 Pump::Pump(FluidHolder* src, FluidHolder* dst, double mass, double radius, double power, double l_per_rev, double friction, mode_t mode, double target) :
 		src(src),
@@ -71,7 +71,7 @@ void Pump::update(double dt)
 			break;
 		}
 
-		velocity += util::calc_work(dt * power * max_power, mass);
+		velocity += Util::calc_work(dt * power * max_power, mass);
 	}
 
 	else
@@ -90,7 +90,7 @@ void Pump::update(double dt)
 	double p_diff = (p_diff_1 + p_diff_2) / 2;
 	double work = p_diff * dst_volume * 0.001 + get_rpm() / 60 * dt * friction;
 
-	velocity = std::max(velocity - util::calc_work(work, mass), 0.0);
+	velocity = std::max(velocity - Util::calc_work(work, mass), 0.0);
 	flow = dst_volume / dt;
 }
 

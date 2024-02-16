@@ -2,7 +2,7 @@
 #include "waste.hpp"
 #include "half_life.hpp"
 
-using namespace sim::reactor::fuel;
+using namespace Sim::Reactor::Fuel;
 
 Waste::Waste(const Json::Value& node)
 {

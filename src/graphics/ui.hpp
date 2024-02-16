@@ -1,7 +1,7 @@
 
 #pragma once
 
-namespace sim::graphics::ui
+namespace Sim::Graphics::UI
 {
 
 void init();

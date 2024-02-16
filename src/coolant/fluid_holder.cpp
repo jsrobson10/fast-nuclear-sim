@@ -7,7 +7,7 @@
 #include <cmath>
 #include <iostream>
 
-using namespace sim::coolant;
+using namespace Sim::Coolant;
 
 FluidHolder::FluidHolder(Fluid fluid, double volume, double extra_mass) : fluid(fluid), volume(volume), extra_mass(extra_mass)
 {
@@ -98,19 +98,19 @@ double FluidHolder::calc_pressure(double heat, double volume, double mol)
 {
 	double V = volume * 0.001;
 
-	return V == 0 ? 0 : (mol * heat * util::constants::R) / V;
+	return V == 0 ? 0 : (mol * heat * Util::Constants::R) / V;
 }
 
 double FluidHolder::calc_pressure_mol(double heat, double volume, double pressure)
 {
 	double V = volume * 0.001;
 
-	return (pressure * V) / (util::constants::R * heat);
+	return (pressure * V) / (Util::Constants::R * heat);
 }
 
 double FluidHolder::get_pressure() const
 {
-	return calc_pressure(conversions::temperature::c_to_k(heat), get_gas_volume(), fluid.g_to_mol(steam) + air / util::constants::M_air);
+	return calc_pressure(Conversions::Temperature::c_to_k(heat), get_gas_volume(), fluid.g_to_mol(steam) + air / Util::Constants::M_air);
 }
 
 double FluidHolder::get_gas_density() const
@@ -141,12 +141,12 @@ void FluidHolder::update_base(double secs)
 
 	if(mass > 0)
 	{
-		double K = conversions::temperature::c_to_k(heat);	// K
+		double K = Conversions::Temperature::c_to_k(heat);	// K
 		double P = fluid.vapor_pressure.calc_p(K);			// Pa
-		double R = util::constants::R;						// J/K/mol
+		double R = Util::Constants::R;						// J/K/mol
 
 		double J_m = fluid.jPg * fluid.gPmol;								// J/mol
-		double n_g = fluid.g_to_mol(steam) + air / util::constants::M_air;	// mol
+		double n_g = fluid.g_to_mol(steam) + air / Util::Constants::M_air;	// mol
 		double V_g = (volume - level) * 0.001;							// m^3
 
 		double n = (P * V_g) / (R * K) - n_g;	// mol

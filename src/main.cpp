@@ -20,7 +20,7 @@
 #include "system.hpp"
 #include "tests.hpp"
 
-using namespace sim;
+using namespace Sim;
 
 int main()
 {
@@ -31,27 +31,27 @@ int main()
 //	tests::run();
 //	return 0;
 
-	graphics::window::create();
+	Graphics::Window::create();
 
-	long clock = util::time::get_now();
+	long clock = Util::Time::get_now();
 	double at = 0;
 
-	while(!graphics::window::should_close())
+	while(!Graphics::Window::should_close())
 	{
-		long now = util::time::get_now();
+		long now = Util::Time::get_now();
 		long passed = now - clock;
 		double dt = (double)passed / 1e6;
 		clock += passed;
-		at += dt * sim::System::active.speed;
+		at += dt * Sim::System::active.speed;
 		
-		sim::System::active.update(dt);
+		Sim::System::active.update(dt);
 
-		graphics::camera::update(dt);
-		graphics::window::update(dt);
-		graphics::focus::update(dt);
-		graphics::window::render();
+		Graphics::Camera::update(dt);
+		Graphics::Window::update(dt);
+		Graphics::Focus::update(dt);
+		Graphics::Window::render();
 	}
 
-	graphics::window::destroy();
+	Graphics::Window::destroy();
 }
 

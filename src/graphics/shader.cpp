@@ -9,14 +9,14 @@
 #include "shader.hpp"
 #include "window.hpp"
 
-using namespace sim::graphics;
+using namespace Sim::Graphics;
 
 static unsigned int prog_id;
 
-int shader::gl_tex_mat;
-int shader::gl_model;
-int shader::gl_camera;
-int shader::gl_projection;
+int Shader::gl_tex_mat;
+int Shader::gl_model;
+int Shader::gl_camera;
+int Shader::gl_projection;
 
 static int load_shader(const char* src, int type)
 {
@@ -43,7 +43,7 @@ static std::string read_shader(const char* path)
 	return ss.str();
 }
 
-unsigned int shader::init_program()
+unsigned int Shader::init_program()
 {
 	std::string shader_vsh = read_shader("../assets/shader/main.vsh");
 	std::string shader_fsh = read_shader("../assets/shader/main.fsh");
@@ -63,7 +63,7 @@ unsigned int shader::init_program()
 		char infoLog[512];
 		glGetProgramInfoLog(prog_id, 512, NULL, infoLog);
 		std::cout << "Shader Link Error: " << infoLog << std::endl;
-		window::close();
+		Window::close();
 		return 0;
 	}
 	

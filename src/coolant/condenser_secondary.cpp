@@ -4,7 +4,7 @@
 #include "../util/constants.hpp"
 #include "../system.hpp"
 
-using namespace sim::coolant;
+using namespace Sim::Coolant;
 
 CondenserSecondary::CondenserSecondary(Condenser* primary, Evaporator* source, double volume) :
 		primary(primary), source(source), FluidHolder(primary->fluid, volume, 0)

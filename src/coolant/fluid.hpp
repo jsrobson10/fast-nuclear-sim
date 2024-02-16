@@ -5,7 +5,7 @@
 
 #include "vapor_pressure.hpp"
 
-namespace sim::coolant
+namespace Sim::Coolant
 {
 
 struct Fluid
@@ -14,9 +14,9 @@ struct Fluid
 	const double gPmol; // g/mol
 	const double jPg; // J/g		latent heat of vaporisation
 	
-	const coolant::VaporPressure vapor_pressure;
+	const Coolant::VaporPressure vapor_pressure;
 	
-	constexpr Fluid(double gPl, double gPmol, double jPg, coolant::VaporPressure vapor_pressure) :
+	constexpr Fluid(double gPl, double gPmol, double jPg, Coolant::VaporPressure vapor_pressure) :
 			gPl(gPl), gPmol(gPmol), jPg(jPg),
 			vapor_pressure(vapor_pressure)
 	{

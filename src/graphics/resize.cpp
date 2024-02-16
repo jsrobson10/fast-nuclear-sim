@@ -5,7 +5,7 @@
 #include "resize.hpp"
 #include "window.hpp"
 
-using namespace sim::graphics;
+using namespace Sim::Graphics;
 
 static bool is_fullscreen = false;
 
@@ -17,19 +17,19 @@ static int win_restore_h;
 static int win_restore_x;
 static int win_restore_y;
 
-glm::vec<2, int> resize::get_size()
+glm::vec<2, int> Resize::get_size()
 {
 	return {win_w, win_h};
 }
 
-float resize::get_aspect()
+float Resize::get_aspect()
 {
 	return (float)win_w / (float)win_h;
 }
 
-void resize::toggle_fullscreen()
+void Resize::toggle_fullscreen()
 {
-	GLFWwindow* win = window::get_window();
+	GLFWwindow* win = Window::get_window();
 	is_fullscreen = !is_fullscreen;
 
 	if(is_fullscreen)
@@ -57,9 +57,9 @@ static void cb_framebuffer_size(GLFWwindow* win, int w, int h)
 	glViewport(0, 0, w, h);
 }
 
-void resize::init()
+void Resize::init()
 {
-	GLFWwindow* win = window::get_window();
+	GLFWwindow* win = Window::get_window();
 	glfwSetFramebufferSizeCallback(win, cb_framebuffer_size);
 }
 

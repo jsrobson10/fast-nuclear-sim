@@ -27,7 +27,7 @@
 #include "mesh/texture.hpp"
 #include "ui.hpp"
 
-using namespace sim::graphics;
+using namespace Sim::Graphics;
 
 static GLFWwindow* win;
 static bool win_should_close = false;
@@ -39,7 +39,7 @@ static monitor::PrimaryLoop monitor_primary_loop;
 static monitor::SecondaryLoop monitor_secondary_loop;
 static monitor::Turbine monitor_turbine;
 
-glm::mat4 window::projection_matrix;
+glm::mat4 Window::projection_matrix;
 
 void GLAPIENTRY cb_debug_message(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
 {
@@ -49,7 +49,7 @@ void GLAPIENTRY cb_debug_message(GLenum source, GLenum type, GLuint id, GLenum s
 	}
 }
 
-void window::create()
+void Window::create()
 {
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -98,17 +98,17 @@ void window::create()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDebugMessageCallback(cb_debug_message, nullptr);
 
-	keyboard::init();
-	mouse::init();
-	resize::init();
-	texture::init();
-	camera::init();
-	font::init();
-	ui::init();
+	Keyboard::init();
+	Mouse::init();
+	Resize::init();
+	Texture::init();
+	Camera::init();
+	Font::init();
+	UI::init();
 
-	shader::init_program();
+	Shader::init_program();
 
-	sim::System& sys = sim::System::active;
+	Sim::System& sys = Sim::System::active;
 	Mesh m, m2;
 
 	m.load_model("../assets", "scene-baked.glb");
@@ -128,7 +128,7 @@ void window::create()
 	glViewport(0, 0, 800, 600);
 }
 
-void window::update(double dt)
+void Window::update(double dt)
 {
 	glfwPollEvents();
 
@@ -138,15 +138,15 @@ void window::update(double dt)
 	monitor_secondary_loop.update(dt);
 	monitor_turbine.update(dt);
 
-	ui::update(dt);
+	UI::update(dt);
 }
 
-void window::render()
+void Window::render()
 {
-	glm::mat4 mat_camera = camera::get_matrix();
-	glm::mat4 mat_projection = glm::perspective(glm::radians(90.0f), resize::get_aspect(), 0.01f, 20.f);
-	glUniformMatrix4fv(shader::gl_projection, 1, false, &mat_projection[0][0]);
-	glUniformMatrix4fv(shader::gl_camera, 1, false, &mat_camera[0][0]);
+	glm::mat4 mat_camera = Camera::get_matrix();
+	glm::mat4 mat_projection = glm::perspective(glm::radians(90.0f), Resize::get_aspect(), 0.01f, 20.f);
+	glUniformMatrix4fv(Shader::gl_projection, 1, false, &mat_projection[0][0]);
+	glUniformMatrix4fv(Shader::gl_camera, 1, false, &mat_camera[0][0]);
 	projection_matrix = mat_projection;
 
 	glClearColor(0, 0, 0, 1.0f);
@@ -162,30 +162,30 @@ void window::render()
 	monitor_secondary_loop.render();
 	monitor_turbine.render();
 
-	focus::render();
-	ui::render();
-	focus::render_ui();
+	Focus::render();
+	UI::render();
+	Focus::render_ui();
 
 	glfwSwapBuffers(win);
 }
 
-bool window::should_close()
+bool Window::should_close()
 {
 	return win_should_close || glfwWindowShouldClose(win);
 }
 
-void window::close()
+void Window::close()
 {
 	win_should_close = true;
 }
 
-void window::destroy()
+void Window::destroy()
 {
 	glfwDestroyWindow(win);
 	glfwTerminate();
 }
 
-GLFWwindow* window::get_window()
+GLFWwindow* Window::get_window()
 {
 	return win;
 }

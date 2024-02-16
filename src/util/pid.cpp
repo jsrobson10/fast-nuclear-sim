@@ -25,7 +25,7 @@
 #include "pid.hpp"
 
 using namespace std;
-using namespace sim::util;
+using namespace Sim::Util;
 
 PID::PID(const Json::Value& node) :
     _max(node["max"].asDouble()),

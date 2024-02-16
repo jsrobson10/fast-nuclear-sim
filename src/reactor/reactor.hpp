@@ -8,7 +8,7 @@
 #include <memory>
 #include <vector>
 
-namespace sim::reactor
+namespace Sim::Reactor
 {
 
 struct Reactor

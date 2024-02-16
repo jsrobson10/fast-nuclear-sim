@@ -3,10 +3,10 @@
 
 #include "../rod.hpp"
 
-namespace sim::reactor::control
+namespace Sim::Reactor::control
 {
 
-class GraphiteRod : public sim::reactor::Rod
+class GraphiteRod : public Sim::Reactor::Rod
 {
 	double inserted = 0;
 	

@@ -7,7 +7,7 @@
 #include "../shader.hpp"
 #include "../camera.hpp"
 
-using namespace sim::graphics;
+using namespace Sim::Graphics;
 
 constexpr static void init(GLMesh* m)
 {
@@ -24,7 +24,7 @@ constexpr static void init(GLMesh* m)
 	glBindBuffer(GL_ARRAY_BUFFER, m->vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m->ebo);
 
-	arrays::vertex_attrib_pointers();
+	Arrays::vertex_attrib_pointers();
 }
 
 GLMesh::GLMesh(GLMesh&& o)
@@ -59,8 +59,8 @@ void GLMesh::bind()
 
 void GLMesh::uniform()
 {
-	glUniformMatrix4fv(shader::gl_model, 1, false, &model_matrix[0][0]);
-	glUniformMatrix4fv(shader::gl_tex_mat, 1, false, &colour_matrix[0][0]);
+	glUniformMatrix4fv(Shader::gl_model, 1, false, &model_matrix[0][0]);
+	glUniformMatrix4fv(Shader::gl_tex_mat, 1, false, &colour_matrix[0][0]);
 }
 
 void GLMesh::set(const Mesh& m, int mode)

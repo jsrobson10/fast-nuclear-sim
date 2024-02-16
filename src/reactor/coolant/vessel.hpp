@@ -5,10 +5,10 @@
 
 #include "../../coolant/fluid_holder.hpp"
 
-namespace sim::reactor::coolant
+namespace Sim::Reactor::coolant
 {
 
-class Vessel : public sim::coolant::FluidHolder
+class Vessel : public Sim::Coolant::FluidHolder
 {
 public:
 	
@@ -18,7 +18,7 @@ public:
 
 	double steam_suspended = 0; // grams
 
-	Vessel(sim::coolant::Fluid fluid, double height, double diameter, double mass, double level, double bubble_hl);
+	Vessel(Sim::Coolant::Fluid fluid, double height, double diameter, double mass, double level, double bubble_hl);
 	Vessel(const Json::Value& node);
 
 	double get_steam_suspended() const; // grams

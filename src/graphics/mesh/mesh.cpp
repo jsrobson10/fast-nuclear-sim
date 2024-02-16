@@ -8,7 +8,7 @@
 
 #include <iostream>
 
-using namespace sim::graphics;
+using namespace Sim::Graphics;
 
 void Mesh::add(const Mesh& o, glm::mat4 mat)
 {
@@ -20,7 +20,7 @@ void Mesh::add(const Mesh& o, glm::mat4 mat)
 
 	for(unsigned int i = 0; i < o.vertices.size(); i++)
 	{
-		arrays::vertex v = o.vertices[i];
+		Arrays::vertex v = o.vertices[i];
 		v.normal = mat3 * v.normal;
 		v.pos = mat * v.pos;
 		vertices.push_back(v);
@@ -32,7 +32,7 @@ void Mesh::add(const Mesh& o, glm::mat4 mat)
 	}
 }
 
-void Mesh::set_vertices(const arrays::vertex* data, size_t size)
+void Mesh::set_vertices(const Arrays::vertex* data, size_t size)
 {
 	vertices.clear();
 	vertices.reserve(size);
@@ -98,10 +98,10 @@ bool ray_intersects_triangle(vec3 ray_origin,
 
 bool Mesh::check_focus(double len) const
 {
-	auto near = focus::get_trigger_near();
-	auto far = focus::get_trigger_far();
+	auto near = Focus::get_trigger_near();
+	auto far = Focus::get_trigger_far();
 	
-	return focus::is_triggered() && check_intersect(near, glm::normalize(far - near) * len);
+	return Focus::is_triggered() && check_intersect(near, glm::normalize(far - near) * len);
 }
 
 bool Mesh::check_focus() const

@@ -1,7 +1,7 @@
 
 #include "heater.hpp"
 
-using namespace sim::reactor::coolant;
+using namespace Sim::Reactor::Coolant;
 
 Heater::Heater(const Json::Value& node) : Rod(node)
 {

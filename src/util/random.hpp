@@ -3,7 +3,7 @@
 
 #include <random>
 
-namespace sim::util::random
+namespace Sim::Util::Random
 {
 
 extern std::mt19937 gen;

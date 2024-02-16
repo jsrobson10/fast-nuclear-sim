@@ -4,17 +4,17 @@
 #include "vessel.hpp"
 #include "../rod.hpp"
 
-namespace sim::reactor::coolant
+namespace Sim::Reactor::coolant
 {
 
-class Pipe : public sim::reactor::Rod
+class Pipe : public Sim::Reactor::Rod
 {
 protected:
 	
 	coolant::Vessel* vessel;
 	double steam;
 	
-	virtual double get_k(sim::reactor::Rod::val_t type) const;
+	virtual double get_k(Sim::Reactor::Rod::val_t type) const;
 	virtual const char* get_name() const { return "Coolant"; }
 	virtual int get_id() const { return 2; }
 

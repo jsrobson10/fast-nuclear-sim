@@ -7,7 +7,7 @@
 #include <glm/vec4.hpp>
 #include <memory>
 
-namespace sim::reactor
+namespace Sim::Reactor
 {
 
 class Rod

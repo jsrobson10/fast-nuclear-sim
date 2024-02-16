@@ -11,7 +11,7 @@
 #include "../camera.hpp"
 #include "../../system.hpp"
 
-using namespace sim::graphics;
+using namespace Sim::Graphics;
 
 static std::unordered_map<int, bool> pressed;
 
@@ -19,7 +19,7 @@ static void cb_keypress(GLFWwindow* win, int key, int sc, int action, int mods)
 {
 	if(key == GLFW_KEY_F11 && action == GLFW_RELEASE)
 	{
-		resize::toggle_fullscreen();
+		Resize::toggle_fullscreen();
 	}
 
 	if(action == GLFW_PRESS)
@@ -29,28 +29,28 @@ static void cb_keypress(GLFWwindow* win, int key, int sc, int action, int mods)
 		switch(key)
 		{
 		case GLFW_KEY_1:
-			sim::System::active.speed = 1; // 1 s/s
+			Sim::System::active.speed = 1; // 1 s/s
 			break;
 		case GLFW_KEY_2:
-			sim::System::active.speed = 10; // 10 s/s
+			Sim::System::active.speed = 10; // 10 s/s
 			break;
 		case GLFW_KEY_3:
-			sim::System::active.speed = 60; // 1 min/s
+			Sim::System::active.speed = 60; // 1 min/s
 			break;
 		case GLFW_KEY_4:
-			sim::System::active.speed = 600; // 10 min/s
+			Sim::System::active.speed = 600; // 10 min/s
 			break;
 		case GLFW_KEY_5:
-			sim::System::active.speed = 3600; // 1 h/s
+			Sim::System::active.speed = 3600; // 1 h/s
 			break;
 		case GLFW_KEY_6:
-			sim::System::active.speed = 43200; // 12 h/s
+			Sim::System::active.speed = 43200; // 12 h/s
 			break;
 		case GLFW_KEY_O:
-			sim::System::save();
+			Sim::System::save();
 			break;
 		case GLFW_KEY_L:
-			sim::System::load();
+			Sim::System::load();
 			break;
 		}
 	}
@@ -60,17 +60,17 @@ static void cb_keypress(GLFWwindow* win, int key, int sc, int action, int mods)
 		pressed[key] = false;
 	}
 
-	focus::on_keypress(key, sc, action, mods);
+	Focus::on_keypress(key, sc, action, mods);
 }
 
 static void cb_charcode(GLFWwindow* win, unsigned int code)
 {
-	focus::on_charcode(code);
+	Focus::on_charcode(code);
 }
 
-bool keyboard::is_pressed(int key)
+bool Keyboard::is_pressed(int key)
 {
-	if(focus::is_mouse_locked())
+	if(Focus::is_mouse_locked())
 	{
 		return false;
 	}
@@ -88,9 +88,9 @@ bool keyboard::is_pressed(int key)
 	}
 }
 
-void keyboard::init()
+void Keyboard::init()
 {
-	GLFWwindow* win = window::get_window();
+	GLFWwindow* win = Window::get_window();
 	glfwSetKeyCallback(win, cb_keypress);
 	glfwSetCharCallback(win, cb_charcode);
 }

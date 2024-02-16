@@ -3,7 +3,7 @@
 
 #include <glm/matrix.hpp>
 
-namespace sim::graphics::arrays
+namespace Sim::Graphics::Arrays
 {
 
 struct vertex

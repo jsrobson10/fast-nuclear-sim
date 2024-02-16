@@ -3,7 +3,7 @@
 
 #include <glm/vec2.hpp>
 
-namespace sim::graphics::resize
+namespace Sim::Graphics::Resize
 {
 
 void init();

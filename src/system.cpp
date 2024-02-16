@@ -10,9 +10,9 @@
 #include "reactor/coolant/heater.hpp"
 #include "graphics/camera.hpp"
 
-using namespace sim;
+using namespace Sim;
 
-sim::System System::active;
+Sim::System System::active;
 
 System::System()
 {
@@ -38,42 +38,42 @@ System::System()
 		"      C C C C      "
 	};
 	
-	vessel = std::make_unique<reactor::coolant::Vessel>(sim::coolant::WATER, 8, 10, 6e6, 5e5, 10);
-	reactor = std::make_unique<reactor::Reactor>(sim::reactor::builder(19, 19, 1.0 / 4.0, 4, reactor::fuel::FuelRod(0.2), vessel.get(), layout));
-	condenser = std::make_unique<coolant::Condenser>(sim::coolant::WATER, 6, 4, 3e6, 30000);
-	turbine = std::make_unique<electric::Turbine>(sim::coolant::WATER, condenser.get(), 6, 3, 2e6);
+	vessel = std::make_unique<Reactor::coolant::Vessel>(Sim::Coolant::WATER, 8, 10, 6e6, 5e5, 10);
+	reactor = std::make_unique<Reactor::Reactor>(Sim::Reactor::Builder(19, 19, 1.0 / 4.0, 4, Reactor::fuel::FuelRod(0.2), vessel.get(), layout));
+	condenser = std::make_unique<Coolant::Condenser>(Sim::Coolant::WATER, 6, 4, 3e6, 30000);
+	turbine = std::make_unique<Electric::Turbine>(Sim::Coolant::WATER, condenser.get(), 6, 3, 2e6);
 	
-	sink = std::make_unique<coolant::Sink>(sim::coolant::WATER, 11, 0, 0);
-	evaporator = std::make_unique<coolant::Evaporator>(sim::coolant::WATER, 2, 30, 0, 1000);
-	condenser_secondary = std::make_unique<coolant::CondenserSecondary>(condenser.get(), evaporator.get(), 1000);
+	sink = std::make_unique<Coolant::Sink>(Sim::Coolant::WATER, 11, 0, 0);
+	evaporator = std::make_unique<Coolant::Evaporator>(Sim::Coolant::WATER, 2, 30, 0, 1000);
+	condenser_secondary = std::make_unique<Coolant::CondenserSecondary>(condenser.get(), evaporator.get(), 1000);
 	
-	turbine_inlet_valve = std::make_unique<coolant::Valve>(vessel.get(), turbine.get(), 0, 0.5);
-	turbine_bypass_valve = std::make_unique<coolant::Valve>(vessel.get(), condenser.get(), 0, 0.5);
+	turbine_inlet_valve = std::make_unique<Coolant::Valve>(vessel.get(), turbine.get(), 0, 0.5);
+	turbine_bypass_valve = std::make_unique<Coolant::Valve>(vessel.get(), condenser.get(), 0, 0.5);
 
-	primary_pump = std::make_unique<coolant::Pump>(condenser.get(), vessel.get(), 1e5, 1, 1e5, 0.1, 10, coolant::Pump::mode_t::SRC, 35000);
-	secondary_pump = std::make_unique<coolant::Pump>(evaporator.get(), condenser_secondary.get(), 1e5, 1, 1e4, 0.1, 1, coolant::Pump::mode_t::NONE, 0);
-	freight_pump = std::make_unique<coolant::Pump>(sink.get(), evaporator.get(), 1e5, 1, 1e4, 0.1, 10, coolant::Pump::mode_t::DST, 1e6);
+	primary_pump = std::make_unique<Coolant::Pump>(condenser.get(), vessel.get(), 1e5, 1, 1e5, 0.1, 10, Coolant::Pump::mode_t::SRC, 35000);
+	secondary_pump = std::make_unique<Coolant::Pump>(evaporator.get(), condenser_secondary.get(), 1e5, 1, 1e4, 0.1, 1, Coolant::Pump::mode_t::NONE, 0);
+	freight_pump = std::make_unique<Coolant::Pump>(sink.get(), evaporator.get(), 1e5, 1, 1e4, 0.1, 10, Coolant::Pump::mode_t::DST, 1e6);
 }
 
 System::System(const Json::Value& node)
 {
 	clock = node["clock"].asDouble();
 
-	vessel = std::make_unique<reactor::coolant::Vessel>(node["vessel"]);
-	reactor = std::make_unique<reactor::Reactor>(node["reactor"], vessel.get());
-	condenser = std::make_unique<coolant::Condenser>(node["condenser"]);
-	turbine = std::make_unique<electric::Turbine>(node["turbine"], condenser.get());
+	vessel = std::make_unique<Reactor::coolant::Vessel>(node["vessel"]);
+	reactor = std::make_unique<Reactor::Reactor>(node["reactor"], vessel.get());
+	condenser = std::make_unique<Coolant::Condenser>(node["condenser"]);
+	turbine = std::make_unique<Electric::Turbine>(node["turbine"], condenser.get());
 
-	evaporator = std::make_unique<coolant::Evaporator>(node["evaporator"]);
-	sink = std::make_unique<coolant::Sink>(evaporator->fluid, 11, 0, 0);
-	condenser_secondary = std::make_unique<coolant::CondenserSecondary>(condenser.get(), evaporator.get(), 1000);
+	evaporator = std::make_unique<Coolant::Evaporator>(node["evaporator"]);
+	sink = std::make_unique<Coolant::Sink>(evaporator->fluid, 11, 0, 0);
+	condenser_secondary = std::make_unique<Coolant::CondenserSecondary>(condenser.get(), evaporator.get(), 1000);
 
-	turbine_inlet_valve = std::make_unique<coolant::Valve>(node["valve"]["turbine"]["inlet"], vessel.get(), turbine.get());
-	turbine_bypass_valve = std::make_unique<coolant::Valve>(node["valve"]["turbine"]["bypass"], vessel.get(), condenser.get());
+	turbine_inlet_valve = std::make_unique<Coolant::Valve>(node["valve"]["turbine"]["inlet"], vessel.get(), turbine.get());
+	turbine_bypass_valve = std::make_unique<Coolant::Valve>(node["valve"]["turbine"]["bypass"], vessel.get(), condenser.get());
 
-	primary_pump = std::make_unique<coolant::Pump>(node["pump"]["primary"], condenser.get(), vessel.get());
-	secondary_pump = std::make_unique<coolant::Pump>(node["pump"]["secondary"], evaporator.get(), condenser_secondary.get());
-	freight_pump = std::make_unique<coolant::Pump>(node["pump"]["freight"], sink.get(), evaporator.get());
+	primary_pump = std::make_unique<Coolant::Pump>(node["pump"]["primary"], condenser.get(), vessel.get());
+	secondary_pump = std::make_unique<Coolant::Pump>(node["pump"]["secondary"], evaporator.get(), condenser_secondary.get());
+	freight_pump = std::make_unique<Coolant::Pump>(node["pump"]["freight"], sink.get(), evaporator.get());
 }
 
 void System::update(double dt)
@@ -117,7 +117,7 @@ System::operator Json::Value() const
 void System::save()
 {
 	Json::Value root(active);
-	root["camera"] = graphics::camera::serialize();
+	root["camera"] = Graphics::Camera::serialize();
 
 	Json::StreamWriterBuilder builder;
 	builder["commentStyle"] = "None";
@@ -137,7 +137,7 @@ void System::load()
 	savefile.close();
 
 	System sys(root);
-	graphics::camera::load(root["camera"]);
+	Graphics::Camera::load(root["camera"]);
 	active = std::move(sys);
 }
 

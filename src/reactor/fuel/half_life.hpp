@@ -3,7 +3,7 @@
 
 #include <cmath>
 
-namespace sim::reactor::fuel::half_life
+namespace Sim::Reactor::fuel::half_life
 {
 
 const double Te_135 = 19;

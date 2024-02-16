@@ -15,14 +15,14 @@
 #include <iostream>
 #include <sstream>
 
-using namespace sim::graphics;
-using namespace sim::graphics::monitor;
+using namespace Sim::Graphics;
+using namespace Sim::Graphics::Monitor;
 
 static void set_all(bool state)
 {
-	for(int i = 0; i < sim::System::active.reactor->rods.size(); i++)
+	for(int i = 0; i < Sim::System::active.reactor->rods.size(); i++)
 	{
-		sim::reactor::Rod* r = sim::System::active.reactor->rods[i].get();
+		Sim::Reactor::Rod* r = Sim::System::active.reactor->rods[i].get();
 
 		if(r->should_select())
 		{
@@ -31,7 +31,7 @@ static void set_all(bool state)
 	}
 }
 
-struct core_monitor : public focus::Focus
+struct core_monitor : public Focus::Focus
 {
 	virtual void on_keypress(int key, int sc, int action, int mods)
 	{
@@ -40,7 +40,7 @@ struct core_monitor : public focus::Focus
 			return;
 		}
 	
-		sim::System& sys = sim::System::active;
+		Sim::System& sys = Sim::System::active;
 
 		switch(key)
 		{
@@ -72,23 +72,23 @@ struct core_monitor : public focus::Focus
 	}
 };
 
-struct core_joystick : public focus::Focus
+struct core_joystick : public Focus::Focus
 {
 	virtual void on_cursor_pos(double x, double y)
 	{
-		sim::System::active.reactor->add_rod_speed(y * 1e-6);
+		Sim::System::active.reactor->add_rod_speed(y * 1e-6);
 	}
 
 	virtual ~core_joystick()
 	{
-		sim::System::active.reactor->reset_rod_speed();
+		Sim::System::active.reactor->reset_rod_speed();
 	}
 
 	virtual void on_mouse_button(int button, int action, int mods)
 	{
 		if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
 		{
-			focus::clear_focus();
+			Focus::clear_focus();
 		}
 	}
 
@@ -104,21 +104,21 @@ Core::Core()
 
 void Core::init()
 {
-	mesh1.model_matrix = locations::monitors[2];
-	mesh1.colour_matrix = arrays::colour({1, 1, 1, 1});
+	mesh1.model_matrix = Locations::monitors[2];
+	mesh1.colour_matrix = Arrays::colour({1, 1, 1, 1});
 	
-	sim::graphics::Mesh rmesh;
+	Sim::Graphics::Mesh rmesh;
 	
 	rmesh.load_text("Reactor Core", 0.04);
 	mesh1.bind();
 	mesh1.set(rmesh, GL_STATIC_DRAW);
 
 	unsigned int indices[] = {0, 1, 3, 0, 3, 2};
-	arrays::vertex vertices[] = {
-		{texture::handle_white, {0, 0}, {-0.75, -0.75, 0, 1}, {0, 0, -1}}, 
-		{texture::handle_white, {0, 1}, {-0.75,  0.75, 0, 1}, {0, 0, -1}}, 
-		{texture::handle_white, {1, 0}, { 0.75, -0.75, 0, 1}, {0, 0, -1}}, 
-		{texture::handle_white, {1, 1}, { 0.75,  0.75, 0, 1}, {0, 0, -1}}, 
+	Arrays::vertex vertices[] = {
+		{Texture::handle_white, {0, 0}, {-0.75, -0.75, 0, 1}, {0, 0, -1}}, 
+		{Texture::handle_white, {0, 1}, {-0.75,  0.75, 0, 1}, {0, 0, -1}}, 
+		{Texture::handle_white, {1, 0}, { 0.75, -0.75, 0, 1}, {0, 0, -1}}, 
+		{Texture::handle_white, {1, 1}, { 0.75,  0.75, 0, 1}, {0, 0, -1}}, 
 	};
 
 	rmesh.set_indices(indices, 6);
@@ -142,12 +142,12 @@ void Core::init()
 
 void Core::update(double dt)
 {
-	sim::System& sys = sim::System::active;
+	Sim::System& sys = Sim::System::active;
 	
 	if(m_monitor.check_focus())
-		focus::set(std::make_unique<core_monitor>());
+		Focus::set(std::make_unique<core_monitor>());
 	if(m_joystick.check_focus())
-		focus::set(std::make_unique<core_joystick>());
+		Focus::set(std::make_unique<core_joystick>());
 	if(m_scram.check_focus())
 		sys.reactor->scram();
 	if(m_buttons[0].check_focus())
@@ -170,7 +170,7 @@ void Core::update(double dt)
 
 void Core::render()
 {
-	sim::System& sys = sim::System::active;
+	Sim::System& sys = Sim::System::active;
 	
 	double step = 1 / (sys.vessel->diameter / sys.reactor->cell_width * 0.8);
 	double sx = 0.5 - (sys.reactor->width - 1) * step / 2.0;
@@ -195,7 +195,7 @@ void Core::render()
 		double ox = sx + x * step;
 		double oy = sy + y * step;
 
-		reactor::Rod* r = sys.reactor->rods[i].get();
+		Reactor::Rod* r = sys.reactor->rods[i].get();
 
 		if(!r->should_display())
 		{
@@ -213,14 +213,14 @@ void Core::render()
 		glm::mat4 mat = mesh1.model_matrix * glm::translate(glm::mat4(1), glm::vec3(ox, oy, 0)) * mat_scale;
 
 		mesh2.model_matrix = mat;
-		mesh2.colour_matrix = arrays::colour(colour_heat);
+		mesh2.colour_matrix = Arrays::colour(colour_heat);
 		mesh2.uniform();
 		mesh2.render();
 
 		if(sys.reactor->cursor == i)
 		{
 			mesh2.model_matrix = mat * mat_cursor;
-			mesh2.colour_matrix = arrays::colour({1, 0, 0, 1});
+			mesh2.colour_matrix = Arrays::colour({1, 0, 0, 1});
 			mesh2.uniform();
 			mesh2.render();
 		}
@@ -228,7 +228,7 @@ void Core::render()
 		if(r->selected)
 		{
 			mesh2.model_matrix = mat * mat_select;
-			mesh2.colour_matrix = arrays::colour({1, 1, 0, 1});
+			mesh2.colour_matrix = Arrays::colour({1, 1, 0, 1});
 			mesh2.uniform();
 			mesh2.render();
 		}
@@ -236,7 +236,7 @@ void Core::render()
 		if(colour_spec[3] != 0)
 		{
 			mesh2.model_matrix = mat * mat_spec;
-			mesh2.colour_matrix = arrays::colour(colour_spec);
+			mesh2.colour_matrix = Arrays::colour(colour_spec);
 			mesh2.uniform();
 			mesh2.render();
 		}

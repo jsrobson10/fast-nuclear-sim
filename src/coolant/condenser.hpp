@@ -3,7 +3,7 @@
 
 #include "fluid_holder.hpp"
 
-namespace sim::coolant
+namespace Sim::Coolant
 {
 
 class Condenser : public FluidHolder

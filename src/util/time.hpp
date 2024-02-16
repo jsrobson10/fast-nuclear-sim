@@ -1,7 +1,7 @@
 
 #pragma once
 
-namespace sim::util::time
+namespace Sim::Util::Time
 {
 
 unsigned long get_now();

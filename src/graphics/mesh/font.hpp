@@ -6,7 +6,7 @@
 #include <string>
 #include <sstream>
 
-namespace sim::graphics::font
+namespace Sim::Graphics::Font
 {
 
 void init();

@@ -5,14 +5,14 @@
 
 #include <ostream>
 
-namespace sim::reactor::fuel
+namespace Sim::Reactor::fuel
 {
 
 class Sample
 {
 	constexpr static const double Xe_135_M = 1e6;
 
-	sim::reactor::fuel::Waste waste;
+	Sim::Reactor::fuel::Waste waste;
 	
 	// mol
 	double fuel = 0;

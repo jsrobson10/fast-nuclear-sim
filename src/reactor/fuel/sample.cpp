@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-using namespace sim::reactor::fuel;
+using namespace Sim::Reactor::Fuel;
 
 constexpr double NEUTRON_BG = 1e-30;
 

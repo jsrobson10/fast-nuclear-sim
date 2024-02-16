@@ -4,7 +4,7 @@
 #include "fluid_holder.hpp"
 #include "../util/pid.hpp"
 
-namespace sim::coolant
+namespace Sim::Coolant
 {
 
 class Valve
@@ -21,7 +21,7 @@ class Valve
 	bool auto_on = false;
 	double auto_th = 0; // C
 
-	util::PID pid {1e-3, -1e-3, 100, 0, 0};
+	Util::PID pid {1e-3, -1e-3, 100, 0, 0};
 
 public:
 

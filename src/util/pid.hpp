@@ -24,7 +24,7 @@
 
 #include <json/json.h>
 
-namespace sim::util
+namespace Sim::Util
 {
 
 class PID

@@ -15,14 +15,14 @@
 #include "arrays.hpp"
 #include "texture.hpp"
 
-using namespace sim::graphics;
+using namespace Sim::Graphics;
 
 struct proc_state
 {
 	unsigned int offset = 0;
 
 	std::string base;
-	std::vector<arrays::vertex> vertices;
+	std::vector<Arrays::vertex> vertices;
 	std::vector<unsigned int> indices;
 	std::unordered_map<const aiTexture*, unsigned int> handles;
 };
@@ -53,10 +53,10 @@ static unsigned int proc_texture(const proc_state& state, aiMaterial* mat, const
 		std::string filename(str.C_Str());
 		std::replace(filename.begin(), filename.end(), '\\', '/');
 
-		return texture::load(state.base + "/" + filename);
+		return Texture::load(state.base + "/" + filename);
 	}
 
-	return texture::handle_white;
+	return Texture::handle_white;
 }
 
 static void proc_mesh(proc_state& state, glm::mat4 mat, aiMesh* mesh, const aiScene* scene)
@@ -68,7 +68,7 @@ static void proc_mesh(proc_state& state, glm::mat4 mat, aiMesh* mesh, const aiSc
 	
 	for(unsigned int i = 0; i < mesh->mNumVertices; i++)
 	{
-		arrays::vertex vertex;
+		Arrays::vertex vertex;
 		
 		auto [x, y, z] = mesh->mVertices[i];
 		vertex.pos = glm::vec4(x, y, z, 1) * mat;
@@ -130,7 +130,7 @@ static unsigned int proc_embedded_texture(aiTexture* tex)
 	
 	if(tex->mHeight == 0)
 	{
-		return texture::load_mem((unsigned char*)tex->pcData, tex->mWidth);
+		return Texture::load_mem((unsigned char*)tex->pcData, tex->mWidth);
 	}
 
 	// swizzle each pixel to get RGBA
@@ -140,7 +140,7 @@ static unsigned int proc_embedded_texture(aiTexture* tex)
 		tex->pcData[i] = {t.r, t.g, t.b, t.a};
 	}
 
-	return texture::load_mem((unsigned char*)tex->pcData, tex->mWidth, tex->mHeight, 4);
+	return Texture::load_mem((unsigned char*)tex->pcData, tex->mWidth, tex->mHeight, 4);
 }
 
 void Mesh::load_model(std::string base, std::string filename)

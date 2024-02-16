@@ -6,7 +6,7 @@
 
 #include "../system.hpp"
 
-namespace sim::graphics::window
+namespace Sim::Graphics::Window
 {
 
 extern glm::mat4 projection_matrix;

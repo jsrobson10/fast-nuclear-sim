@@ -12,8 +12,8 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <iostream>
 
-using namespace sim::graphics;
-using namespace sim::graphics::monitor;
+using namespace Sim::Graphics;
+using namespace Sim::Graphics::Monitor;
 
 Turbine::Turbine()
 {
@@ -22,7 +22,7 @@ Turbine::Turbine()
 
 void Turbine::init()
 {
-	mesh1.model_matrix = mesh2.model_matrix = locations::monitors[4];
+	mesh1.model_matrix = mesh2.model_matrix = Locations::monitors[4];
 	mesh1.colour_matrix = mesh2.colour_matrix = {
 		1, 1, 1, 1,
 		0, 0, 0, 0,
@@ -31,7 +31,7 @@ void Turbine::init()
 	};
 	
 	std::stringstream ss;
-	sim::graphics::Mesh rmesh, rmesh2;
+	Sim::Graphics::Mesh rmesh, rmesh2;
 
 	ss << "Turbine\n\n";
 	ss << "Heat\nPressure\nSpeed\n\n";
@@ -56,13 +56,13 @@ void Turbine::init()
 
 void Turbine::update(double dt)
 {
-	System& sys = sim::System::active;
+	System& sys = Sim::System::active;
 	clock_now += dt;
 
 	if(clock_at + 1.0/30.0 < clock_now)
 	{
 		std::stringstream ss;
-		sim::graphics::Mesh rmesh, rmesh2;
+		Sim::Graphics::Mesh rmesh, rmesh2;
 		clock_at += 1.0/30.0;
 
 		ss << "\n\n";

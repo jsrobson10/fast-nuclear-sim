@@ -6,7 +6,7 @@
 #include <cmath>
 #include <iostream>
 
-using namespace sim::coolant;
+using namespace Sim::Coolant;
 
 Valve::Valve(FluidHolder* src, FluidHolder* dst, double state, double max) : src(src), dst(dst), max(max)
 {
@@ -84,7 +84,7 @@ void Valve::update(double dt)
 
 		mol = FluidHolder::calc_pressure_mol(src->get_heat_k(), src->get_gas_volume(), pressure1 - remove);
 		
-		mass_a = src->get_air() - mol / util::constants::M_air;
+		mass_a = src->get_air() - mol / Util::Constants::M_air;
 		mass_s = src->get_steam() - src->fluid.mol_to_g(mol);
 	}
 
@@ -95,7 +95,7 @@ void Valve::update(double dt)
 
 		mol = FluidHolder::calc_pressure_mol(dst->get_heat_k(), dst->get_gas_volume(), pressure2 - remove);
 
-		mass_a = dst->get_air() - mol / util::constants::M_air;
+		mass_a = dst->get_air() - mol / Util::Constants::M_air;
 		mass_s = dst->get_steam() - dst->fluid.mol_to_g(mol);
 	}
 

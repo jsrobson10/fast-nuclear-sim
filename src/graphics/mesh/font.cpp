@@ -13,7 +13,7 @@
 #include "arrays.hpp"
 #include "font.hpp"
 
-using namespace sim::graphics;
+using namespace Sim::Graphics;
 
 struct character
 {
@@ -25,7 +25,7 @@ struct character
 
 static character chars[128];
 
-void font::init()
+void Font::init()
 {
 	FT_Library ft;
 	FT_Face face;
@@ -95,7 +95,7 @@ void font::init()
 
 void Mesh::load_text(const char* text, double size)
 {
-	std::vector<arrays::vertex> vertices;
+	std::vector<Arrays::vertex> vertices;
 	std::vector<unsigned int> indices;
 
 	float x = 0, y = size;
@@ -136,10 +136,10 @@ void Mesh::load_text(const char* text, double size)
 		float ex = sx + ch.size.x * size;
 		float ey = sy + ch.size.y * size;
 
-		vertices.push_back(arrays::vertex(ch.handle, {0, 0}, {sx, sy, 0, 1}, {0, 0, -1}));
-		vertices.push_back(arrays::vertex(ch.handle, {0, 1}, {sx, ey, 0, 1}, {0, 0, -1}));
-		vertices.push_back(arrays::vertex(ch.handle, {1, 0}, {ex, sy, 0, 1}, {0, 0, -1}));
-		vertices.push_back(arrays::vertex(ch.handle, {1, 1}, {ex, ey, 0, 1}, {0, 0, -1}));
+		vertices.push_back(Arrays::vertex(ch.handle, {0, 0}, {sx, sy, 0, 1}, {0, 0, -1}));
+		vertices.push_back(Arrays::vertex(ch.handle, {0, 1}, {sx, ey, 0, 1}, {0, 0, -1}));
+		vertices.push_back(Arrays::vertex(ch.handle, {1, 0}, {ex, sy, 0, 1}, {0, 0, -1}));
+		vertices.push_back(Arrays::vertex(ch.handle, {1, 1}, {ex, ey, 0, 1}, {0, 0, -1}));
 		indices.insert(indices.end(), &index[0], &index[6]);
 
 		at += 4;

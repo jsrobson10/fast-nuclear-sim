@@ -5,7 +5,7 @@
 
 #include <algorithm>
 
-using namespace sim::reactor;
+using namespace Sim::Reactor;
 
 Reactor::Reactor(std::unique_ptr<Rod>* rods, int w, int h, double cw, double ch) : cell_width(cw), cell_height(ch), width(w), height(h), size(w * h)
 {
@@ -155,7 +155,7 @@ void Reactor::toggle_selected()
 void Reactor::update_tile(double secs, int i, int x, int y)
 {
 	int nb_lookup[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
-	std::shuffle(nb_lookup, &nb_lookup[3], util::random::gen);
+	std::shuffle(nb_lookup, &nb_lookup[3], Util::Random::gen);
 
 	for(int j = 0; j < 4; j++)
 	{
@@ -171,7 +171,7 @@ void Reactor::update_tile(double secs, int i, int x, int y)
 
 void Reactor::update_interactions(int* rods_lookup, double secs)
 {
-	std::shuffle(rods_lookup, &rods_lookup[size - 1], util::random::gen);
+	std::shuffle(rods_lookup, &rods_lookup[size - 1], Util::Random::gen);
 
 	for(int id = 0; id < size; id++)
 	{

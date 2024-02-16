@@ -6,7 +6,7 @@
 
 #include "../system.hpp"
 
-namespace sim::graphics::camera
+namespace Sim::Graphics::Camera
 {
 
 glm::mat4 get_matrix();

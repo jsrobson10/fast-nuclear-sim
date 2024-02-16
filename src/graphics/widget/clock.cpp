@@ -16,13 +16,13 @@
 #include "../resize.hpp"
 #include "../../system.hpp"
 
-using namespace sim::graphics::widget;
+using namespace Sim::Graphics::Widget;
 
 void Clock::update(double dt)
 {
 	Mesh m;
 	double at = System::active.clock;
-	glm::vec2 wsize(resize::get_size() / 2);
+	glm::vec2 wsize(Resize::get_size() / 2);
 	std::stringstream ss;
 
 	int t_s = std::fmod(at, 60);
@@ -38,7 +38,7 @@ void Clock::update(double dt)
 	
 	data.bind();
 	data.model_matrix = glm::translate(glm::mat4(1), glm::vec3(-wsize + glm::vec2(2, 2), 0));
-	data.colour_matrix = arrays::colour({1, 1, 1, 1});
+	data.colour_matrix = Arrays::colour({1, 1, 1, 1});
 	data.set(m, GL_DYNAMIC_DRAW);
 }
 

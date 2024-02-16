@@ -3,7 +3,7 @@
 
 #include <cmath>
 
-using namespace sim::reactor::fuel;
+using namespace Sim::Reactor::Fuel;
 
 constexpr double fuel_density = 19100000; // g/m^3
 constexpr double fuel_molar_mass = 238.029; // g/mol

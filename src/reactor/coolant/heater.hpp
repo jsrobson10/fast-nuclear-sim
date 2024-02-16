@@ -3,10 +3,10 @@
 
 #include "../rod.hpp"
 
-namespace sim::reactor::coolant
+namespace Sim::Reactor::coolant
 {
 
-class Heater : public sim::reactor::Rod
+class Heater : public Sim::Reactor::Rod
 {
 	double rate = 0;
 

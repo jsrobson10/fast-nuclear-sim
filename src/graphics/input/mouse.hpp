@@ -3,7 +3,7 @@
 
 #include <glm/vec2.hpp>
 
-namespace sim::graphics::mouse
+namespace Sim::Graphics::Mouse
 {
 
 void init();

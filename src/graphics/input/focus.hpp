@@ -5,7 +5,7 @@
 
 #include <memory>
 
-namespace sim::graphics::focus
+namespace Sim::Graphics::Focus
 {
 
 struct Focus

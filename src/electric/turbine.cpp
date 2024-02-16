@@ -6,7 +6,7 @@
 #include <cmath>
 #include <iostream>
 
-using namespace sim::electric;
+using namespace Sim::Electric;
 
 constexpr static double calc_cylinder(double h, double d)
 {
@@ -15,19 +15,19 @@ constexpr static double calc_cylinder(double h, double d)
 	return M_PI * r * r * h * 1000;
 }
 
-Turbine::Turbine(coolant::Fluid type, coolant::Condenser* condenser, double length, double diameter, double mass) :
+Turbine::Turbine(Coolant::Fluid type, Coolant::Condenser* condenser, double length, double diameter, double mass) :
 		length(length), diameter(diameter), condenser(condenser),
-		sim::coolant::FluidHolder(type, calc_cylinder(length, diameter), mass)
+		Sim::Coolant::FluidHolder(type, calc_cylinder(length, diameter), mass)
 {
 	
 }
 
-Turbine::Turbine(const Json::Value& node, coolant::Condenser* condenser) :
+Turbine::Turbine(const Json::Value& node, Coolant::Condenser* condenser) :
 		condenser(condenser),
 		length(node["length"].asDouble()),
 		diameter(node["diameter"].asDouble()),
 		friction(node["friction"].asDouble()),
-		sim::coolant::FluidHolder(node)
+		Sim::Coolant::FluidHolder(node)
 {
 	velocity = node["velocity"].asDouble();
 	phase = node["phase"].asDouble();
@@ -37,15 +37,15 @@ Turbine::Turbine(const Json::Value& node, coolant::Condenser* condenser) :
 void Turbine::update(double dt)
 {
 	double work = get_rpm() / 60 * dt * friction;
-	phase = std::fmod(phase + util::map( get_rpm(), 0, 60, 0, 2 * M_PI ) * dt, 2 * M_PI);
+	phase = std::fmod(phase + Util::map( get_rpm(), 0, 60, 0, 2 * M_PI ) * dt, 2 * M_PI);
 
 	// do energy transfer stuff here
 	if(breaker_closed)
 	{
-		double r_diff = util::map(get_phase_diff(), -M_PI, M_PI, -30, 30);
+		double r_diff = Util::map(get_phase_diff(), -M_PI, M_PI, -30, 30);
 		double w = r_diff * 1e6;
 
-		double v2 = util::mod((velocity - 3600) / 60 + 30, 60) - 30;
+		double v2 = Util::mod((velocity - 3600) / 60 + 30, 60) - 30;
 		double w2 = w * w * v2;
 
 		energy_generated = w2 * extra_mass;
@@ -69,13 +69,13 @@ double Turbine::get_rpm() const
 double Turbine::get_phase_diff() const
 {
 	double phase_g = std::fmod(System::active.clock * 60, 1) * 2 * M_PI;
-	return util::mod(phase - phase_g + M_PI, 2*M_PI) - M_PI;
+	return Util::mod(phase - phase_g + M_PI, 2*M_PI) - M_PI;
 }
 
 void Turbine::add_gas(double steam, double air, double t)
 {
 	double joules = (steam + air) * fluid.jPg;
-	velocity = std::max(velocity + util::calc_work(joules, extra_mass), 0.0);
+	velocity = std::max(velocity + Util::calc_work(joules, extra_mass), 0.0);
 	condenser->add_gas(steam, air, t);
 }
 

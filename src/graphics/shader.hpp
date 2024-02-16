@@ -1,7 +1,7 @@
 
 #pragma once
 
-namespace sim::graphics::shader
+namespace Sim::Graphics::Shader
 {
 
 extern int gl_tex_mat;

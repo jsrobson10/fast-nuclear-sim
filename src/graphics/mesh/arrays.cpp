@@ -8,7 +8,7 @@
 #include "arrays.hpp"
 #include "font.hpp"
 
-using namespace sim::graphics;
+using namespace Sim::Graphics;
 
 static unsigned int vao, vbo, ebo;
 
@@ -17,7 +17,7 @@ static void* ptr_diff(void* a, void* b)
 	return (void*)((size_t)a - (size_t)b);
 }
 
-void arrays::vertex_attrib_pointers()
+void Arrays::vertex_attrib_pointers()
 {
 	vertex v;
 	
@@ -34,7 +34,7 @@ void arrays::vertex_attrib_pointers()
 	glEnableVertexAttribArray(3);
 }
 
-glm::mat4 arrays::colour(glm::vec4 c)
+glm::mat4 Arrays::colour(glm::vec4 c)
 {
 	return glm::mat4({
 		c.r, c.g, c.b, c.a,

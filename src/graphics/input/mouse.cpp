@@ -7,20 +7,20 @@
 #include "../window.hpp"
 #include "../camera.hpp"
 
-using namespace sim::graphics;
+using namespace Sim::Graphics;
 
 static double xpos = 0, ypos = 0;
 
 static void cb_cursor_pos(GLFWwindow* win, double x, double y)
 {
-	if(focus::is_mouse_locked())
+	if(Focus::is_mouse_locked())
 	{
-		focus::on_cursor_pos(x - xpos, y - ypos);
+		Focus::on_cursor_pos(x - xpos, y - ypos);
 	}
 	
 	else
 	{
-		camera::rotate(x - xpos, y - ypos);
+		Camera::rotate(x - xpos, y - ypos);
 	}
 
 	xpos = x;
@@ -29,41 +29,41 @@ static void cb_cursor_pos(GLFWwindow* win, double x, double y)
 
 void cb_mouse_button(GLFWwindow* window, int button, int action, int mods)
 {
-	focus::on_mouse_button(button, action, mods);
+	Focus::on_mouse_button(button, action, mods);
 }
 
-void mouse::get(double& x, double& y)
+void Mouse::get(double& x, double& y)
 {
 	x = xpos;
 	y = ypos;
 }
 
-glm::vec2 mouse::get()
+glm::vec2 Mouse::get()
 {
 	return {xpos, ypos};
 }
 
-void mouse::show_cursor()
+void Mouse::show_cursor()
 {
 	double x, y;
-	GLFWwindow* win = window::get_window();
+	GLFWwindow* win = Window::get_window();
 	glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	glfwGetCursorPos(win, &x, &y);
 	cb_cursor_pos(win, x, y);
 }
 
-void mouse::hide_cursor()
+void Mouse::hide_cursor()
 {
 	double x, y;
-	GLFWwindow* win = window::get_window();
+	GLFWwindow* win = Window::get_window();
 	glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwGetCursorPos(win, &x, &y);
 	cb_cursor_pos(win, x, y);
 }
 
-void mouse::init()
+void Mouse::init()
 {
-	GLFWwindow* win = window::get_window();
+	GLFWwindow* win = Window::get_window();
 	glfwSetCursorPosCallback(win, cb_cursor_pos);
 	glfwSetMouseButtonCallback(win, cb_mouse_button);
 	glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_DISABLED);

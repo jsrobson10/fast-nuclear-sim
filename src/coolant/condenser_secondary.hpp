@@ -5,7 +5,7 @@
 #include "evaporator.hpp"
 #include "condenser.hpp"
 
-namespace sim::coolant
+namespace Sim::Coolant
 {
 
 class CondenserSecondary : public FluidHolder

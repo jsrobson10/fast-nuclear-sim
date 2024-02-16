@@ -3,17 +3,17 @@
 
 #include "../mesh/glmesh.hpp"
 
-namespace sim::graphics::monitor
+namespace Sim::Graphics::monitor
 {
 
 class Core
 {
-	sim::graphics::GLMesh mesh1, mesh2;
+	Sim::Graphics::GLMesh mesh1, mesh2;
 
-	sim::graphics::Mesh m_monitor;
-	sim::graphics::Mesh m_buttons[9];
-	sim::graphics::Mesh m_joystick;
-	sim::graphics::Mesh m_scram;
+	Sim::Graphics::Mesh m_monitor;
+	Sim::Graphics::Mesh m_buttons[9];
+	Sim::Graphics::Mesh m_joystick;
+	Sim::Graphics::Mesh m_scram;
 	
 public:
 

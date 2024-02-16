@@ -4,9 +4,9 @@
 #include <unistd.h>
 #include <iostream>
 
-using namespace sim;
+using namespace Sim;
 
-void tests::run()
+void Tests::run()
 {
 //	fluid_system fs(WATER, 1000, 10);
 

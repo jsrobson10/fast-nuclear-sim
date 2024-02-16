@@ -1,7 +1,7 @@
 
 #pragma once
 
-namespace sim::conversions::pressure
+namespace Sim::Conversions::Pressure
 {
 
 constexpr double torr_to_pa(double t) { return t * 133.322; }

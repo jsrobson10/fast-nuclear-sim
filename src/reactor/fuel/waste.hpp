@@ -3,7 +3,7 @@
 
 #include <json/json.h>
 
-namespace sim::reactor::fuel
+namespace Sim::Reactor::fuel
 {
 
 class Waste

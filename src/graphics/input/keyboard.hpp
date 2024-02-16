@@ -1,7 +1,7 @@
 
 #pragma once
 
-namespace sim::graphics::keyboard
+namespace Sim::Graphics::Keyboard
 {
 
 void init();

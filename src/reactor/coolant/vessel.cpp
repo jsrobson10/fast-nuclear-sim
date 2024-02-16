@@ -7,7 +7,7 @@
 #include <iostream>
 #include <cmath>
 
-using namespace sim::reactor::coolant;
+using namespace Sim::Reactor::Coolant;
 
 constexpr static double calc_cylinder(double h, double d)
 {
@@ -16,15 +16,15 @@ constexpr static double calc_cylinder(double h, double d)
 	return M_PI * r * r * h * 1000;
 }
 
-Vessel::Vessel(sim::coolant::Fluid fluid, double height, double diameter, double mass, double level, double bubble_hl) :
-		sim::coolant::FluidHolder(fluid, calc_cylinder(height, diameter), mass),
+Vessel::Vessel(Sim::Coolant::Fluid fluid, double height, double diameter, double mass, double level, double bubble_hl) :
+		Sim::Coolant::FluidHolder(fluid, calc_cylinder(height, diameter), mass),
 		height(height), diameter(diameter), bubble_hl(bubble_hl)
 {
 	this->level = level;
 }
 
 Vessel::Vessel(const Json::Value& node) :
-		sim::coolant::FluidHolder(node),
+		Sim::Coolant::FluidHolder(node),
 		height(node["height"].asDouble()),
 		diameter(node["diameter"].asDouble()),
 		bubble_hl(node["bubble_hl"].asDouble())
@@ -67,7 +67,7 @@ void Vessel::update(double secs)
 
 	steam_last = steam;
 	steam_suspended += diff;
-	steam_suspended *= reactor::fuel::half_life::get(secs, bubble_hl);
+	steam_suspended *= Reactor::fuel::half_life::get(secs, bubble_hl);
 
 	if(steam_suspended < 0)
 	{

@@ -12,7 +12,7 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <sstream>
 
-using namespace sim::graphics::monitor;
+using namespace Sim::Graphics::Monitor;
 
 Vessel::Vessel()
 {
@@ -21,7 +21,7 @@ Vessel::Vessel()
 
 void Vessel::init()
 {
-	mesh1.model_matrix = locations::monitors[1];
+	mesh1.model_matrix = Locations::monitors[1];
 	mesh2.model_matrix = glm::translate(mesh1.model_matrix, glm::vec3(0.5, 0, 0));
 
 	mesh1.colour_matrix = mesh2.colour_matrix = {
@@ -32,7 +32,7 @@ void Vessel::init()
 	};
 	
 	std::stringstream ss;
-	sim::graphics::Mesh rmesh;
+	Sim::Graphics::Mesh rmesh;
 
 	ss << "Reactor Vessel\n\n";
 	ss << "Heat\n";
@@ -54,8 +54,8 @@ void Vessel::init()
 void Vessel::update(double dt)
 {
 	std::stringstream ss;
-	sim::graphics::Mesh rmesh;
-	sim::System& sys = sim::System::active;
+	Sim::Graphics::Mesh rmesh;
+	Sim::System& sys = Sim::System::active;
 	clock_now += dt;
 
 	if(clock_at + 1.0/30.0 > clock_now)
@@ -67,18 +67,18 @@ void Vessel::update(double dt)
 	double crod_min = INFINITY, crod_max = -INFINITY;
 
 	clock_at += 1.0/30.0;
-	sys.reactor->get_stats(sim::reactor::Rod::val_t::HEAT, temp_min, temp_max);
+	sys.reactor->get_stats(Sim::Reactor::Rod::val_t::HEAT, temp_min, temp_max);
 
 	for(int i = 0; i < sys.reactor->size; i++)
 	{
-		sim::reactor::Rod* r = sys.reactor->rods[i].get();
+		Sim::Reactor::Rod* r = sys.reactor->rods[i].get();
 
 		if(r->get_id() != 5)
 		{
 			continue;
 		}
 
-		auto br = (sim::reactor::control::BoronRod*)r;
+		auto br = (Sim::Reactor::control::BoronRod*)r;
 		double v = br->get_inserted();
 
 		if(v > crod_max)

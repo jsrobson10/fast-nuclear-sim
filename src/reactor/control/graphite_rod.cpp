@@ -3,7 +3,7 @@
 
 #include <cmath>
 
-using namespace sim::reactor::control;
+using namespace Sim::Reactor::Control;
 
 GraphiteRod::GraphiteRod(const Json::Value& node) : Rod(node)
 {

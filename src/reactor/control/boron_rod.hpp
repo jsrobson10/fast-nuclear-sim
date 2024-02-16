@@ -3,7 +3,7 @@
 
 #include "../coolant/pipe.hpp"
 
-namespace sim::reactor::control
+namespace Sim::Reactor::control
 {
 
 class BoronRod : public coolant::Pipe

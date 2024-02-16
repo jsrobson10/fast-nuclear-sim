@@ -1,7 +1,7 @@
 
 #pragma once
 
-namespace sim::util::constants
+namespace Sim::Util::Constants
 {
 	constexpr double R = 8.31446261815324; // molar gas constant, J/mol/K
 	constexpr double R_air = 0.2870500676; // specific gas constant of dry air, J/g/K

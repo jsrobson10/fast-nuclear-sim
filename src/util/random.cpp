@@ -1,11 +1,11 @@
 
 #include "random.hpp"
 
-using namespace sim::util;
+using namespace Sim::Util;
 
-std::mt19937 random::gen;
+std::mt19937 Random::gen;
 
-void random::init()
+void Random::init()
 {
 	std::random_device rd;
 	gen = std::mt19937(rd());

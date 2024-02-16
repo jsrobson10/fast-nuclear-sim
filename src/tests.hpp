@@ -1,7 +1,7 @@
 
 #pragma once
 
-namespace sim::tests
+namespace Sim::Tests
 {
 
 void run();

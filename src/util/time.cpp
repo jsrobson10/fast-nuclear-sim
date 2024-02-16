@@ -8,10 +8,10 @@
 
 #include "time.hpp"
 
-using namespace sim::util;
+using namespace Sim::Util;
 
 
-unsigned long time::get_now()
+unsigned long Time::get_now()
 {
 #ifdef _WIN32
 	FILETIME ft;
@@ -27,7 +27,7 @@ unsigned long time::get_now()
 #endif
 }
 
-void time::sleep(unsigned long usec)
+void Time::sleep(unsigned long usec)
 {
 #ifdef _WIN32
 	Sleep(usec / 1000);

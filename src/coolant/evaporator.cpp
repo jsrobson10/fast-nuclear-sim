@@ -5,7 +5,7 @@
 #include <cmath>
 #include <iostream>
 
-using namespace sim::coolant;
+using namespace Sim::Coolant;
 
 constexpr static double calc_cylinder(double h, double d)
 {
@@ -41,15 +41,15 @@ void Evaporator::update(double dt)
 	steam = 0;
 
 	double P = 10000;									// Pa
-	double K = conversions::temperature::c_to_k(heat);	// K
-	double R = util::constants::R;						// J/K/mol
+	double K = Conversions::Temperature::c_to_k(heat);	// K
+	double R = Util::Constants::R;						// J/K/mol
 
-	double n_g = air / util::constants::M_air;	// mol
+	double n_g = air / Util::Constants::M_air;	// mol
 	double V_g = (volume - level) * 0.001;		// m^3
 
 	double n = (P * V_g) / (R * K);	// mol
 	
-	air = n * util::constants::M_air;
+	air = n * Util::Constants::M_air;
 	update_base(dt);
 }
 

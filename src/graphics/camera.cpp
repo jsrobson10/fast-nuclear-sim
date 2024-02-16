@@ -13,7 +13,7 @@
 #include <glm/vec3.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
-using namespace sim::graphics;
+using namespace Sim::Graphics;
 
 static bool on_ground = false;
 static double yaw = 0, pitch = 0;
@@ -22,7 +22,7 @@ static glm::vec<3, double> velocity(0);
 static Mesh collision_scene;
 static glm::mat4 camera_mat;
 
-Json::Value camera::serialize()
+Json::Value Camera::serialize()
 {
 	Json::Value node;
 
@@ -39,7 +39,7 @@ Json::Value camera::serialize()
 	return node;
 }
 
-void camera::load(const Json::Value& node)
+void Camera::load(const Json::Value& node)
 {
 	on_ground = node["on_ground"].asBool();
 	yaw = node["yaw"].asDouble();
@@ -52,7 +52,7 @@ void camera::load(const Json::Value& node)
 	velocity[2] = node["velocity"]["z"].asDouble();
 }
 
-void camera::rotate(double y, double p)
+void Camera::rotate(double y, double p)
 {
 	yaw += y * 0.05;
 	pitch -= p * 0.05;
@@ -61,43 +61,43 @@ void camera::rotate(double y, double p)
 	if(pitch > 180) pitch = 180;
 }
 
-void camera::move(double xoff, double yoff, double zoff)
+void Camera::move(double xoff, double yoff, double zoff)
 {
 	pos.x += xoff;
 	pos.y += yoff;
 	pos.z += zoff;
 }
 
-glm::vec<3, double> camera::get_normal()
+glm::vec<3, double> Camera::get_normal()
 {
 	glm::mat<3, 3, double> mat(camera_mat);
 	return glm::vec<3, double>(0, 0, -1) * mat;
 }
 
-glm::vec<3, double> camera::get_pos()
+glm::vec<3, double> Camera::get_pos()
 {
 	return pos;
 }
 
-void camera::init()
+void Camera::init()
 {
 	collision_scene.load_model("../assets/model", "scene_collisions.stl");
 }
 
-void camera::update(double dt)
+void Camera::update(double dt)
 {
 	glm::vec<2, double> off(0, 0);
 	double m = 30;
 	
-	if(keyboard::is_pressed(GLFW_KEY_W))
+	if(Keyboard::is_pressed(GLFW_KEY_W))
 		off.y += 1;
-	if(keyboard::is_pressed(GLFW_KEY_S))
+	if(Keyboard::is_pressed(GLFW_KEY_S))
 		off.y -= 1;
-	if(keyboard::is_pressed(GLFW_KEY_A))
+	if(Keyboard::is_pressed(GLFW_KEY_A))
 		off.x -= 1;
-	if(keyboard::is_pressed(GLFW_KEY_D))
+	if(Keyboard::is_pressed(GLFW_KEY_D))
 		off.x += 1;
-	if(keyboard::is_pressed(GLFW_KEY_LEFT_SHIFT))
+	if(Keyboard::is_pressed(GLFW_KEY_LEFT_SHIFT))
 		m *= 1.5;
 	if(off.x != 0 || off.y != 0)
 		off = glm::normalize(off);
@@ -118,7 +118,7 @@ void camera::update(double dt)
 		velocity.y += rotated.y * m * dt;
 	}
 	
-	if(on_ground && keyboard::is_pressed(GLFW_KEY_SPACE))
+	if(on_ground && Keyboard::is_pressed(GLFW_KEY_SPACE))
 	{
 		velocity.z += 3.5;
 	}
@@ -139,7 +139,7 @@ void camera::update(double dt)
 	camera_mat = glm::translate(camera_mat, glm::vec3(-pos.x, -pos.y, -pos.z));
 }
 
-glm::mat4 camera::get_matrix()
+glm::mat4 Camera::get_matrix()
 {
 	return camera_mat;
 }

@@ -5,7 +5,7 @@
 
 #include <cmath>
 
-using namespace sim::reactor;
+using namespace Sim::Reactor;
 
 // Avogadro's Number
 static double N_a = 6.02214076e23;
@@ -69,22 +69,22 @@ glm::vec4 Rod::get_heat_colour() const
 
 	if(temp < 120)
 	{
-		return {0, util::map(temp, 0, 120, 0, 1), 1, 1};
+		return {0, Util::map(temp, 0, 120, 0, 1), 1, 1};
 	}
 
 	if(temp < 240)
 	{
-		return {0, 1, util::map(temp, 120, 240, 1, 0), 1};
+		return {0, 1, Util::map(temp, 120, 240, 1, 0), 1};
 	}
 
 	if(temp < 280)
 	{
-		return {util::map(temp, 240, 280, 0, 1), 1, 0, 1};
+		return {Util::map(temp, 240, 280, 0, 1), 1, 0, 1};
 	}
 
 	if(temp < 320)
 	{
-		return {1, util::map(temp, 280, 320, 1, 0), 0, 1};
+		return {1, Util::map(temp, 280, 320, 1, 0), 0, 1};
 	}
 
 	return {1, 0, 0, 1};
@@ -97,13 +97,13 @@ double Rod::get_flux() const
 
 double Rod::get_volume() const
 {
-	auto r = (sim::reactor::Reactor*)reactor;
+	auto r = (Sim::Reactor::Reactor*)reactor;
 	return r->cell_width * r->cell_width * r->cell_height;
 }
 
 double Rod::get_side_area() const
 {
-	auto r = (sim::reactor::Reactor*)reactor;
+	auto r = (Sim::Reactor::Reactor*)reactor;
 	return r->cell_width * r->cell_height;
 }
 

@@ -3,7 +3,7 @@
 
 #include <json/json.h>
 
-namespace sim::coolant
+namespace Sim::Coolant
 {
 
 struct VaporPressure

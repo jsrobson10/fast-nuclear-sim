@@ -3,7 +3,7 @@
 
 #include <cmath>
 
-using namespace sim::reactor::control;
+using namespace Sim::Reactor::Control;
 
 constexpr double boron_density = 2340000; // g/m^3
 constexpr double boron_molar_mass = 10; // g/mol

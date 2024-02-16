@@ -8,18 +8,18 @@
 
 #include "texture.hpp"
 
-using namespace sim::graphics;
+using namespace Sim::Graphics;
 
 static std::unordered_map<std::string, unsigned int> loaded; 
-unsigned int texture::handle_white;
+unsigned int Texture::handle_white;
 
-void texture::init()
+void Texture::init()
 {
 	unsigned char pixels[] = {255, 255, 255, 255};
 	handle_white = load_mem(pixels, 1, 1, 4);
 }
 
-unsigned int texture::load_mem(const unsigned char* data, int width, int height, int channels)
+unsigned int Texture::load_mem(const unsigned char* data, int width, int height, int channels)
 {
 	if(!data)
 	{
@@ -64,7 +64,7 @@ unsigned int texture::load_mem(const unsigned char* data, int width, int height,
 	return handle;
 }
 
-unsigned int texture::load_mem(const unsigned char* filedata, size_t len)
+unsigned int Texture::load_mem(const unsigned char* filedata, size_t len)
 {
 	int width, height, channels;
 	unsigned char* data = stbi_load_from_memory(filedata, len, &width, &height, &channels, 0);
@@ -73,7 +73,7 @@ unsigned int texture::load_mem(const unsigned char* filedata, size_t len)
 	return handle;
 }
 
-unsigned int texture::load(std::string path)
+unsigned int Texture::load(std::string path)
 {
 	const auto it = loaded.find(path);
 

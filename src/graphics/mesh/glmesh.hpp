@@ -8,7 +8,7 @@
 
 #include <glm/matrix.hpp>
 
-namespace sim::graphics
+namespace Sim::Graphics
 {
 
 struct GLMesh

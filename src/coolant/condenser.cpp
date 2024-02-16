@@ -4,7 +4,7 @@
 #include <cmath>
 #include <iostream>
 
-using namespace sim::coolant;
+using namespace Sim::Coolant;
 
 constexpr static double calc_cylinder(double h, double d)
 {

@@ -3,7 +3,7 @@
 
 #include <glm/matrix.hpp>
 
-namespace sim::graphics::locations
+namespace Sim::Graphics::Locations
 {
 
 extern const glm::mat4 monitors[7];

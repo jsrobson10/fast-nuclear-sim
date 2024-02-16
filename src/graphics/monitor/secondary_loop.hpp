@@ -3,21 +3,21 @@
 
 #include "../mesh/glmesh.hpp"
 
-namespace sim::graphics::monitor
+namespace Sim::Graphics::monitor
 {
 
 class SecondaryLoop
 {
-	sim::graphics::GLMesh mesh1, mesh2;
+	Sim::Graphics::GLMesh mesh1, mesh2;
 	double clock_at = 0, clock_now = 0;
 
-	sim::graphics::GLMesh gm_switch_2;
-	sim::graphics::GLMesh gm_switch_3;
+	Sim::Graphics::GLMesh gm_switch_2;
+	Sim::Graphics::GLMesh gm_switch_3;
 	
-	sim::graphics::Mesh m_joystick_turbine_bypass;
-	sim::graphics::Mesh m_joystick_turbine_inlet;
-	sim::graphics::Mesh m_switch_2;
-	sim::graphics::Mesh m_switch_3;
+	Sim::Graphics::Mesh m_joystick_turbine_bypass;
+	Sim::Graphics::Mesh m_joystick_turbine_inlet;
+	Sim::Graphics::Mesh m_switch_2;
+	Sim::Graphics::Mesh m_switch_3;
 	
 public:
 

@@ -19,7 +19,7 @@ std::ostream& operator<<(std::ostream& o, const glm::vec<N, T>& v)
 	return o;
 }
 
-namespace sim::util
+namespace Sim::Util
 {
 
 constexpr double calc_work(double j, double mass)
