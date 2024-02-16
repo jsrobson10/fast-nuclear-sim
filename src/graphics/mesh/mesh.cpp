@@ -21,8 +21,8 @@ void mesh::add(const mesh& o, glm::mat4 mat)
 	for(unsigned int i = 0; i < o.vertices.size(); i++)
 	{
 		arrays::vertex v = o.vertices[i];
-		v.normal = v.normal * mat3;
-		v.pos = v.pos * mat;
+		v.normal = mat3 * v.normal;
+		v.pos = mat * v.pos;
 		vertices.push_back(v);
 	}
 

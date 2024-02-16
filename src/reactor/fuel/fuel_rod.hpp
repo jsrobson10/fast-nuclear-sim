@@ -18,7 +18,6 @@ class fuel_rod : public sim::reactor::rod
 	virtual const char* get_name() const { return "Fuel"; }
 	virtual int get_id() const { return 1; }
 	virtual double get_energy_output() const;
-	virtual glm::vec4 get_colour() const;
 	
 public:
 

@@ -34,5 +34,23 @@ constexpr double calc_work(double j, double mass)
 	return m * std::sqrt(m * j / (mass * 0.001));
 }
 
+constexpr float map(float v, float imin, float imax, float omin, float omax)
+{
+	return (v - imin) * (omax - omin) / (imax - imin) + omin;
+}
+
+template<typename A, typename B>
+constexpr A mod(A a, B b)
+{
+	A v = std::fmod(a, b);
+
+	if(v < 0)
+	{
+		v += b;
+	}
+
+	return v;
+}
+
 };
 

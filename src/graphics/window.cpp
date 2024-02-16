@@ -109,9 +109,12 @@ void window::create()
 	shader::init_program();
 
 	sim::system& sys = sim::system::active;
-	mesh m;
+	mesh m, m2;
 
 	m.load_model("../assets", "scene-baked.glb");
+	m2.load_model("../assets/model", "monitor_graphics.stl");
+	m.add(m2, glm::mat4(1));
+
 	mesh_scene.bind();
 	mesh_scene.set(m, GL_STATIC_DRAW);
 

@@ -15,9 +15,13 @@ class turbine : public sim::coolant::fluid_holder
 	const double diameter;
 	const double friction = 1;
 	
+	double energy_generated = 0; // W
 	double velocity = 0; // m/s
+	double phase = 0;
 	
 public:
+	
+	bool breaker_closed = false;
 
 	turbine(coolant::fluid_t type, coolant::condenser* condenser, double length, double diameter, double mass);
 	turbine(const Json::Value& node, coolant::condenser* condenser);
@@ -43,6 +47,10 @@ public:
 	virtual double get_thermal_mass() const { return condenser->get_thermal_mass(); } // grams
 	virtual double get_pressure() const { return condenser->get_pressure(); } // pascals
 	virtual double get_gas_density() const { return condenser->get_gas_density(); } // g/L
+	
+	constexpr double get_energy_generated() const { return energy_generated; }
+	constexpr double get_phase() const { return phase; }
+	double get_phase_diff() const;
 	
 	operator Json::Value() const;
 };

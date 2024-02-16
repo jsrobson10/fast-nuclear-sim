@@ -20,22 +20,6 @@ secondary_loop::secondary_loop()
 
 }
 
-void secondary_loop::toggle_secondary_pump()
-{
-	system& sys = sim::system::active;
-	bool state = false;
-	sys.secondary_pump->powered = state = !sys.secondary_pump->powered;
-	gm_switch_2.model_matrix = glm::translate(glm::mat4(1), glm::vec3(0, state ? 0.07 : 0, 0));
-}
-
-void secondary_loop::toggle_freight_pump()
-{
-	system& sys = sim::system::active;
-	bool state = false;
-	sys.freight_pump->powered = state = !sys.freight_pump->powered;
-	gm_switch_3.model_matrix = glm::translate(glm::mat4(1), glm::vec3(0, state ? 0.07 : 0, 0));
-}
-
 void secondary_loop::init()
 {
 	mesh1.model_matrix = locations::monitors[5];
@@ -62,11 +46,11 @@ void secondary_loop::init()
 	mesh1.bind();
 	mesh1.set(rmesh, GL_STATIC_DRAW);
 
-	rmesh.load_model("../assets/model", "pump_switch_2.glb");
+	rmesh.load_model("../assets/model", "pump_switch_2.fbx");
 	gm_switch_2.bind();
 	gm_switch_2.set(rmesh, GL_STATIC_DRAW);
 	
-	rmesh.load_model("../assets/model", "pump_switch_3.glb");
+	rmesh.load_model("../assets/model", "pump_switch_3.fbx");
 	gm_switch_3.bind();
 	gm_switch_3.set(rmesh, GL_STATIC_DRAW);
 
@@ -106,11 +90,13 @@ void secondary_loop::update(double dt)
 		mesh2.set(rmesh, GL_DYNAMIC_DRAW);
 	}
 
-
 	if(m_switch_2.check_focus())
-		toggle_secondary_pump();
+		sys.secondary_pump->powered = !sys.secondary_pump->powered;
 	if(m_switch_3.check_focus())
-		toggle_freight_pump();
+		sys.freight_pump->powered = !sys.freight_pump->powered;
+	
+	gm_switch_2.model_matrix = glm::translate(glm::mat4(1), glm::vec3(0, sys.secondary_pump->powered ? 0.07 : 0, 0));
+	gm_switch_3.model_matrix = glm::translate(glm::mat4(1), glm::vec3(0, sys.freight_pump->powered ? 0.07 : 0, 0));
 }
 
 void secondary_loop::render()

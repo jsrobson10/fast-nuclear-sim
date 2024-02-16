@@ -35,9 +35,11 @@ public:
 	virtual double extract(val_t type, double s, double k, double o);
 	virtual double get(val_t type) const;
 	virtual std::unique_ptr<rod> clone() const { return std::make_unique<rod>(*this); }
-	virtual glm::vec4 get_colour() const { return {0, 0, 0, 0}; }
 	virtual double get_energy_output() const { return 0; }
 	virtual int get_id() const { return 0; }
+	
+	virtual glm::vec4 get_colour() const { return {0, 0, 0, 0}; }
+	glm::vec4 get_heat_colour() const;
 
 	virtual bool has_sensors(val_t t) const { return false; }
 	virtual bool should_display() const { return false; }

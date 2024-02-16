@@ -74,6 +74,7 @@ void reactor::update(double secs)
 {
 	int rods_lookup[size];
 	double temp_min, temp_max;
+	double flux_initial = get_flux();
 
 	get_stats(rod::val_t::HEAT, temp_min, temp_max);
 
@@ -102,6 +103,11 @@ void reactor::update(double secs)
 	if(rod_speed != 0)
 	{
 		update_selected(secs);
+	}
+
+	if(flux_initial > 0)
+	{
+		flux_rate = (get_flux() - flux_initial) / flux_initial / secs;
 	}
 }
 
@@ -243,9 +249,9 @@ void reactor::get_stats(rod::val_t type, double& min, double& max)
 reactor::reactor(const Json::Value& node, coolant::vessel* v) :
 		cell_width(node["cell_width"].asDouble()),
 		cell_height(node["cell_height"].asDouble()),
-		width(node["width"].asDouble()),
-		height(node["height"].asDouble()),
-		size(node["size"].asDouble())
+		width(node["width"].asInt()),
+		height(node["height"].asInt()),
+		size(node["size"].asInt())
 {
 	const Json::Value& j_rods = node["rods"];
 	

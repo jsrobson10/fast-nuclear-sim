@@ -8,16 +8,19 @@ namespace sim::graphics::monitor
 
 class primary_loop
 {
-	sim::graphics::glmesh mesh1, mesh2;
+	glmesh mesh1, mesh2;
 	double clock_at = 0, clock_now = 0;
 
-	sim::graphics::glmesh gm_switch_1;
+	glmesh gm_switch_pump;
+	glmesh gm_switch_bypass;
+	glmesh gm_switch_inlet;
 	
-	sim::graphics::mesh m_joystick_turbine_bypass;
-	sim::graphics::mesh m_joystick_turbine_inlet;
-	sim::graphics::mesh m_switch_1;
+	mesh m_joystick_turbine_bypass;
+	mesh m_joystick_turbine_inlet;
 
-	void toggle_primary_pump();
+	mesh m_switch_pump;
+	mesh m_switch_bypass;
+	mesh m_switch_inlet;
 	
 public:
 

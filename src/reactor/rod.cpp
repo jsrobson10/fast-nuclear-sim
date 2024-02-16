@@ -1,6 +1,7 @@
 
 #include "rod.hpp"
 #include "reactor.hpp"
+#include "../util/math.hpp"
 
 #include <cmath>
 
@@ -49,6 +50,44 @@ void rod::interact(rod* o, double secs)
 		o->vals_n[t] += v2;
 		vals_n[t] += v2;
 	}
+}
+
+glm::vec4 rod::get_heat_colour() const
+{
+	double temp = vals[val_t::HEAT];
+
+	if(temp < 0)
+	{
+		temp = 0;
+	}
+
+	// this should not happen
+	if(std::isnan(temp))
+	{
+		return {1, 0, 1, 1};
+	}
+
+	if(temp < 120)
+	{
+		return {0, util::map(temp, 0, 120, 0, 1), 1, 1};
+	}
+
+	if(temp < 240)
+	{
+		return {0, 1, util::map(temp, 120, 240, 1, 0), 1};
+	}
+
+	if(temp < 280)
+	{
+		return {util::map(temp, 240, 280, 0, 1), 1, 0, 1};
+	}
+
+	if(temp < 320)
+	{
+		return {1, util::map(temp, 280, 320, 1, 0), 0, 1};
+	}
+
+	return {1, 0, 0, 1};
 }
 
 double rod::get_flux() const

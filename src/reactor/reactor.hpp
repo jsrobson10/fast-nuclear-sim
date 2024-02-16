@@ -21,6 +21,8 @@ struct reactor
 	const int size;
 	
 	std::vector<std::unique_ptr<rod>> rods;
+
+	double flux_rate = 0;
 	double rod_speed = 0;
 	int cursor;
 

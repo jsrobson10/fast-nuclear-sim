@@ -45,49 +45,6 @@ double fuel_rod::get_energy_output() const
 	return s.get_energy() * mol * energy_density;
 }
 
-static float map(float v, float imin, float imax, float omin, float omax)
-{
-	return (v - imin) * (omax - omin) / (imax - imin) + omin;
-}
-
-glm::vec4 fuel_rod::get_colour() const
-{
-	double temp = vals[val_t::HEAT];
-
-	if(temp < 0)
-	{
-		temp = 0;
-	}
-
-	// this should not happen
-	if(std::isnan(temp))
-	{
-		return {1, 0, 1, 1};
-	}
-
-	if(temp < 120)
-	{
-		return {0, map(temp, 0, 120, 0, 1), 1, 1};
-	}
-
-	if(temp < 240)
-	{
-		return {0, 1, map(temp, 120, 240, 1, 0), 1};
-	}
-
-	if(temp < 280)
-	{
-		return {map(temp, 240, 280, 0, 1), 1, 0, 1};
-	}
-
-	if(temp < 320)
-	{
-		return {1, map(temp, 280, 320, 1, 0), 0, 1};
-	}
-
-	return {1, 0, 0, 1};
-}
-
 void fuel_rod::update(double secs)
 {
 	update_rod(secs);

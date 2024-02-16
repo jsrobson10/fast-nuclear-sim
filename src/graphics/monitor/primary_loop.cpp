@@ -54,15 +54,6 @@ primary_loop::primary_loop()
 
 }
 
-void primary_loop::toggle_primary_pump()
-{
-	system& sys = sim::system::active;
-	bool state;
-	
-	sys.primary_pump->powered = state = !sys.primary_pump->powered;
-	gm_switch_1.model_matrix = glm::translate(glm::mat4(1), glm::vec3(0, state ? 0.07 : 0, 0));
-}
-
 void primary_loop::init()
 {
 	mesh1.model_matrix = locations::monitors[3];
@@ -79,9 +70,9 @@ void primary_loop::init()
 	sim::graphics::mesh rmesh;
 
 	ss << "Turbine Bypass Valve\n\n";
-	ss << "Opened\nFlow\n\n";
+	ss << "Opened\nFlow\nSetpoint\n\n";
 	ss << "Turbine Inlet Valve\n\n";
-	ss << "Opened\nFlow\n\n";
+	ss << "Opened\nFlow\nSetpoint\n\n";
 	ss << "Primary Pump\n\n";
 	ss << "Power\nSpeed\nFlow\n\n";
 	ss << "Condenser\n\n";
@@ -94,13 +85,23 @@ void primary_loop::init()
 	mesh1.bind();
 	mesh1.set(rmesh, GL_STATIC_DRAW);
 
-	rmesh.load_model("../assets/model", "pump_switch_1.glb");
-	gm_switch_1.bind();
-	gm_switch_1.set(rmesh, GL_STATIC_DRAW);
+	rmesh.load_model("../assets/model", "pump_switch_1.fbx");
+	gm_switch_pump.bind();
+	gm_switch_pump.set(rmesh, GL_STATIC_DRAW);
+	
+	rmesh.load_model("../assets/model", "turbine_valve_bypass_switch.fbx");
+	gm_switch_bypass.bind();
+	gm_switch_bypass.set(rmesh, GL_STATIC_DRAW);
+
+	rmesh.load_model("../assets/model", "turbine_valve_inlet_switch.fbx");
+	gm_switch_inlet.bind();
+	gm_switch_inlet.set(rmesh, GL_STATIC_DRAW);
 
 	m_joystick_turbine_bypass.load_model("../assets/model", "turbine_valve_bypass_joystick.stl");
 	m_joystick_turbine_inlet.load_model("../assets/model", "turbine_valve_inlet_joystick.stl");
-	m_switch_1.load_model("../assets/model", "pump_switch_click_1.stl");
+	m_switch_pump.load_model("../assets/model", "pump_switch_click_1.stl");
+	m_switch_bypass.load_model("../assets/model", "turbine_valve_bypass_switch_click.stl");
+	m_switch_inlet.load_model("../assets/model", "turbine_valve_inlet_switch_click.stl");
 }
 
 void primary_loop::update(double dt)
@@ -117,9 +118,31 @@ void primary_loop::update(double dt)
 		ss << "\n\n";
 		ss << show( sys.turbine_bypass_valve->get_state() * 100 ) << " %\n";
 		ss << show( sys.turbine_bypass_valve->get_flow() / 1000 ) << " kg/s\n";
+
+		if(sys.turbine_bypass_valve->get_auto())
+		{
+			ss << show( sys.turbine_bypass_valve->get_setpoint() ) << " C\n";
+		}
+
+		else
+		{
+			ss << "-\n";
+		}
+
 		ss << "\n\n\n";
 		ss << show( sys.turbine_inlet_valve->get_state() * 100 ) << " %\n";
 		ss << show( sys.turbine_inlet_valve->get_flow() / 1000 ) << " kg/s\n";
+
+		if(sys.turbine_inlet_valve->get_auto())
+		{
+			ss << show( sys.turbine_inlet_valve->get_setpoint() ) << " C\n";
+		}
+
+		else
+		{
+			ss << "-\n";
+		}
+
 		ss << "\n\n\n";
 		ss << show( sys.primary_pump->get_power() * 100 ) << " %\n";
 		ss << show( sys.primary_pump->get_rpm() ) << " r/min\n";
@@ -139,8 +162,16 @@ void primary_loop::update(double dt)
 		focus::set(std::make_unique<valve_joystick>(sys.turbine_bypass_valve.get()));
 	if(m_joystick_turbine_inlet.check_focus())
 		focus::set(std::make_unique<valve_joystick>(sys.turbine_inlet_valve.get()));
-	if(m_switch_1.check_focus())
-		toggle_primary_pump();
+	if(m_switch_pump.check_focus())
+		sys.primary_pump->powered = !sys.primary_pump->powered;
+	if(m_switch_inlet.check_focus())
+		sys.turbine_inlet_valve->toggle_auto();
+	if(m_switch_bypass.check_focus())
+		sys.turbine_bypass_valve->toggle_auto();
+	
+	gm_switch_inlet.model_matrix = glm::translate(glm::mat4(1), glm::vec3(0, sys.turbine_inlet_valve->get_auto() ? 0.07 : 0, 0));
+	gm_switch_bypass.model_matrix = glm::translate(glm::mat4(1), glm::vec3(0, sys.turbine_bypass_valve->get_auto() ? 0.07 : 0, 0));
+	gm_switch_pump.model_matrix = glm::translate(glm::mat4(1), glm::vec3(0, sys.primary_pump->powered ? 0.07 : 0, 0));
 }
 
 void primary_loop::render()
@@ -153,8 +184,16 @@ void primary_loop::render()
 	mesh2.uniform();
 	mesh2.render();
 	
-	gm_switch_1.bind();
-	gm_switch_1.uniform();
-	gm_switch_1.render();
+	gm_switch_pump.bind();
+	gm_switch_pump.uniform();
+	gm_switch_pump.render();
+	
+	gm_switch_inlet.bind();
+	gm_switch_inlet.uniform();
+	gm_switch_inlet.render();
+
+	gm_switch_bypass.bind();
+	gm_switch_bypass.uniform();
+	gm_switch_bypass.render();
 }
 

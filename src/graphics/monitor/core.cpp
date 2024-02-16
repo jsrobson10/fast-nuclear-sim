@@ -7,6 +7,7 @@
 #include "../locations.hpp"
 #include "../input/focus.hpp"
 #include "../mesh/arrays.hpp"
+#include "../mesh/texture.hpp"
 #include "../../system.hpp"
 
 #include <glm/ext/matrix_transform.hpp>
@@ -106,17 +107,24 @@ void core::init()
 	mesh1.model_matrix = locations::monitors[2];
 	mesh1.colour_matrix = arrays::colour({1, 1, 1, 1});
 	
-	sim::graphics::mesh rmesh1, rmesh2;
+	sim::graphics::mesh rmesh;
 	
-	rmesh1.load_text("Reactor Core", 0.04);
-	rmesh2.load_model("../assets/model/", "reactor_core_interface_circle.stl");
-	rmesh1.add(rmesh2, glm::mat4(1));
-
+	rmesh.load_text("Reactor Core", 0.04);
 	mesh1.bind();
-	mesh1.set(rmesh1, GL_STATIC_DRAW);
-	rmesh2.load_model("../assets/model/", "reactor_core_interface_cell.stl");
+	mesh1.set(rmesh, GL_STATIC_DRAW);
+
+	unsigned int indices[] = {0, 1, 3, 0, 3, 2};
+	arrays::vertex vertices[] = {
+		{texture::handle_white, {0, 0}, {-0.75, -0.75, 0, 1}, {0, 0, -1}}, 
+		{texture::handle_white, {0, 1}, {-0.75,  0.75, 0, 1}, {0, 0, -1}}, 
+		{texture::handle_white, {1, 0}, { 0.75, -0.75, 0, 1}, {0, 0, -1}}, 
+		{texture::handle_white, {1, 1}, { 0.75,  0.75, 0, 1}, {0, 0, -1}}, 
+	};
+
+	rmesh.set_indices(indices, 6);
+	rmesh.set_vertices(vertices, 4);
 	mesh2.bind();
-	mesh2.set(rmesh2, GL_STATIC_DRAW);
+	mesh2.set(rmesh, GL_STATIC_DRAW);
 
 	m_buttons[0].load_model("../assets/model/", "reactor_core_button1.stl");
 	m_buttons[1].load_model("../assets/model/", "reactor_core_button2.stl");
@@ -169,13 +177,16 @@ void core::render()
 	double sy = 0.5 - (sys.reactor->height - 1) * step / 2.0;
 
 	glm::mat4 mat_scale = glm::scale(glm::mat4(1), glm::vec3(step * 0.4, step * 0.4, 1));
-	glm::mat4 mat_select = glm::translate(glm::mat4(1), glm::vec3(-0.8, -0.8, -0.001)) * glm::scale(glm::mat4(1), glm::vec3(0.5, 0.5, 1));
-	glm::mat4 mat_cursor = glm::translate(glm::mat4(1), glm::vec3(-0.8, 0.8, -0.001)) * glm::scale(glm::mat4(1), glm::vec3(0.5, 0.5, 1));
+	glm::mat4 mat_select = glm::translate(glm::mat4(1), glm::vec3(-0.8, -0.8, -0.001)) * glm::scale(glm::mat4(1), glm::vec3(0.25, 0.25, 1));
+	glm::mat4 mat_cursor = glm::translate(glm::mat4(1), glm::vec3(-0.8, 0.8, -0.001)) * glm::scale(glm::mat4(1), glm::vec3(0.25, 0.25, 1));
+	glm::mat4 mat_spec = glm::translate(glm::mat4(1), glm::vec3(0.8, -0.8, -0.001)) * glm::scale(glm::mat4(1), glm::vec3(0.25, 0.25, 1));
 
 	mesh1.bind();
 	mesh1.uniform();
 	mesh1.render();
 	mesh2.bind();
+
+	// this renderer is disgusting
 
 	for(int i = 0; i < sys.reactor->size; i++)
 	{
@@ -185,9 +196,16 @@ void core::render()
 		double oy = sy + y * step;
 
 		reactor::rod* r = sys.reactor->rods[i].get();
-		glm::vec4 colour = r->get_colour();
 
-		if(colour[3] == 0)
+		if(!r->should_display())
+		{
+			continue;
+		}
+
+		glm::vec4 colour_heat = r->get_heat_colour() * glm::vec4(glm::vec3(1), 1);
+		glm::vec4 colour_spec = r->get_colour();
+
+		if(colour_heat[3] == 0)
 		{
 			continue;
 		}
@@ -195,7 +213,7 @@ void core::render()
 		glm::mat4 mat = mesh1.model_matrix * glm::translate(glm::mat4(1), glm::vec3(ox, oy, 0)) * mat_scale;
 
 		mesh2.model_matrix = mat;
-		mesh2.colour_matrix = arrays::colour(colour);
+		mesh2.colour_matrix = arrays::colour(colour_heat);
 		mesh2.uniform();
 		mesh2.render();
 
@@ -211,6 +229,14 @@ void core::render()
 		{
 			mesh2.model_matrix = mat * mat_select;
 			mesh2.colour_matrix = arrays::colour({1, 1, 0, 1});
+			mesh2.uniform();
+			mesh2.render();
+		}
+
+		if(colour_spec[3] != 0)
+		{
+			mesh2.model_matrix = mat * mat_spec;
+			mesh2.colour_matrix = arrays::colour(colour_spec);
 			mesh2.uniform();
 			mesh2.render();
 		}

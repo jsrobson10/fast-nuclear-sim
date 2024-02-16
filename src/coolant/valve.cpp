@@ -23,9 +23,39 @@ void valve::clear_open_speed()
 	speed = 0;
 }
 
+void valve::toggle_auto()
+{
+	set_auto(!auto_on);
+}
+
+void valve::set_auto(bool state)
+{
+	if(state)
+	{
+		auto_th = src->get_heat();
+	}
+
+	else
+	{
+		auto_th = 0;
+	}
+
+	auto_on = state;
+	speed = 0;
+}
+
 void valve::update(double dt)
 {
-	state += speed * dt;
+	if(auto_on)
+	{
+		state -= pid.calculate(dt, auto_th, src->get_heat()) * dt;
+		auto_th += speed * dt * 100;
+	}
+
+	else
+	{
+		state += speed * dt;
+	}
 
 	if(state > 1) state = 1;
 	if(state < 0) state = 0;
@@ -81,11 +111,12 @@ void valve::update(double dt)
 	this->flow = (mass_s + mass_a) / dt;
 }
 
-valve::valve(const Json::Value& node, fluid_holder* src, fluid_holder* dst) : src(src), dst(dst), max(node["max"].asDouble())
+valve::valve(const Json::Value& node, fluid_holder* src, fluid_holder* dst) : src(src), dst(dst), max(node["max"].asDouble()), pid(node["pid"])
 {
-	speed = node["speed"].asDouble();
 	state = node["state"].asDouble();
 	flow = node["flow"].asDouble();
+	auto_th = node["auto_th"].asDouble();
+	auto_on = node["auto_on"].asBool();
 }
 
 valve::operator Json::Value() const
@@ -93,9 +124,11 @@ valve::operator Json::Value() const
 	Json::Value node;
 
 	node["max"] = max;
-	node["speed"] = speed;
 	node["state"] = state;
 	node["flow"] = flow;
+	node["auto_th"] = auto_th;
+	node["auto_on"] = auto_on;
+	node["pid"] = pid;
 
 	return node;
 }

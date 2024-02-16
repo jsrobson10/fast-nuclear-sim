@@ -18,9 +18,6 @@ class secondary_loop
 	sim::graphics::mesh m_joystick_turbine_inlet;
 	sim::graphics::mesh m_switch_2;
 	sim::graphics::mesh m_switch_3;
-
-	void toggle_secondary_pump();
-	void toggle_freight_pump();
 	
 public:
 
