@@ -3,16 +3,17 @@
 #include <GLFW/glfw3.h>
 
 #include "vessel.hpp"
-#include "helpers.hpp"
 #include "../../reactor/rod.hpp"
 #include "../../reactor/control/boron_rod.hpp"
 #include "../locations.hpp"
 #include "../../system.hpp"
+#include "../../util/streams.hpp"
 
 #include <glm/ext/matrix_transform.hpp>
 #include <sstream>
 
 using namespace Sim::Graphics::Monitor;
+using namespace Sim::Util::Streams;
 
 Vessel::Vessel()
 {
@@ -94,11 +95,11 @@ void Vessel::update(double dt)
 
 	ss << "\n\n";
 	ss << show( sys.vessel->get_heat() ) << " C\n";
-	ss << show( sys.vessel->get_steam() ) << " g\n";
-	ss << show( sys.vessel->get_pressure() * 0.001 ) << " kPa\n";
+	show_units( ss, sys.vessel->get_steam() ) << "g\n";
+	show_units( ss, sys.vessel->get_pressure() ) << "Pa\n";
 	ss << show( sys.vessel->get_level() / 1000 ) << " / " << show( sys.vessel->get_volume() / 1000 ) << " kL\n";
 	ss << show( sys.vessel->get_void_ratio() * 100 ) << " %\n\n\n\n";
-	ss << show( sys.reactor->get_flux() ) << " n/cm2/s\n\n\n";
+	show_units( ss, sys.reactor->get_flux() ) << "n/cm2/s\n\n\n";
 //	ss << show( sys.reactor->flux_rate * 100 ) << " %/s\n\n\n";
 	ss << show( temp_min ) << " C\n";
 	ss << show( temp_max ) << " C\n\n\n";

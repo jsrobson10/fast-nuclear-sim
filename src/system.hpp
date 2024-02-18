@@ -45,6 +45,8 @@ struct System
 
 	void update(double dt);
 
+	static void save(const char* path);
+	static void load(const char* path);
 	static void save();
 	static void load();
 

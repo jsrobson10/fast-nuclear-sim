@@ -114,7 +114,7 @@ System::operator Json::Value() const
 	return node;
 }
 
-void System::save()
+void System::save(const char* path)
 {
 	Json::Value root(active);
 	root["camera"] = Graphics::Camera::serialize();
@@ -124,20 +124,30 @@ void System::save()
 	builder["indentation"] = "";
 
 	std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
-	std::ofstream savefile("savefile.json");
+	std::ofstream savefile(path);
 	writer->write(root, &savefile);
 	savefile.close();
 }
 
-void System::load()
+void System::load(const char* path)
 {
 	Json::Value root;
-	std::ifstream savefile("savefile.json");
+	std::ifstream savefile(path);
 	savefile >> root;
 	savefile.close();
 
 	System sys(root);
 	Graphics::Camera::load(root["camera"]);
 	active = std::move(sys);
+}
+
+void System::save()
+{
+	save("savefile.json");
+}
+
+void System::load()
+{
+	load("savefile.json");
 }
 

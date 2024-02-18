@@ -2,6 +2,7 @@
 #include "rod.hpp"
 #include "reactor.hpp"
 #include "../util/math.hpp"
+#include "../util/streams.hpp"
 
 #include <cmath>
 
@@ -69,22 +70,22 @@ glm::vec4 Rod::get_heat_colour() const
 
 	if(temp < 120)
 	{
-		return {0, Util::map(temp, 0, 120, 0, 1), 1, 1};
+		return {0, Util::Math::map(temp, 0, 120, 0, 1), 1, 1};
 	}
 
 	if(temp < 240)
 	{
-		return {0, 1, Util::map(temp, 120, 240, 1, 0), 1};
+		return {0, 1, Util::Math::map(temp, 120, 240, 1, 0), 1};
 	}
 
 	if(temp < 280)
 	{
-		return {Util::map(temp, 240, 280, 0, 1), 1, 0, 1};
+		return {Util::Math::map(temp, 240, 280, 0, 1), 1, 0, 1};
 	}
 
 	if(temp < 320)
 	{
-		return {1, Util::map(temp, 280, 320, 1, 0), 0, 1};
+		return {1, Util::Math::map(temp, 280, 320, 1, 0), 0, 1};
 	}
 
 	return {1, 0, 0, 1};

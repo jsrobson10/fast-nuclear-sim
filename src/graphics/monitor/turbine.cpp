@@ -2,18 +2,19 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include "helpers.hpp"
 #include "turbine.hpp"
 #include "../locations.hpp"
 #include "../../system.hpp"
 #include "../../coolant/valve.hpp"
 #include "../input/focus.hpp"
+#include "../../util/streams.hpp"
 
 #include <glm/ext/matrix_transform.hpp>
 #include <iostream>
 
 using namespace Sim::Graphics;
 using namespace Sim::Graphics::Monitor;
+using namespace Sim::Util::Streams;
 
 Turbine::Turbine()
 {
@@ -77,7 +78,7 @@ void Turbine::update(double dt)
 
 		ss << "Local\n\n";
 		ss << show( sys.turbine->get_rpm() / 60 ) << " Hz\n";
-		ss << show( sys.turbine->get_energy_generated() ) << " W\n";
+		Util::Streams::show_units( ss, sys.turbine->get_energy_generated() ) << "W\n";
 
 		rmesh2.load_text(ss.str().c_str(), 0.04);
 		rmesh.add(rmesh2, glm::translate(glm::mat4(1), glm::vec3(0.4, 0.7, 0)));

@@ -2,18 +2,19 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include "helpers.hpp"
 #include "primary_loop.hpp"
 #include "../locations.hpp"
 #include "../../system.hpp"
 #include "../../coolant/valve.hpp"
 #include "../input/focus.hpp"
+#include "../../util/streams.hpp"
 
 #include <glm/ext/matrix_transform.hpp>
 #include <iostream>
 
 using namespace Sim::Graphics;
 using namespace Sim::Graphics::Monitor;
+using namespace Sim::Util::Streams;
 
 struct ValveJoystick : public Focus::FocusType
 {
@@ -117,7 +118,7 @@ void PrimaryLoop::update(double dt)
 
 		ss << "\n\n";
 		ss << show( sys.turbine_bypass_valve->get_state() * 100 ) << " %\n";
-		ss << show( sys.turbine_bypass_valve->get_flow() / 1000 ) << " kg/s\n";
+		show_units( ss, sys.turbine_bypass_valve->get_flow() ) << "g/s\n";
 
 		if(sys.turbine_bypass_valve->get_auto())
 		{
@@ -131,7 +132,7 @@ void PrimaryLoop::update(double dt)
 
 		ss << "\n\n\n";
 		ss << show( sys.turbine_inlet_valve->get_state() * 100 ) << " %\n";
-		ss << show( sys.turbine_inlet_valve->get_flow() / 1000 ) << " kg/s\n";
+		show_units( ss, sys.turbine_inlet_valve->get_flow() ) << "g/s\n";
 
 		if(sys.turbine_inlet_valve->get_auto())
 		{
@@ -146,11 +147,11 @@ void PrimaryLoop::update(double dt)
 		ss << "\n\n\n";
 		ss << show( sys.primary_pump->get_power() * 100 ) << " %\n";
 		ss << show( sys.primary_pump->get_rpm() ) << " r/min\n";
-		ss << show( sys.primary_pump->get_flow_mass() / 1000 ) << " kg/s\n";
+		show_units( ss, sys.primary_pump->get_flow_mass() ) << "g/s\n";
 		ss << "\n\n\n";
 		ss << show( sys.condenser->get_heat() ) << " C\n";
-		ss << show( sys.condenser->get_steam() ) << " g\n";
-		ss << show( sys.condenser->get_pressure() / 1000 ) << " kPa\n";
+		show_units( ss, sys.condenser->get_steam() ) << "g\n";
+		show_units( ss, sys.condenser->get_pressure() ) << "Pa\n";
 		ss << show( sys.condenser->get_level() / 1000 ) << " / " << show( sys.condenser->get_volume() / 1000 ) << " kL\n";
 
 		rmesh.load_text(ss.str().c_str(), 0.04);

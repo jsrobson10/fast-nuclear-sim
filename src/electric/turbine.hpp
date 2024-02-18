@@ -13,15 +13,19 @@ class Turbine : public Sim::Coolant::FluidHolder
 	
 	const double length;
 	const double diameter;
-	const double friction = 1;
+	const double friction = 1e5; // J/rev
 	
+	double energy_input = 0; // J
 	double energy_generated = 0; // W
 	double velocity = 0; // m/s
 	double phase = 0;
+
+	void set_rpm(double rpm);
 	
 public:
 	
 	bool breaker_closed = false;
+	bool is_stable = false;
 
 	Turbine(Coolant::Fluid type, Coolant::Condenser* condenser, double length, double diameter, double mass);
 	Turbine(const Json::Value& node, Coolant::Condenser* condenser);

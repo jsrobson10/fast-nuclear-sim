@@ -28,7 +28,7 @@ int main()
 	feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
 #endif
 	
-//	tests::run();
+//	Tests::run();
 //	return 0;
 
 	Graphics::Window::create();

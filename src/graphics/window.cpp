@@ -112,6 +112,22 @@ void Window::create()
 	Mesh m, m2;
 
 	m.load_model("../assets", "scene-baked.glb");
+
+	// find the floor parts of the model and set them slightly transparent
+	for(int i = 0; i < m.indices.size(); i += 3)
+	{
+		Arrays::Vertex& v1 = m.vertices[m.indices[i]];
+		Arrays::Vertex& v2 = m.vertices[m.indices[i + 1]];
+		Arrays::Vertex& v3 = m.vertices[m.indices[i + 2]];
+
+		if(v1.pos.z <= 0 && v2.pos.z <= 0 && v3.pos.z <= 0)
+		{
+			v1.colour.w = 0.95;
+			v2.colour.w = 0.95;
+			v3.colour.w = 0.95;
+		}
+	}
+
 	m2.load_model("../assets/model", "monitor_graphics.stl");
 	m.add(m2, glm::mat4(1));
 
@@ -141,17 +157,8 @@ void Window::update(double dt)
 	UI::update(dt);
 }
 
-void Window::render()
+void render_scene()
 {
-	glm::mat4 mat_camera = Camera::get_matrix();
-	glm::mat4 mat_projection = glm::perspective(glm::radians(90.0f), Resize::get_aspect(), 0.01f, 20.f);
-	glUniformMatrix4fv(Shader::gl_projection, 1, false, &mat_projection[0][0]);
-	glUniformMatrix4fv(Shader::gl_camera, 1, false, &mat_camera[0][0]);
-	projection_matrix = mat_projection;
-
-	glClearColor(0, 0, 0, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
 	mesh_scene.bind();
 	mesh_scene.uniform();
 	mesh_scene.render();
@@ -163,6 +170,31 @@ void Window::render()
 	monitor_turbine.render();
 
 	Focus::render();
+}
+
+void Window::render()
+{
+	glm::mat4 mat_camera = Camera::get_matrix();
+	mat_camera = glm::scale(mat_camera, {1, 1, -1});
+
+	glm::mat4 mat_projection = glm::perspective(glm::radians(90.0f), Resize::get_aspect(), 0.01f, 20.f);
+	glUniformMatrix4fv(Shader::gl_projection, 1, false, &mat_projection[0][0]);
+	glUniformMatrix4fv(Shader::gl_camera, 1, false, &mat_camera[0][0]);
+	projection_matrix = mat_projection;
+
+	glClearColor(0, 0, 0, 1.0f);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	glFrontFace(GL_CW);
+	
+	render_scene();
+
+	mat_camera = Camera::get_matrix();
+	glUniformMatrix4fv(Shader::gl_camera, 1, false, &mat_camera[0][0]);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	glFrontFace(GL_CCW);
+
+	render_scene();
+
 	UI::render();
 	Focus::render_ui();
 

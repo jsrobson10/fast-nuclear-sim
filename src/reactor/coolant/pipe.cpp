@@ -10,7 +10,7 @@ Pipe::Pipe(Coolant::Vessel* v)
 	this->steam = 0;
 }
 
-Pipe::Pipe(const Json::Value& node, Coolant::Vessel* v) : vessel(v)
+Pipe::Pipe(const Json::Value& node, Coolant::Vessel* v) : Rod(node), vessel(v)
 {
 	steam = node["steam"].asDouble();
 }

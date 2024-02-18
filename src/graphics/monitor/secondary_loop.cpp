@@ -2,18 +2,19 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include "helpers.hpp"
 #include "secondary_loop.hpp"
 #include "../locations.hpp"
 #include "../../system.hpp"
 #include "../../coolant/valve.hpp"
 #include "../input/focus.hpp"
+#include "../../util/streams.hpp"
 
 #include <glm/ext/matrix_transform.hpp>
 #include <iostream>
 
 using namespace Sim::Graphics;
 using namespace Sim::Graphics::Monitor;
+using namespace Sim::Util::Streams;
 
 SecondaryLoop::SecondaryLoop()
 {
@@ -73,17 +74,17 @@ void SecondaryLoop::update(double dt)
 
 		ss << "\n\n";
 		ss << show( sys.evaporator->get_heat() ) << " C\n";
-		ss << show( sys.evaporator->get_steam_output() ) << " g/s\n";
-		ss << show( sys.evaporator->get_pressure() / 1000 ) << " kPa\n";
+		show_units( ss, sys.evaporator->get_steam_output() ) << "g/s\n";
+		show_units( ss, sys.evaporator->get_pressure() ) << "Pa\n";
 		ss << show( sys.evaporator->get_level() / 1000 ) << " / " << show( sys.evaporator->get_volume() / 1000 ) << " kL\n";
 		ss << "\n\n\n";
 		ss << show( sys.secondary_pump->get_power() * 100 ) << " %\n";
 		ss << show( sys.secondary_pump->get_rpm() ) << " r/min\n";
-		ss << show( sys.secondary_pump->get_flow_mass() / 1000 ) << " kg/s\n";
+		show_units( ss, sys.secondary_pump->get_flow_mass() ) << "g/s\n";
 		ss << "\n\n\n";
 		ss << show( sys.freight_pump->get_power() * 100 ) << " %\n";
 		ss << show( sys.freight_pump->get_rpm() ) << " r/min\n";
-		ss << show( sys.freight_pump->get_flow_mass() / 1000 ) << " kg/s\n";
+		show_units( ss, sys.freight_pump->get_flow_mass() ) << "g/s\n";
 
 		rmesh.load_text(ss.str().c_str(), 0.04);
 		mesh2.bind();

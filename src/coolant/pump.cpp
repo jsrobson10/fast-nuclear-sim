@@ -71,7 +71,7 @@ void Pump::update(double dt)
 			break;
 		}
 
-		velocity += Util::calc_work(dt * power * max_power, mass);
+		velocity += Util::Math::j_to_ms2(dt * power * max_power, mass);
 	}
 
 	else
@@ -90,7 +90,7 @@ void Pump::update(double dt)
 	double p_diff = (p_diff_1 + p_diff_2) / 2;
 	double work = p_diff * dst_volume * 0.001 + get_rpm() / 60 * dt * friction;
 
-	velocity = std::max(velocity - Util::calc_work(work, mass), 0.0);
+	velocity = std::max(velocity - Util::Math::j_to_ms2(work, mass), 0.0);
 	flow = dst_volume / dt;
 }
 

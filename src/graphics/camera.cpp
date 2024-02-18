@@ -139,6 +139,16 @@ void Camera::update(double dt)
 	camera_mat = glm::translate(camera_mat, glm::vec3(-pos.x, -pos.y, -pos.z));
 }
 
+double Camera::get_pitch()
+{
+	return pitch;
+}
+
+double Camera::get_yaw()
+{
+	return yaw;
+}
+
 glm::mat4 Camera::get_matrix()
 {
 	return camera_mat;

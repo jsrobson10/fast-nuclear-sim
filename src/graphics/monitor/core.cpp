@@ -3,12 +3,12 @@
 #include <GLFW/glfw3.h>
 
 #include "core.hpp"
-#include "helpers.hpp"
 #include "../locations.hpp"
 #include "../input/focus.hpp"
 #include "../mesh/arrays.hpp"
 #include "../mesh/texture.hpp"
 #include "../../system.hpp"
+#include "../../util/streams.hpp"
 
 #include <glm/ext/matrix_transform.hpp>
 
@@ -17,6 +17,7 @@
 
 using namespace Sim::Graphics;
 using namespace Sim::Graphics::Monitor;
+using namespace Sim::Util::Streams;
 
 static void set_all(bool state)
 {
