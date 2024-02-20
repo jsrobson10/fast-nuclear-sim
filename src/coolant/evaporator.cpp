@@ -39,18 +39,6 @@ void Evaporator::update(double dt)
 {
 	steam_output = steam / dt;
 	steam = 0;
-
-	// get to 101325 Pa
-
-	double P = 101325;									// Pa
-	double K = Conversions::Temperature::c_to_k(heat);	// K
-	double R = Util::Constants::R;						// J/K/mol
-
-	double n_g = air / Util::Constants::M_air;	// mol
-	double V_g = (volume - level) * 0.001;		// m^3
-
-	double n = (P * V_g) / (R * K);	// mol
-	air = n * Util::Constants::M_air; // g
 	
 	// evaporate liquid if above 60C
 	
@@ -64,6 +52,18 @@ void Evaporator::update(double dt)
 		steam_output += m_steam / dt;
 		heat = 40;
 	}
+
+	// get to 101325 Pa
+
+	double P = 101325;									// Pa
+	double K = Conversions::Temperature::c_to_k(heat);	// K
+	double R = Util::Constants::R;						// J/K/mol
+
+	double n_g = air / Util::Constants::M_air;	// mol
+	double V_g = (volume - level) * 0.001;		// m^3
+
+	double n = (P * V_g) / (R * K);	// mol
+	air = n * Util::Constants::M_air; // g
 }
 
 Evaporator::operator Json::Value() const
