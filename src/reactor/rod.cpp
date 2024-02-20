@@ -110,10 +110,10 @@ double Rod::get_side_area() const
 
 void Rod::update_rod(double secs)
 {
-	// decay the free neutrons
-	double m = std::pow(0.5, secs / 879.4);
-	vals[val_t::N_FAST] *= m;
-	vals[val_t::N_SLOW] *= m;
+//	// decay the free neutrons
+//	double m = std::pow(0.5, secs / 879.4);
+//	vals[val_t::N_FAST] *= m;
+//	vals[val_t::N_SLOW] *= m;
 
 	// clear data
 	for(int i = 0; i < Rod::VAL_N; i++)

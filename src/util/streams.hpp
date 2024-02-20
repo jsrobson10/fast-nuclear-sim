@@ -10,7 +10,8 @@ namespace Sim::Util::Streams
 
 constexpr double show(double v, double m)
 {
-	return (v == 0 ? 0 : std::round(v * m) / m);
+	v = std::round(v * m) / m;
+	return v == 0 ? 0 : v;
 }
 
 constexpr double show(double v)

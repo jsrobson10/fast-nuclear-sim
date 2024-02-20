@@ -62,6 +62,7 @@ void Valve::update(double dt)
 
 	if(src->get_gas_volume() == 0 || dst->get_gas_volume() == 0 || (src->get_gas() == 0 && dst->get_gas() == 0))
 	{
+	cleanup:
 		flow = 0;
 		return;
 	}
@@ -79,8 +80,11 @@ void Valve::update(double dt)
 
 	if(remove < 0)
 	{
-		ratio_a = src->get_air() / src->get_gas();
-		ratio_s = src->get_steam() / src->get_gas();
+		double g = src->get_gas();
+		if(g <= 0) goto cleanup;
+
+		ratio_a = src->get_air() / g;
+		ratio_s = src->get_steam() / g;
 
 		mol = FluidHolder::calc_pressure_mol(src->get_heat_k(), src->get_gas_volume(), pressure1 - remove);
 		
@@ -90,8 +94,11 @@ void Valve::update(double dt)
 
 	else
 	{
-		ratio_a = dst->get_air() / dst->get_gas();
-		ratio_s = dst->get_steam() / dst->get_gas();
+		double g = dst->get_gas();
+		if(g <= 0) goto cleanup;
+
+		ratio_a = dst->get_air() / g;
+		ratio_s = dst->get_steam() / g;
 
 		mol = FluidHolder::calc_pressure_mol(dst->get_heat_k(), dst->get_gas_volume(), pressure2 - remove);
 

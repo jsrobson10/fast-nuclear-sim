@@ -8,7 +8,6 @@ using namespace Sim::Reactor::Fuel;
 constexpr double fuel_density = 19100000; // g/m^3
 constexpr double fuel_molar_mass = 238.029; // g/mol
 constexpr double fuel_molar_density = fuel_density / fuel_molar_mass; // mol/m^3
-constexpr double energy_density = 165e11; // J/mol
 
 FuelRod::FuelRod(double fuel) : s(fuel)
 {
@@ -29,7 +28,7 @@ Json::Value FuelRod::serialize() const
 
 void FuelRod::display(std::ostream& o) const
 {
-	double mol = fuel_molar_density * get_volume();
+	double mol = fuel_molar_density * get_volume() * 0.001;
 	
 	o << "Fuel: " << (s.get_fuel() * mol) << " / " << (s.get_mass() * mol) << " mol\n";
 	o << "Efficiency: " << (s.get_efficiency() * 100) << " %\n";
@@ -40,16 +39,18 @@ void FuelRod::display(std::ostream& o) const
 
 double FuelRod::get_energy_output() const
 {
-	double mol = fuel_molar_density * get_volume();
+	double mol = fuel_molar_density * get_volume() * 0.001;
 
-	return s.get_energy() * mol * energy_density;
+	// mol * J/mol/s
+
+	return s.get_energy() * mol;
 }
 
 void FuelRod::update(double secs)
 {
 	update_rod(secs);
 	
-	double mol = fuel_molar_density * get_volume();
+	double mol = fuel_molar_density * get_volume() * 0.001;
 	
 	s.clear_energy();
 	s.clear_fast_neutrons();
@@ -57,7 +58,7 @@ void FuelRod::update(double secs)
 	s.add_slow_neutrons(vals[val_t::N_SLOW] / mol);
 	s.update(secs);
 
-	vals[val_t::HEAT] += s.get_energy() * mol * energy_density * secs;
+	vals[val_t::HEAT] += s.get_energy() * mol * secs;
 	vals[val_t::N_FAST] += s.get_fast_neutrons() * mol;
 	vals[val_t::N_SLOW] = s.get_slow_neutrons() * mol;
 }

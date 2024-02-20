@@ -43,7 +43,7 @@ void Vessel::init()
 	ss << "Void Ratio\n\n";
 	ss << "Reactor Core\n\n";
 	ss << "Neutron Flux\n\n";
-//	ss << "Increase Rate\n\n";
+	ss << "Energy Output\n\n";
 	ss << "Temperature\nMin\nMax\n\n";
 	ss << "Control Rods\nMin\nMax\nSpeed\n";
 
@@ -99,7 +99,8 @@ void Vessel::update(double dt)
 	show_units( ss, sys.vessel->get_pressure() ) << "Pa\n";
 	ss << show( sys.vessel->get_level() / 1000 ) << " / " << show( sys.vessel->get_volume() / 1000 ) << " kL\n";
 	ss << show( sys.vessel->get_void_ratio() * 100 ) << " %\n\n\n\n";
-	show_units( ss, sys.reactor->get_flux() ) << "n/cm2/s\n\n\n";
+	show_units( ss, sys.reactor->get_flux() ) << "n/cm2/s\n";
+	show_units( ss, sys.reactor->get_energy_output() ) << "W\n\n\n";
 //	ss << show( sys.reactor->flux_rate * 100 ) << " %/s\n\n\n";
 	ss << show( temp_min ) << " C\n";
 	ss << show( temp_max ) << " C\n\n\n";

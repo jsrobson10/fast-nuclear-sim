@@ -81,18 +81,19 @@ void System::update(double dt)
 	dt *= speed;
 	clock += dt;
 	
+	reactor->update(dt);
+	vessel->update(dt);
 	turbine_inlet_valve->update(dt);
 	turbine_bypass_valve->update(dt);
+	condenser->update(dt);
+	turbine->update(dt);
+	
 	primary_pump->update(dt);
 	secondary_pump->update(dt);
 	freight_pump->update(dt);
-	reactor->update(dt);
 
-	vessel->update(dt);
-	turbine->update(dt);
-	condenser->update(dt);
-	evaporator->update(dt);
 	condenser_secondary->update(dt);
+	evaporator->update(dt);
 }
 
 System::operator Json::Value() const
