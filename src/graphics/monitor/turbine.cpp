@@ -69,7 +69,7 @@ void Turbine::update(double dt)
 		ss << "\n\n";
 		ss << show( sys.turbine->get_heat() ) << " C\n";
 		ss << show( sys.turbine->get_pressure() / 1000 ) << " kPa\n";
-		ss << show( sys.turbine->get_rpm() ) << " r/min\n";
+		ss << show( sys.generator->get_rpm() ) << " r/min\n";
 		
 		rmesh2.load_text(ss.str().c_str(), 0.04);
 		rmesh.add(rmesh2, glm::translate(glm::mat4(1), glm::vec3(0.5, 0, 0)));
@@ -77,8 +77,8 @@ void Turbine::update(double dt)
 		ss = std::stringstream();
 
 		ss << "Local\n\n";
-		ss << show( sys.turbine->get_rpm() / 60 ) << " Hz\n";
-		Util::Streams::show_units( ss, sys.turbine->get_energy_generated() ) << "W\n";
+		ss << show( sys.generator->get_rpm() / 60 ) << " Hz\n";
+		Util::Streams::show_units( ss, sys.generator->get_energy_generated() ) << "W\n";
 
 		rmesh2.load_text(ss.str().c_str(), 0.04);
 		rmesh.add(rmesh2, glm::translate(glm::mat4(1), glm::vec3(0.4, 0.7, 0)));
@@ -86,7 +86,7 @@ void Turbine::update(double dt)
 		ss = std::stringstream();
 
 		ss << "Grid\n\n";
-		ss << show( 60 ) << " Hz\n";
+		ss << show( sys.grid->frequency ) << " Hz\n";
 
 		rmesh2.load_text(ss.str().c_str(), 0.04);
 		rmesh.add(rmesh2, glm::translate(glm::mat4(1), glm::vec3(0.7, 0.7, 0)));
@@ -95,21 +95,21 @@ void Turbine::update(double dt)
 		mesh2.set(rmesh, GL_DYNAMIC_DRAW);
 	}
 
-	double rpm = sys.turbine->get_rpm();
+	double rpm = sys.generator->get_rpm();
 
 	if(rpm > 3570 && rpm < 3630)
 	{
 		glm::mat4 mat = glm::mat4(1);
 		mat = glm::translate(mat, glm::vec3(6.35, 3.949, 1.35));
-		mat = glm::rotate(mat, float(sys.turbine->get_phase_diff()), glm::vec3(0, 1, 0));
+		mat = glm::rotate(mat, float(sys.generator->get_phase_diff()), glm::vec3(0, 1, 0));
 		mat = glm::translate(mat, glm::vec3(-6.35, -3.949, -1.35));
 		gm_synchroscope_dial.model_matrix = mat;
 	}
 
 	if(m_switch_breaker.check_focus())
-		sys.turbine->breaker_closed = !sys.turbine->breaker_closed;
+		sys.generator->breaker_closed = !sys.generator->breaker_closed;
 
-	gm_switch_breaker.model_matrix = glm::translate(glm::mat4(1), glm::vec3(0, sys.turbine->breaker_closed ? 0.07 : 0, 0));
+	gm_switch_breaker.model_matrix = glm::translate(glm::mat4(1), glm::vec3(0, sys.generator->breaker_closed ? 0.07 : 0, 0));
 }
 
 void Turbine::render()
@@ -122,7 +122,7 @@ void Turbine::render()
 	mesh2.uniform();
 	mesh2.render();
 
-	double rpm = System::active.turbine->get_rpm();
+	double rpm = System::active.generator->get_rpm();
 
 	if(rpm > 3570 && rpm < 3630)
 	{

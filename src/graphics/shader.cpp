@@ -17,6 +17,7 @@ int Shader::gl_tex_mat;
 int Shader::gl_model;
 int Shader::gl_camera;
 int Shader::gl_projection;
+int Shader::gl_brightness;
 
 static int load_shader(const char* src, int type)
 {
@@ -71,6 +72,7 @@ unsigned int Shader::init_program()
 	gl_model = glGetUniformLocation(prog_id, "model");
 	gl_camera = glGetUniformLocation(prog_id, "camera");
 	gl_projection = glGetUniformLocation(prog_id, "projection");
+	gl_brightness = glGetUniformLocation(prog_id, "brightness");
 
 	glUseProgram(prog_id);
 	glDeleteShader(vsh_id);

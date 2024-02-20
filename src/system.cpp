@@ -41,7 +41,10 @@ System::System()
 	vessel = std::make_unique<Reactor::Coolant::Vessel>(Sim::Coolant::WATER, 8, 10, 6e6, 5e5, 10);
 	reactor = std::make_unique<Reactor::Reactor>(Sim::Reactor::Builder(19, 19, 1.0 / 4.0, 4, Reactor::Fuel::FuelRod(0.2), vessel.get(), layout));
 	condenser = std::make_unique<Coolant::Condenser>(Sim::Coolant::WATER, 6, 4, 3e6, 30000);
-	turbine = std::make_unique<Electric::Turbine>(Sim::Coolant::WATER, condenser.get(), 6, 3, 2e6);
+
+	grid = std::make_unique<Electric::Grid>();
+	turbine = std::make_unique<Electric::Turbine>(condenser.get());
+	generator = std::make_unique<Electric::Generator>(turbine.get(), grid.get(), 6, 3, 2e6);
 	
 	sink = std::make_unique<Coolant::Sink>(Sim::Coolant::WATER, 11, 0, 0);
 	evaporator = std::make_unique<Coolant::Evaporator>(Sim::Coolant::WATER, 2, 30, 0, 1000);
@@ -62,7 +65,10 @@ System::System(const Json::Value& node)
 	vessel = std::make_unique<Reactor::Coolant::Vessel>(node["vessel"]);
 	reactor = std::make_unique<Reactor::Reactor>(node["reactor"], vessel.get());
 	condenser = std::make_unique<Coolant::Condenser>(node["condenser"]);
-	turbine = std::make_unique<Electric::Turbine>(node["turbine"], condenser.get());
+
+	grid = std::make_unique<Electric::Grid>(node["grid"]);
+	turbine = std::make_unique<Electric::Turbine>(condenser.get());
+	generator = std::make_unique<Electric::Generator>(node["generator"], turbine.get(), grid.get());
 
 	evaporator = std::make_unique<Coolant::Evaporator>(node["evaporator"]);
 	sink = std::make_unique<Coolant::Sink>(evaporator->fluid, 11, 0, 0);
@@ -81,13 +87,16 @@ void System::update(double dt)
 	dt *= speed;
 	clock += dt;
 	
+	grid->update(dt);
 	reactor->update(dt);
 	vessel->update(dt);
 	turbine_inlet_valve->update(dt);
 	turbine_bypass_valve->update(dt);
 	condenser->update(dt);
+
 	turbine->update(dt);
-	
+	generator->update(dt);
+
 	primary_pump->update(dt);
 	secondary_pump->update(dt);
 	freight_pump->update(dt);
@@ -100,8 +109,9 @@ System::operator Json::Value() const
 {
 	Json::Value node;
 
+	node["grid"] = *grid;
 	node["vessel"] = *vessel;
-	node["turbine"] = *turbine;
+	node["generator"] = *generator;
 	node["condenser"] = *condenser;
 	node["evaporator"] = *evaporator;
 	node["pump"]["primary"] = *primary_pump;

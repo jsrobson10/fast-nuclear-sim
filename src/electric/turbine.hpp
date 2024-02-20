@@ -11,27 +11,14 @@ class Turbine : public Sim::Coolant::FluidHolder
 {
 	Coolant::Condenser* const condenser;
 	
-	const double length;
-	const double diameter;
-	const double friction = 1e5; // J/rev
-	
-	double energy_input = 0; // J
-	double energy_generated = 0; // W
-	double velocity = 0; // m/s
-	double phase = 0;
-
-	void set_rpm(double rpm);
+	double energy_output = 0; // J
 	
 public:
 	
-	bool breaker_closed = false;
-	bool is_stable = false;
-
-	Turbine(Coolant::Fluid type, Coolant::Condenser* condenser, double length, double diameter, double mass);
-	Turbine(const Json::Value& node, Coolant::Condenser* condenser);
+	Turbine(Coolant::Condenser* condenser);
 	
 	void update(double dt);
-	double get_rpm() const;
+	double extract_energy();
 	
 	virtual double add_heat(double m, double t) { return condenser->add_heat(m, t); }
 	virtual double extract_fluid(double amount) { return condenser->extract_fluid(amount); }
@@ -51,12 +38,6 @@ public:
 	virtual double get_thermal_mass() const { return condenser->get_thermal_mass(); } // grams
 	virtual double get_pressure() const { return condenser->get_pressure(); } // pascals
 	virtual double get_gas_density() const { return condenser->get_gas_density(); } // g/L
-	
-	constexpr double get_energy_generated() const { return energy_generated; }
-	constexpr double get_phase() const { return phase; }
-	double get_phase_diff() const;
-	
-	operator Json::Value() const;
 };
 
 };

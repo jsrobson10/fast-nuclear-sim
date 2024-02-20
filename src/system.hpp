@@ -13,6 +13,8 @@
 #include "coolant/evaporator.hpp"
 #include "coolant/sink.hpp"
 #include "electric/turbine.hpp"
+#include "electric/generator.hpp"
+#include "electric/grid.hpp"
 
 namespace Sim
 {
@@ -28,7 +30,10 @@ struct System
 	std::unique_ptr<Sim::Coolant::Condenser> condenser;
 	std::unique_ptr<Sim::Coolant::CondenserSecondary> condenser_secondary;
 	std::unique_ptr<Sim::Coolant::Evaporator> evaporator;
+
 	std::unique_ptr<Sim::Electric::Turbine> turbine;
+	std::unique_ptr<Sim::Electric::Generator> generator;
+	std::unique_ptr<Sim::Electric::Grid> grid;
 
 	std::unique_ptr<Sim::Coolant::Pump> primary_pump;
 	std::unique_ptr<Sim::Coolant::Pump> secondary_pump;

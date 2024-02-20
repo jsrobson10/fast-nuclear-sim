@@ -25,6 +25,7 @@
 #include "monitor/secondary_loop.hpp"
 #include "monitor/turbine.hpp"
 #include "mesh/texture.hpp"
+#include "../system.hpp"
 #include "ui.hpp"
 
 using namespace Sim::Graphics;
@@ -177,9 +178,11 @@ void Window::render()
 	glm::mat4 mat_camera = Camera::get_matrix();
 	mat_camera = glm::scale(mat_camera, {1, 1, -1});
 
+	glm::vec3 brightness = glm::vec3(Sim::System::active.grid->get_light_intensity());
 	glm::mat4 mat_projection = glm::perspective(glm::radians(90.0f), Resize::get_aspect(), 0.01f, 20.f);
 	glUniformMatrix4fv(Shader::gl_projection, 1, false, &mat_projection[0][0]);
 	glUniformMatrix4fv(Shader::gl_camera, 1, false, &mat_camera[0][0]);
+	glUniform3fv(Shader::gl_brightness, 1, &brightness[0]);
 	projection_matrix = mat_projection;
 
 	glClearColor(0, 0, 0, 1.0f);
@@ -194,6 +197,9 @@ void Window::render()
 	glFrontFace(GL_CCW);
 
 	render_scene();
+
+	brightness = glm::vec3(1);
+	glUniform3fv(Shader::gl_brightness, 1, &brightness[0]);
 
 	UI::render();
 	Focus::render_ui();
