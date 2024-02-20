@@ -12,74 +12,53 @@
 
 using namespace Sim;
 
-Sim::System System::active;
+std::unique_ptr<Sim::System> System::active = std::make_unique<Sim::System>();
 
-System::System()
+const char* CORE_LAYOUT[] = {
+	"      C C C C      ",
+	"   C CFCFCFCFC C   ",
+	"  CFCFCFCFCFCFCFC  ",
+	" CFCFCFCFCFCFCFCFC ",
+	"  CFCFCFCFCFCFCFC  ",
+	" CFCFCFCFCFCFCFCFC ",
+	"CFCFCFCFCFCFCFCFCFC",
+	" CFCFCFCFCFCFCFCFC ",
+	"CFCFCFCFCFCFCFCFCFC",
+	" CFCFCFCFCFCFCFCFC ",
+	"CFCFCFCFCFCFCFCFCFC",
+	" CFCFCFCFCFCFCFCFC ",
+	"CFCFCFCFCFCFCFCFCFC",
+	" CFCFCFCFCFCFCFCFC ",
+	"  CFCFCFCFCFCFCFC  ",
+	" CFCFCFCFCFCFCFCFC ",
+	"  CFCFCFCFCFCFCFC  ",
+	"   C CFCFCFCFC C   ",
+	"      C C C C      "
+};
+
+System::System() :
+		vessel(Coolant::WATER, 8, 10, 6e6, 5e5, 10),
+		reactor(Reactor::Builder(19, 19, 1.0 / 4.0, 4, Reactor::Fuel::FuelRod(0.5), &vessel, CORE_LAYOUT)),
+		evaporator(Coolant::WATER, 2, 30, 0, 1000),
+		sink(Coolant::WATER, 11, 0, 0),
+		grid(),
+		freight_pump(&sink, &evaporator, 1e5, 1, 1e4, 0.1, 10, Coolant::Pump::mode_t::DST, 1e6),
+		loop(&vessel, &evaporator, &grid)
 {
-	const char* layout[] = {
-		"      C C C C      ",
-		"   C CFCFCFCFC C   ",
-		"  CFCFCFCFCFCFCFC  ",
-		" CFCFCFCFCFCFCFCFC ",
-		"  CFCFCFCFCFCFCFC  ",
-		" CFCFCFCFCFCFCFCFC ",
-		"CFCFCFCFCFCFCFCFCFC",
-		" CFCFCFCFCFCFCFCFC ",
-		"CFCFCFCFCFCFCFCFCFC",
-		" CFCFCFCFCFCFCFCFC ",
-		"CFCFCFCFCFCFCFCFCFC",
-		" CFCFCFCFCFCFCFCFC ",
-		"CFCFCFCFCFCFCFCFCFC",
-		" CFCFCFCFCFCFCFCFC ",
-		"  CFCFCFCFCFCFCFC  ",
-		" CFCFCFCFCFCFCFCFC ",
-		"  CFCFCFCFCFCFCFC  ",
-		"   C CFCFCFCFC C   ",
-		"      C C C C      "
-	};
 	
-	vessel = std::make_unique<Reactor::Coolant::Vessel>(Sim::Coolant::WATER, 8, 10, 6e6, 5e5, 10);
-	reactor = std::make_unique<Reactor::Reactor>(Sim::Reactor::Builder(19, 19, 1.0 / 4.0, 4, Reactor::Fuel::FuelRod(0.2), vessel.get(), layout));
-	condenser = std::make_unique<Coolant::Condenser>(Sim::Coolant::WATER, 6, 4, 3e6, 30000);
-
-	grid = std::make_unique<Electric::Grid>();
-	turbine = std::make_unique<Electric::Turbine>(condenser.get());
-	generator = std::make_unique<Electric::Generator>(turbine.get(), grid.get(), 6, 3, 2e6);
-	
-	sink = std::make_unique<Coolant::Sink>(Sim::Coolant::WATER, 11, 0, 0);
-	evaporator = std::make_unique<Coolant::Evaporator>(Sim::Coolant::WATER, 2, 30, 0, 1000);
-	condenser_secondary = std::make_unique<Coolant::CondenserSecondary>(condenser.get(), evaporator.get(), 1000);
-	
-	turbine_inlet_valve = std::make_unique<Coolant::Valve>(vessel.get(), turbine.get(), 0, 0.5);
-	turbine_bypass_valve = std::make_unique<Coolant::Valve>(vessel.get(), condenser.get(), 0, 0.5);
-
-	primary_pump = std::make_unique<Coolant::Pump>(condenser.get(), vessel.get(), 1e5, 1, 1e5, 0.1, 10, Coolant::Pump::mode_t::SRC, 35000);
-	secondary_pump = std::make_unique<Coolant::Pump>(evaporator.get(), condenser_secondary.get(), 1e5, 1, 1e4, 0.1, 1, Coolant::Pump::mode_t::NONE, 0);
-	freight_pump = std::make_unique<Coolant::Pump>(sink.get(), evaporator.get(), 1e5, 1, 1e4, 0.1, 10, Coolant::Pump::mode_t::DST, 1e6);
 }
 
-System::System(const Json::Value& node)
+System::System(const Json::Value& node) :
+		clock(node["clock"].asDouble()),
+		vessel(node["vessel"]),
+		reactor(node["reactor"], &vessel),
+		grid(node["grid"]),
+		evaporator(node["evaporator"]),
+		sink(evaporator.fluid, 11, 0, 0),
+		freight_pump(node["pump"]["freight"], &sink, &evaporator),
+		loop(node, &vessel, &evaporator, &grid)
 {
-	clock = node["clock"].asDouble();
-
-	vessel = std::make_unique<Reactor::Coolant::Vessel>(node["vessel"]);
-	reactor = std::make_unique<Reactor::Reactor>(node["reactor"], vessel.get());
-	condenser = std::make_unique<Coolant::Condenser>(node["condenser"]);
-
-	grid = std::make_unique<Electric::Grid>(node["grid"]);
-	turbine = std::make_unique<Electric::Turbine>(condenser.get());
-	generator = std::make_unique<Electric::Generator>(node["generator"], turbine.get(), grid.get());
-
-	evaporator = std::make_unique<Coolant::Evaporator>(node["evaporator"]);
-	sink = std::make_unique<Coolant::Sink>(evaporator->fluid, 11, 0, 0);
-	condenser_secondary = std::make_unique<Coolant::CondenserSecondary>(condenser.get(), evaporator.get(), 1000);
-
-	turbine_inlet_valve = std::make_unique<Coolant::Valve>(node["valve"]["turbine"]["inlet"], vessel.get(), turbine.get());
-	turbine_bypass_valve = std::make_unique<Coolant::Valve>(node["valve"]["turbine"]["bypass"], vessel.get(), condenser.get());
-
-	primary_pump = std::make_unique<Coolant::Pump>(node["pump"]["primary"], condenser.get(), vessel.get());
-	secondary_pump = std::make_unique<Coolant::Pump>(node["pump"]["secondary"], evaporator.get(), condenser_secondary.get());
-	freight_pump = std::make_unique<Coolant::Pump>(node["pump"]["freight"], sink.get(), evaporator.get());
+	
 }
 
 void System::update(double dt)
@@ -87,39 +66,23 @@ void System::update(double dt)
 	dt *= speed;
 	clock += dt;
 	
-	grid->update(dt);
-	reactor->update(dt);
-	vessel->update(dt);
-	turbine_inlet_valve->update(dt);
-	turbine_bypass_valve->update(dt);
-	condenser->update(dt);
-
-	turbine->update(dt);
-	generator->update(dt);
-
-	primary_pump->update(dt);
-	secondary_pump->update(dt);
-	freight_pump->update(dt);
-
-	condenser_secondary->update(dt);
-	evaporator->update(dt);
+	grid.update(dt);
+	reactor.update(dt);
+	vessel.update(dt);
+	freight_pump.update(dt);
+	evaporator.update(dt);
+	loop.update(dt);
 }
 
 System::operator Json::Value() const
 {
-	Json::Value node;
+	Json::Value node(loop);
 
-	node["grid"] = *grid;
-	node["vessel"] = *vessel;
-	node["generator"] = *generator;
-	node["condenser"] = *condenser;
-	node["evaporator"] = *evaporator;
-	node["pump"]["primary"] = *primary_pump;
-	node["pump"]["secondary"] = *secondary_pump;
-	node["pump"]["freight"] = *freight_pump;
-	node["valve"]["turbine"]["inlet"] = *turbine_inlet_valve;
-	node["valve"]["turbine"]["bypass"] = *turbine_bypass_valve;
-	node["reactor"] = *reactor;
+	node["grid"] = grid;
+	node["vessel"] = vessel;
+	node["evaporator"] = evaporator;
+	node["pump"]["freight"] = freight_pump;
+	node["reactor"] = reactor;
 	node["clock"] = clock;
 
 	return node;
@@ -127,7 +90,7 @@ System::operator Json::Value() const
 
 void System::save(const char* path)
 {
-	Json::Value root(active);
+	Json::Value root(*active);
 	root["camera"] = Graphics::Camera::serialize();
 
 	Json::StreamWriterBuilder builder;
@@ -147,8 +110,8 @@ void System::load(const char* path)
 	savefile >> root;
 	savefile.close();
 
-	System sys(root);
 	Graphics::Camera::load(root["camera"]);
+	std::unique_ptr<System> sys = std::make_unique<System>(root);
 	active = std::move(sys);
 }
 

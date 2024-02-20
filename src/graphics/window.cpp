@@ -109,7 +109,7 @@ void Window::create()
 
 	Shader::init_program();
 
-	Sim::System& sys = Sim::System::active;
+	Sim::System& sys = *System::active;
 	Mesh m, m2;
 
 	m.load_model("../assets", "scene-baked.glb");
@@ -178,7 +178,7 @@ void Window::render()
 	glm::mat4 mat_camera = Camera::get_matrix();
 	mat_camera = glm::scale(mat_camera, {1, 1, -1});
 
-	glm::vec3 brightness = glm::vec3(Sim::System::active.grid->get_light_intensity());
+	glm::vec3 brightness = glm::vec3(System::active->grid.get_light_intensity());
 	glm::mat4 mat_projection = glm::perspective(glm::radians(90.0f), Resize::get_aspect(), 0.01f, 20.f);
 	glUniformMatrix4fv(Shader::gl_projection, 1, false, &mat_projection[0][0]);
 	glUniformMatrix4fv(Shader::gl_camera, 1, false, &mat_camera[0][0]);

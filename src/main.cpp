@@ -41,10 +41,10 @@ int main()
 		long now = Util::Time::get_now();
 		long passed = now - clock;
 		double dt = (double)passed / 1e6;
+
 		clock += passed;
-		at += dt * Sim::System::active.speed;
-		
-		Sim::System::active.update(dt);
+		at += dt * Sim::System::active->speed;
+		Sim::System::active->update(dt);
 
 		Graphics::Camera::update(dt);
 		Graphics::Window::update(dt);

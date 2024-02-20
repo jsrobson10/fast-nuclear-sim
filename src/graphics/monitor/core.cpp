@@ -15,15 +15,16 @@
 #include <iostream>
 #include <sstream>
 
+using namespace Sim;
 using namespace Sim::Graphics;
 using namespace Sim::Graphics::Monitor;
 using namespace Sim::Util::Streams;
 
 static void set_all(bool state)
 {
-	for(int i = 0; i < Sim::System::active.reactor->rods.size(); i++)
+	for(int i = 0; i < System::active->reactor.rods.size(); i++)
 	{
-		Sim::Reactor::Rod* r = Sim::System::active.reactor->rods[i].get();
+		Reactor::Rod* r = System::active->reactor.rods[i].get();
 
 		if(r->should_select())
 		{
@@ -48,7 +49,7 @@ struct CoreMonitor : public Focus::FocusType
 			return;
 		}
 	
-		Sim::System& sys = Sim::System::active;
+		Sim::System& sys = *System::active;
 
 		switch(key)
 		{
@@ -56,25 +57,25 @@ struct CoreMonitor : public Focus::FocusType
 			set_all(true);
 			break;
 		case GLFW_KEY_KP_8:
-			sys.reactor->move_cursor(-sys.reactor->height);
+			sys.reactor.move_cursor(-sys.reactor.height);
 			break;
 		case GLFW_KEY_KP_9:
 			set_all(false);
 			break;
 		case GLFW_KEY_KP_4:
-			sys.reactor->move_cursor(-1);
+			sys.reactor.move_cursor(-1);
 			break;
 		case GLFW_KEY_KP_5:
-			sys.reactor->toggle_selected();
+			sys.reactor.toggle_selected();
 			break;
 		case GLFW_KEY_KP_6:
-			sys.reactor->move_cursor(1);
+			sys.reactor.move_cursor(1);
 			break;
 		case GLFW_KEY_KP_1:
-			sys.reactor->reset_rod_speed();
+			sys.reactor.reset_rod_speed();
 			break;
 		case GLFW_KEY_KP_2:
-			sys.reactor->move_cursor(sys.reactor->height);
+			sys.reactor.move_cursor(sys.reactor.height);
 			break;
 		default:
 			return;
@@ -95,13 +96,13 @@ struct CoreJoystick : public Focus::FocusType
 	
 	virtual void on_cursor_pos(double x, double y)
 	{
-		Sim::System::active.reactor->add_rod_speed(y * 1e-6);
+		System::active->reactor.add_rod_speed(y * 1e-6);
 		parent->is_dirty = true;
 	}
 
 	virtual ~CoreJoystick()
 	{
-		Sim::System::active.reactor->reset_rod_speed();
+		System::active->reactor.reset_rod_speed();
 	}
 
 	virtual void on_mouse_button(int button, int action, int mods)
@@ -165,7 +166,7 @@ static Mesh add_dot(glm::mat4 model_mat, glm::vec4 colour)
 
 void Core::update(double dt)
 {
-	Sim::System& sys = Sim::System::active;
+	Sim::System& sys = *System::active;
 	
 	if(m_monitor.check_focus()) {
 		Focus::set(std::make_unique<CoreMonitor>(this));
@@ -174,7 +175,7 @@ void Core::update(double dt)
 		Focus::set(std::make_unique<CoreJoystick>(this));
 	}
 	if(m_scram.check_focus()) {
-		sys.reactor->scram();
+		sys.reactor.scram();
 		is_dirty = true;
 	}
 	if(m_buttons[0].check_focus()) {
@@ -182,7 +183,7 @@ void Core::update(double dt)
 		is_dirty = true;
 	}
 	if(m_buttons[1].check_focus()) {
-		sys.reactor->move_cursor(-sys.reactor->height);
+		sys.reactor.move_cursor(-sys.reactor.height);
 		is_dirty = true;
 	}
 	if(m_buttons[2].check_focus()) {
@@ -190,23 +191,23 @@ void Core::update(double dt)
 		is_dirty = true;
 	}
 	if(m_buttons[3].check_focus()) {
-		sys.reactor->move_cursor(-1);
+		sys.reactor.move_cursor(-1);
 		is_dirty = true;
 	}
 	if(m_buttons[4].check_focus()) {
-		sys.reactor->toggle_selected();
+		sys.reactor.toggle_selected();
 		is_dirty = true;
 	}
 	if(m_buttons[5].check_focus()) {
-		sys.reactor->move_cursor(1);
+		sys.reactor.move_cursor(1);
 		is_dirty = true;
 	}
 	if(m_buttons[6].check_focus()) {
-		sys.reactor->reset_rod_speed();
+		sys.reactor.reset_rod_speed();
 		is_dirty = true;
 	}
 	if(m_buttons[7].check_focus()) {
-		sys.reactor->move_cursor(sys.reactor->height);
+		sys.reactor.move_cursor(sys.reactor.height);
 		is_dirty = true;
 	}
 
@@ -228,23 +229,23 @@ void Core::update(double dt)
 	Sim::Graphics::Mesh rmesh;
 	is_dirty = false;
 	
-	double step = 1 / (sys.vessel->diameter / sys.reactor->cell_width * 0.8);
-	double sx = 0.5 - (sys.reactor->width - 1) * step / 2.0;
-	double sy = 0.5 - (sys.reactor->height - 1) * step / 2.0;
+	double step = 1 / (sys.vessel.diameter / sys.reactor.cell_width * 0.8);
+	double sx = 0.5 - (sys.reactor.width - 1) * step / 2.0;
+	double sy = 0.5 - (sys.reactor.height - 1) * step / 2.0;
 
 	glm::mat4 mat_scale = glm::scale(glm::mat4(1), glm::vec3(step * 0.4, step * 0.4, 1));
 	glm::mat4 mat_select = glm::translate(glm::mat4(1), glm::vec3(-0.8, -0.8, -0.001)) * glm::scale(glm::mat4(1), glm::vec3(0.25, 0.25, 1));
 	glm::mat4 mat_cursor = glm::translate(glm::mat4(1), glm::vec3(-0.8, 0.8, -0.001)) * glm::scale(glm::mat4(1), glm::vec3(0.25, 0.25, 1));
 	glm::mat4 mat_spec = glm::translate(glm::mat4(1), glm::vec3(0.8, -0.8, -0.001)) * glm::scale(glm::mat4(1), glm::vec3(0.25, 0.25, 1));
 	
-	for(int i = 0; i < sys.reactor->size; i++)
+	for(int i = 0; i < sys.reactor.size; i++)
 	{
-		int x = i % sys.reactor->width;
-		int y = i / sys.reactor->width;
+		int x = i % sys.reactor.width;
+		int y = i / sys.reactor.width;
 		double ox = sx + x * step;
 		double oy = sy + y * step;
 
-		Reactor::Rod* r = sys.reactor->rods[i].get();
+		Reactor::Rod* r = sys.reactor.rods[i].get();
 
 		if(!r->should_display())
 		{
@@ -263,7 +264,7 @@ void Core::update(double dt)
 
 		rmesh.add(add_dot(mat, colour_heat));
 
-		if(sys.reactor->cursor == i)
+		if(sys.reactor.cursor == i)
 		{
 			rmesh.add(add_dot(mat * mat_cursor, {1, 0, 0, 1}));
 		}

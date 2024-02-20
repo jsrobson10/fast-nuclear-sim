@@ -21,7 +21,7 @@ using namespace Sim::Graphics::Widget;
 void Clock::update(double dt)
 {
 	Mesh m;
-	double at = System::active.clock;
+	double at = System::active->clock;
 	glm::vec2 wsize(Resize::get_size() / 2);
 	std::stringstream ss;
 

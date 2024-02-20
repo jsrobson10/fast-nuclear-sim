@@ -15,7 +15,7 @@ class CondenserSecondary : public FluidHolder
 	
 public:
 
-	CondenserSecondary(Condenser* primary, Evaporator* source, double volume);
+	CondenserSecondary(Condenser* primary, Evaporator* source);
 
 	virtual double add_heat(double m, double t) { return source->add_heat(m, t); }
 	virtual double extract_fluid(double amount) { return source->extract_fluid(amount); }

@@ -63,7 +63,7 @@ void SecondaryLoop::init()
 
 void SecondaryLoop::update(double dt)
 {
-	System& sys = Sim::System::active;
+	System& sys = *System::active;
 	clock_now += dt;
 
 	if(clock_at + 1.0/30.0 < clock_now)
@@ -73,18 +73,18 @@ void SecondaryLoop::update(double dt)
 		clock_at += 1.0/30.0;
 
 		ss << "\n\n";
-		ss << show( sys.evaporator->get_heat() ) << " C\n";
-		show_units( ss, sys.evaporator->get_steam_output() ) << "g/s\n";
-		show_units( ss, sys.evaporator->get_pressure() ) << "Pa\n";
-		ss << show( sys.evaporator->get_level() / 1000 ) << " / " << show( sys.evaporator->get_volume() / 1000 ) << " kL\n";
+		ss << show( sys.evaporator.get_heat() ) << " C\n";
+		show_units( ss, sys.evaporator.get_steam_output() ) << "g/s\n";
+		show_units( ss, sys.evaporator.get_pressure() ) << "Pa\n";
+		ss << show( sys.evaporator.get_level() / 1000 ) << " / " << show( sys.evaporator.get_volume() / 1000 ) << " kL\n";
 		ss << "\n\n\n";
-		ss << show( sys.secondary_pump->get_power() * 100 ) << " %\n";
-		ss << show( sys.secondary_pump->get_rpm() ) << " r/min\n";
-		show_units( ss, sys.secondary_pump->get_flow_mass() ) << "g/s\n";
+		ss << show( sys.loop.secondary_pump.get_power() * 100 ) << " %\n";
+		ss << show( sys.loop.secondary_pump.get_rpm() ) << " r/min\n";
+		show_units( ss, sys.loop.secondary_pump.get_flow_mass() ) << "g/s\n";
 		ss << "\n\n\n";
-		ss << show( sys.freight_pump->get_power() * 100 ) << " %\n";
-		ss << show( sys.freight_pump->get_rpm() ) << " r/min\n";
-		show_units( ss, sys.freight_pump->get_flow_mass() ) << "g/s\n";
+		ss << show( sys.freight_pump.get_power() * 100 ) << " %\n";
+		ss << show( sys.freight_pump.get_rpm() ) << " r/min\n";
+		show_units( ss, sys.freight_pump.get_flow_mass() ) << "g/s\n";
 
 		rmesh.load_text(ss.str().c_str(), 0.04);
 		mesh2.bind();
@@ -92,12 +92,12 @@ void SecondaryLoop::update(double dt)
 	}
 
 	if(m_switch_2.check_focus())
-		sys.secondary_pump->powered = !sys.secondary_pump->powered;
+		sys.loop.secondary_pump.powered = !sys.loop.secondary_pump.powered;
 	if(m_switch_3.check_focus())
-		sys.freight_pump->powered = !sys.freight_pump->powered;
+		sys.freight_pump.powered = !sys.freight_pump.powered;
 	
-	gm_switch_2.model_matrix = glm::translate(glm::mat4(1), glm::vec3(0, sys.secondary_pump->powered ? 0.07 : 0, 0));
-	gm_switch_3.model_matrix = glm::translate(glm::mat4(1), glm::vec3(0, sys.freight_pump->powered ? 0.07 : 0, 0));
+	gm_switch_2.model_matrix = glm::translate(glm::mat4(1), glm::vec3(0, sys.loop.secondary_pump.powered ? 0.07 : 0, 0));
+	gm_switch_3.model_matrix = glm::translate(glm::mat4(1), glm::vec3(0, sys.freight_pump.powered ? 0.07 : 0, 0));
 }
 
 void SecondaryLoop::render()

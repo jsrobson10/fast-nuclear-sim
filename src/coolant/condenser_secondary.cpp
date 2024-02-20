@@ -6,8 +6,8 @@
 
 using namespace Sim::Coolant;
 
-CondenserSecondary::CondenserSecondary(Condenser* primary, Evaporator* source, double volume) :
-		primary(primary), source(source), FluidHolder(primary->fluid, volume, 0)
+CondenserSecondary::CondenserSecondary(Condenser* primary, Evaporator* source) :
+		primary(primary), source(source), FluidHolder(primary->fluid, 1, 0)
 {
 	
 }

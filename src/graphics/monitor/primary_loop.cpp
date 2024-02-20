@@ -107,7 +107,7 @@ void PrimaryLoop::init()
 
 void PrimaryLoop::update(double dt)
 {
-	System& sys = Sim::System::active;
+	System& sys = *System::active;
 	clock_now += dt;
 
 	if(clock_at + 1.0/30.0 < clock_now)
@@ -117,12 +117,12 @@ void PrimaryLoop::update(double dt)
 		clock_at += 1.0/30.0;
 
 		ss << "\n\n";
-		ss << show( sys.turbine_bypass_valve->get_state() * 100 ) << " %\n";
-		show_units( ss, sys.turbine_bypass_valve->get_flow() ) << "g/s\n";
+		ss << show( sys.loop.turbine_bypass_valve.get_state() * 100 ) << " %\n";
+		show_units( ss, sys.loop.turbine_bypass_valve.get_flow() ) << "g/s\n";
 
-		if(sys.turbine_bypass_valve->get_auto())
+		if(sys.loop.turbine_bypass_valve.get_auto())
 		{
-			ss << show( sys.turbine_bypass_valve->get_setpoint() ) << " C\n";
+			ss << show( sys.loop.turbine_bypass_valve.get_setpoint() ) << " C\n";
 		}
 
 		else
@@ -131,12 +131,12 @@ void PrimaryLoop::update(double dt)
 		}
 
 		ss << "\n\n\n";
-		ss << show( sys.turbine_inlet_valve->get_state() * 100 ) << " %\n";
-		show_units( ss, sys.turbine_inlet_valve->get_flow() ) << "g/s\n";
+		ss << show( sys.loop.turbine_inlet_valve.get_state() * 100 ) << " %\n";
+		show_units( ss, sys.loop.turbine_inlet_valve.get_flow() ) << "g/s\n";
 
-		if(sys.turbine_inlet_valve->get_auto())
+		if(sys.loop.turbine_inlet_valve.get_auto())
 		{
-			ss << show( sys.turbine_inlet_valve->get_setpoint() ) << " C\n";
+			ss << show( sys.loop.turbine_inlet_valve.get_setpoint() ) << " C\n";
 		}
 
 		else
@@ -145,14 +145,14 @@ void PrimaryLoop::update(double dt)
 		}
 
 		ss << "\n\n\n";
-		ss << show( sys.primary_pump->get_power() * 100 ) << " %\n";
-		ss << show( sys.primary_pump->get_rpm() ) << " r/min\n";
-		show_units( ss, sys.primary_pump->get_flow_mass() ) << "g/s\n";
+		ss << show( sys.loop.primary_pump.get_power() * 100 ) << " %\n";
+		ss << show( sys.loop.primary_pump.get_rpm() ) << " r/min\n";
+		show_units( ss, sys.loop.primary_pump.get_flow_mass() ) << "g/s\n";
 		ss << "\n\n\n";
-		ss << show( sys.condenser->get_heat() ) << " C\n";
-		show_units( ss, sys.condenser->get_steam() ) << "g\n";
-		show_units( ss, sys.condenser->get_pressure() ) << "Pa\n";
-		ss << show( sys.condenser->get_level() / 1000 ) << " / " << show( sys.condenser->get_volume() / 1000 ) << " kL\n";
+		ss << show( sys.loop.condenser.get_heat() ) << " C\n";
+		show_units( ss, sys.loop.condenser.get_steam() ) << "g\n";
+		show_units( ss, sys.loop.condenser.get_pressure() ) << "Pa\n";
+		ss << show( sys.loop.condenser.get_level() / 1000 ) << " / " << show( sys.loop.condenser.get_volume() / 1000 ) << " kL\n";
 
 		rmesh.load_text(ss.str().c_str(), 0.04);
 		mesh2.bind();
@@ -160,19 +160,19 @@ void PrimaryLoop::update(double dt)
 	}
 
 	if(m_joystick_turbine_bypass.check_focus())
-		Focus::set(std::make_unique<ValveJoystick>(sys.turbine_bypass_valve.get()));
+		Focus::set(std::make_unique<ValveJoystick>(&sys.loop.turbine_bypass_valve));
 	if(m_joystick_turbine_inlet.check_focus())
-		Focus::set(std::make_unique<ValveJoystick>(sys.turbine_inlet_valve.get()));
+		Focus::set(std::make_unique<ValveJoystick>(&sys.loop.turbine_inlet_valve));
 	if(m_switch_pump.check_focus())
-		sys.primary_pump->powered = !sys.primary_pump->powered;
+		sys.loop.primary_pump.powered = !sys.loop.primary_pump.powered;
 	if(m_switch_inlet.check_focus())
-		sys.turbine_inlet_valve->toggle_auto();
+		sys.loop.turbine_inlet_valve.toggle_auto();
 	if(m_switch_bypass.check_focus())
-		sys.turbine_bypass_valve->toggle_auto();
+		sys.loop.turbine_bypass_valve.toggle_auto();
 	
-	gm_switch_inlet.model_matrix = glm::translate(glm::mat4(1), glm::vec3(0, sys.turbine_inlet_valve->get_auto() ? 0.07 : 0, 0));
-	gm_switch_bypass.model_matrix = glm::translate(glm::mat4(1), glm::vec3(0, sys.turbine_bypass_valve->get_auto() ? 0.07 : 0, 0));
-	gm_switch_pump.model_matrix = glm::translate(glm::mat4(1), glm::vec3(0, sys.primary_pump->powered ? 0.07 : 0, 0));
+	gm_switch_inlet.model_matrix = glm::translate(glm::mat4(1), glm::vec3(0, sys.loop.turbine_inlet_valve.get_auto() ? 0.07 : 0, 0));
+	gm_switch_bypass.model_matrix = glm::translate(glm::mat4(1), glm::vec3(0, sys.loop.turbine_bypass_valve.get_auto() ? 0.07 : 0, 0));
+	gm_switch_pump.model_matrix = glm::translate(glm::mat4(1), glm::vec3(0, sys.loop.primary_pump.powered ? 0.07 : 0, 0));
 }
 
 void PrimaryLoop::render()
