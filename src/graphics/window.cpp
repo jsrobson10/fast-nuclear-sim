@@ -34,6 +34,7 @@ static GLFWwindow* win;
 static bool win_should_close = false;
 
 static GLMesh mesh_scene;
+
 static Monitor::Vessel monitor_vessel;
 static Monitor::Core monitor_core;
 static Monitor::PrimaryLoop monitor_primary_loop;
@@ -42,7 +43,7 @@ static Monitor::Turbine monitor_turbine;
 
 glm::mat4 Window::projection_matrix;
 
-void GLAPIENTRY cb_debug_message(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
+static void GLAPIENTRY cb_debug_message(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
 {
 	if(severity != GL_DEBUG_SEVERITY_NOTIFICATION)
 	{
@@ -58,6 +59,7 @@ void Window::create()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 	glfwWindowHint(GLFW_VISIBLE, false);
+	glfwWindowHint(GLFW_SAMPLES, 16);
 
 #ifdef __APPLE__
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
@@ -90,6 +92,7 @@ void Window::create()
 		return;
 	}
 
+	glEnable(GL_MULTISAMPLE);
 	glEnable(GL_DEBUG_OUTPUT);
 	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 	glEnable(GL_DEPTH_TEST);
@@ -107,7 +110,9 @@ void Window::create()
 	Font::init();
 	UI::init();
 
-	Shader::init_program();
+	Shader::BLUR.load("../assets/shader", "blur.vsh", "blur.fsh");
+	Shader::MAIN.load("../assets/shader", "main.vsh", "main.fsh");
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	Sim::System& sys = *System::active;
 	Mesh m, m2;
@@ -180,9 +185,9 @@ void Window::render()
 
 	glm::vec3 brightness = glm::vec3(System::active->grid.get_light_intensity());
 	glm::mat4 mat_projection = glm::perspective(glm::radians(90.0f), Resize::get_aspect(), 0.01f, 20.f);
-	glUniformMatrix4fv(Shader::gl_projection, 1, false, &mat_projection[0][0]);
-	glUniformMatrix4fv(Shader::gl_camera, 1, false, &mat_camera[0][0]);
-	glUniform3fv(Shader::gl_brightness, 1, &brightness[0]);
+	glUniformMatrix4fv(Shader::MAIN["projection"], 1, false, &mat_projection[0][0]);
+	glUniformMatrix4fv(Shader::MAIN["camera"], 1, false, &mat_camera[0][0]);
+	glUniform3fv(Shader::MAIN["brightness"], 1, &brightness[0]);
 	projection_matrix = mat_projection;
 
 	glClearColor(0, 0, 0, 1.0f);
@@ -192,14 +197,14 @@ void Window::render()
 	render_scene();
 
 	mat_camera = Camera::get_matrix();
-	glUniformMatrix4fv(Shader::gl_camera, 1, false, &mat_camera[0][0]);
+	glUniformMatrix4fv(Shader::MAIN["camera"], 1, false, &mat_camera[0][0]);
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glFrontFace(GL_CCW);
 
 	render_scene();
 
 	brightness = glm::vec3(1);
-	glUniform3fv(Shader::gl_brightness, 1, &brightness[0]);
+	glUniform3fv(Shader::MAIN["brightness"], 1, &brightness[0]);
 
 	UI::render();
 	Focus::render_ui();

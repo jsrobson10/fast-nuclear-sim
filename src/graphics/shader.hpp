@@ -1,16 +1,32 @@
 
 #pragma once
 
-namespace Sim::Graphics::Shader
+#include <unordered_map>
+
+namespace Sim::Graphics
 {
 
-extern int gl_tex_mat;
-extern int gl_model;
-extern int gl_camera;
-extern int gl_projection;
-extern int gl_brightness;
+class Shader
+{
+	unsigned int prog_id = 0;
 
-unsigned int init_program();
+	std::unordered_map<const char*, unsigned int> uniform_locations;
+	
+public:
+	
+	static Shader MAIN;
+	static Shader BLUR;
+
+	Shader();
+	Shader(const Shader& o) = delete;
+	Shader(Shader&& o);
+	~Shader();
+
+	void load(const char* path, const char* file_vsh, const char* file_fsh);
+	void use();
+
+	unsigned int operator[](const char* pos);
+};
 
 };
 

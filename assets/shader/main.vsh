@@ -19,8 +19,8 @@ out vec2 texPos;
 void main()
 {
 	vec4 pos = camera * model * aPos;
-	vec3 cNormal = vec3(0.f, 0.f, 1.f) * mat3(camera * model);
 
+//	vec3 cNormal = vec3(0.f, 0.f, 1.f) * mat3(camera * model);
 //	float brightness = dot(normalize(aNormal), normalize(cNormal)) * 0.25f + 0.75f;
 
 	colour = aColour;// * vec4(vec3(brightness), 1);

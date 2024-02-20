@@ -81,8 +81,8 @@ void Font::init()
 
 		glTextureParameteri(texids[i], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTextureParameteri(texids[i], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTextureParameteri(texids[i], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTextureParameteri(texids[i], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTextureParameteri(texids[i], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTextureParameteri(texids[i], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 		c.handle = glGetTextureHandleARB(texids[i]);
 		glMakeTextureHandleResidentARB(c.handle);

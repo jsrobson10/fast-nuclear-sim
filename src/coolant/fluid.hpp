@@ -53,7 +53,7 @@ struct Fluid
 	constexpr double l_to_mol(double l) const { return g_to_mol(l_to_g(l)); }
 };
 
-constexpr const Fluid WATER = Fluid(1000, 18, 2257, {8.07131 + 2.124903, 1730.63, 233.426 - 273.15});
+constexpr Fluid WATER = Fluid(1000, 18, 2257, {8.07131 + 2.124903, 1730.63, 233.426 - 273.15});
 
 }
 

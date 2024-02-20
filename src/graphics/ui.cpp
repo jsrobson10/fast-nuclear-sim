@@ -55,8 +55,8 @@ void UI::render()
 	
 	glm::mat4 mat_projection = glm::mat4(1);
 	glm::mat4 mat_camera = glm::scale(glm::mat4(1), glm::vec3(1.0f / wsize * glm::vec2(1, -1), -1));
-	glUniformMatrix4fv(Shader::gl_projection, 1, false, &mat_projection[0][0]);
-	glUniformMatrix4fv(Shader::gl_camera, 1, false, &mat_camera[0][0]);
+	glUniformMatrix4fv(Shader::MAIN["projection"], 1, false, &mat_projection[0][0]);
+	glUniformMatrix4fv(Shader::MAIN["camera"], 1, false, &mat_camera[0][0]);
 
 	s_mesh.bind();
 	s_mesh.uniform();

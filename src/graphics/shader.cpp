@@ -11,13 +11,8 @@
 
 using namespace Sim::Graphics;
 
-static unsigned int prog_id;
-
-int Shader::gl_tex_mat;
-int Shader::gl_model;
-int Shader::gl_camera;
-int Shader::gl_projection;
-int Shader::gl_brightness;
+Shader Shader::MAIN;
+Shader Shader::BLUR;
 
 static int load_shader(const char* src, int type)
 {
@@ -44,11 +39,32 @@ static std::string read_shader(const char* path)
 	return ss.str();
 }
 
-unsigned int Shader::init_program()
+Shader::Shader()
 {
-	std::string shader_vsh = read_shader("../assets/shader/main.vsh");
-	std::string shader_fsh = read_shader("../assets/shader/main.fsh");
-	
+
+}
+
+Shader::Shader(Shader&& o)
+{
+	prog_id = o.prog_id;
+	o.prog_id = 0;
+}
+
+Shader::~Shader()
+{
+	if(prog_id)
+	{
+		glDeleteProgram(prog_id);
+	}
+}
+
+void Shader::load(const char* path, const char* file_vsh, const char* file_fsh)
+{
+	std::string path_vsh = std::string(path) + "/" + std::string(file_vsh);
+	std::string path_fsh = std::string(path) + "/" + std::string(file_fsh);
+	std::string shader_vsh = read_shader(path_vsh.c_str());
+	std::string shader_fsh = read_shader(path_fsh.c_str());
+
 	int success;
 	int vsh_id = load_shader(shader_vsh.c_str(), GL_VERTEX_SHADER);
 	int fsh_id = load_shader(shader_fsh.c_str(), GL_FRAGMENT_SHADER);
@@ -63,21 +79,30 @@ unsigned int Shader::init_program()
 	{
 		char infoLog[512];
 		glGetProgramInfoLog(prog_id, 512, NULL, infoLog);
-		std::cout << "Shader Link Error: " << infoLog << std::endl;
+		std::cout << "Shader Link Error (" << path << "," << file_vsh << "," << file_fsh << "): " << infoLog << std::endl;
 		Window::close();
-		return 0;
+		return;
 	}
-	
-	gl_tex_mat = glGetUniformLocation(prog_id, "tex_mat");
-	gl_model = glGetUniformLocation(prog_id, "model");
-	gl_camera = glGetUniformLocation(prog_id, "camera");
-	gl_projection = glGetUniformLocation(prog_id, "projection");
-	gl_brightness = glGetUniformLocation(prog_id, "brightness");
 
 	glUseProgram(prog_id);
 	glDeleteShader(vsh_id);
 	glDeleteShader(fsh_id);
+}
 
-	return prog_id;
+void Shader::use()
+{
+	glUseProgram(prog_id);
+}
+
+unsigned int Shader::operator [](const char* pos)
+{
+	auto it = uniform_locations.find(pos);
+
+	if(it != uniform_locations.end())
+	{
+		return it->second;
+	}
+
+	return uniform_locations[pos] = glGetUniformLocation(prog_id, pos);
 }
 

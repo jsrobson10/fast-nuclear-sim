@@ -6,6 +6,7 @@
 #include "window.hpp"
 
 using namespace Sim::Graphics;
+using namespace Sim::Graphics::Resize;
 
 static bool is_fullscreen = false;
 
