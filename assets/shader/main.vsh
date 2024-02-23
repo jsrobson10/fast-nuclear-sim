@@ -7,25 +7,34 @@ layout (location = 1) in vec2 aTexPos;
 layout (location = 2) in vec4 aPos;
 layout (location = 3) in vec3 aNormal;
 layout (location = 4) in vec4 aColour;
+layout (location = 5) in vec3 aMaterial;
 
 uniform mat4 model;
 uniform mat4 camera;
 uniform mat4 projection;
 
-out vec4 colour;
-out flat sampler2D tex;
-out vec2 texPos;
+out VS_OUT {
+	vec3 normal;
+	vec4 colour;
+	vec3 pos;
+	vec2 tex_pos;
+	vec3 material;
+} vout;
+
+out flat sampler2D frag_tex;
 
 void main()
 {
-	vec4 pos = camera * model * aPos;
+	mat4 mvp = camera * model;
+	vec4 pos = mvp * aPos;
 
-//	vec3 cNormal = vec3(0.f, 0.f, 1.f) * mat3(camera * model);
-//	float brightness = dot(normalize(aNormal), normalize(cNormal)) * 0.25f + 0.75f;
-
-	colour = aColour;// * vec4(vec3(brightness), 1);
+	vout.normal = mat3(model) * aNormal;
+	vout.pos = (model * aPos).xyz;
+	vout.colour = aColour;
+	vout.tex_pos = aTexPos;
+	vout.material = aMaterial;
+	frag_tex = aTex;
+	
 	gl_Position = projection * pos;
-	texPos = aTexPos;
-	tex = aTex;
 }
 

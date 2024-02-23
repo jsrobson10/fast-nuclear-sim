@@ -28,10 +28,10 @@ void UI::init()
 	unsigned int handle = Texture::handle_white;
 	const unsigned int indices[] = {0, 1, 3, 0, 3, 2};
 	const Arrays::Vertex vertices[] = {
-		Arrays::Vertex(handle, {0, 0}, {-1, -1, 0, 1}, {0, 0, -1}),
-		Arrays::Vertex(handle, {0, 1}, {-1,  1, 0, 1}, {0, 0, -1}),
-		Arrays::Vertex(handle, {1, 0}, { 1, -1, 0, 1}, {0, 0, -1}),
-		Arrays::Vertex(handle, {1, 1}, { 1,  1, 0, 1}, {0, 0, -1}),
+		{.texid=handle, .texpos={0, 0}, .pos={-1, -1, 0, 1}, .normal={0, 0, -1}, .colour={1, 1, 1, 1}, .material={0, 0, 1}},
+		{.texid=handle, .texpos={0, 1}, .pos={-1,  1, 0, 1}, .normal={0, 0, -1}, .colour={1, 1, 1, 1}, .material={0, 0, 1}},
+		{.texid=handle, .texpos={1, 0}, .pos={ 1, -1, 0, 1}, .normal={0, 0, -1}, .colour={1, 1, 1, 1}, .material={0, 0, 1}},
+		{.texid=handle, .texpos={1, 1}, .pos={ 1,  1, 0, 1}, .normal={0, 0, -1}, .colour={1, 1, 1, 1}, .material={0, 0, 1}},
 	};
 
 	m.set_indices(indices, 6);
@@ -39,7 +39,6 @@ void UI::init()
 
 	s_mesh.bind();
 	s_mesh.set(m, GL_STATIC_DRAW);
-	s_mesh.colour_matrix = glm::scale(glm::mat4(1), glm::vec3(1) * 0.75f);
 }
 
 void UI::update(double dt)

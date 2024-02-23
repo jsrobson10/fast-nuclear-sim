@@ -26,12 +26,14 @@
 #include "monitor/turbine.hpp"
 #include "mesh/texture.hpp"
 #include "../system.hpp"
+#include "../util/streams.hpp"
 #include "ui.hpp"
 
 using namespace Sim::Graphics;
 
 static GLFWwindow* win;
 static bool win_should_close = false;
+static unsigned int ssbo_lights;
 
 static GLMesh mesh_scene;
 
@@ -110,14 +112,13 @@ void Window::create()
 	Font::init();
 	UI::init();
 
-	Shader::BLUR.load("../assets/shader", "blur.vsh", "blur.fsh");
 	Shader::MAIN.load("../assets/shader", "main.vsh", "main.fsh");
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	Sim::System& sys = *System::active;
 	Mesh m, m2;
 
-	m.load_model("../assets", "scene-baked.glb");
+	m.load_model("../assets", "scene.glb");
 
 	// find the floor parts of the model and set them slightly transparent
 	for(int i = 0; i < m.indices.size(); i += 3)
@@ -134,8 +135,21 @@ void Window::create()
 		}
 	}
 
-	m2.load_model("../assets/model", "monitor_graphics.stl");
-	m.add(m2, glm::mat4(1));
+	for(Light& light : m.lights)
+	{
+		std::cout << "Sent light: " << light.pos << " with " << light.colour << "\n";
+	}
+
+	std::cout << "Light struct is " << sizeof(m.lights[0]) << " bytes\n";
+
+	// send all the light data
+	glGenBuffers(1, &ssbo_lights);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_lights);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, m.lights.size() * sizeof(m.lights[0]), &m.lights[0], GL_STATIC_DRAW);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, ssbo_lights);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+	glUniform1i(Shader::MAIN["lights_count"], m.lights.size());
 
 	mesh_scene.bind();
 	mesh_scene.set(m, GL_STATIC_DRAW);
@@ -180,14 +194,17 @@ void render_scene()
 
 void Window::render()
 {
+	glm::vec3 camera_pos = Camera::get_pos();
 	glm::mat4 mat_camera = Camera::get_matrix();
 	mat_camera = glm::scale(mat_camera, {1, 1, -1});
+	camera_pos.z *= -1;
 
 	glm::vec3 brightness = glm::vec3(System::active->grid.get_light_intensity());
 	glm::mat4 mat_projection = glm::perspective(glm::radians(90.0f), Resize::get_aspect(), 0.01f, 20.f);
 	glUniformMatrix4fv(Shader::MAIN["projection"], 1, false, &mat_projection[0][0]);
 	glUniformMatrix4fv(Shader::MAIN["camera"], 1, false, &mat_camera[0][0]);
 	glUniform3fv(Shader::MAIN["brightness"], 1, &brightness[0]);
+	glUniform3fv(Shader::MAIN["camera_pos"], 1, &camera_pos[0]);
 	projection_matrix = mat_projection;
 
 	glClearColor(0, 0, 0, 1.0f);
@@ -196,8 +213,10 @@ void Window::render()
 	
 	render_scene();
 
+	camera_pos.z *= -1;
 	mat_camera = Camera::get_matrix();
 	glUniformMatrix4fv(Shader::MAIN["camera"], 1, false, &mat_camera[0][0]);
+	glUniform3fv(Shader::MAIN["camera_pos"], 1, &camera_pos[0]);
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glFrontFace(GL_CCW);
 

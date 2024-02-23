@@ -30,9 +30,12 @@ void Arrays::vertex_attrib_pointers()
 
 	glVertexAttribPointer(3, 3, GL_FLOAT, false, sizeof(v), ptr_diff(&v.normal, &v));
 	glEnableVertexAttribArray(3);
-	
+
 	glVertexAttribPointer(4, 4, GL_FLOAT, false, sizeof(v), ptr_diff(&v.colour, &v));
 	glEnableVertexAttribArray(4);
+
+	glVertexAttribPointer(5, 3, GL_FLOAT, false, sizeof(v), ptr_diff(&v.material, &v));
+	glEnableVertexAttribArray(5);
 }
 
 glm::mat4 Arrays::colour(glm::vec4 c)

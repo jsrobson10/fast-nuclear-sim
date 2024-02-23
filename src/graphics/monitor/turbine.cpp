@@ -48,7 +48,7 @@ void Turbine::init()
 	gm_synchroscope_dial.bind();
 	gm_synchroscope_dial.set(rmesh, GL_STATIC_DRAW);
 
-	rmesh.load_model("../assets/model", "turbine_breaker_switch.fbx");
+	rmesh.load_model("../assets/model", "turbine_breaker_switch.glb");
 	gm_switch_breaker.bind();
 	gm_switch_breaker.set(rmesh, GL_STATIC_DRAW);
 

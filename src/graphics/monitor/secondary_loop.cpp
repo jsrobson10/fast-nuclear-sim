@@ -47,11 +47,11 @@ void SecondaryLoop::init()
 	mesh1.bind();
 	mesh1.set(rmesh, GL_STATIC_DRAW);
 
-	rmesh.load_model("../assets/model", "pump_switch_2.fbx");
+	rmesh.load_model("../assets/model", "pump_switch_2.glb");
 	gm_switch_2.bind();
 	gm_switch_2.set(rmesh, GL_STATIC_DRAW);
 	
-	rmesh.load_model("../assets/model", "pump_switch_3.fbx");
+	rmesh.load_model("../assets/model", "pump_switch_3.glb");
 	gm_switch_3.bind();
 	gm_switch_3.set(rmesh, GL_STATIC_DRAW);
 

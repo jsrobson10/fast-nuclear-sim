@@ -10,6 +10,11 @@
 
 using namespace Sim::Graphics;
 
+Mesh::Mesh()
+{
+
+}
+
 void Mesh::add(const Mesh& o, glm::mat4 mat)
 {
 	unsigned int off = vertices.size();
@@ -30,6 +35,11 @@ void Mesh::add(const Mesh& o, glm::mat4 mat)
 	{
 		indices.push_back(o.indices[i] + off);
 	}
+}
+
+void Mesh::add(const Mesh& o)
+{
+	add(o, glm::mat4(1));
 }
 
 void Mesh::set_vertices(const Arrays::Vertex* data, size_t size)

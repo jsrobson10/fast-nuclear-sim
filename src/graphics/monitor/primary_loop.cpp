@@ -86,15 +86,15 @@ void PrimaryLoop::init()
 	mesh1.bind();
 	mesh1.set(rmesh, GL_STATIC_DRAW);
 
-	rmesh.load_model("../assets/model", "pump_switch_1.fbx");
+	rmesh.load_model("../assets/model", "pump_switch_1.glb");
 	gm_switch_pump.bind();
 	gm_switch_pump.set(rmesh, GL_STATIC_DRAW);
 	
-	rmesh.load_model("../assets/model", "turbine_valve_bypass_switch.fbx");
+	rmesh.load_model("../assets/model", "turbine_valve_bypass_switch.glb");
 	gm_switch_bypass.bind();
 	gm_switch_bypass.set(rmesh, GL_STATIC_DRAW);
 
-	rmesh.load_model("../assets/model", "turbine_valve_inlet_switch.fbx");
+	rmesh.load_model("../assets/model", "turbine_valve_inlet_switch.glb");
 	gm_switch_inlet.bind();
 	gm_switch_inlet.set(rmesh, GL_STATIC_DRAW);
 

@@ -136,10 +136,10 @@ void Mesh::load_text(const char* text, double size)
 		float ex = sx + ch.size.x * size;
 		float ey = sy + ch.size.y * size;
 
-		vertices.push_back(Arrays::Vertex(ch.handle, {0, 0}, {sx, sy, 0, 1}, {0, 0, -1}));
-		vertices.push_back(Arrays::Vertex(ch.handle, {0, 1}, {sx, ey, 0, 1}, {0, 0, -1}));
-		vertices.push_back(Arrays::Vertex(ch.handle, {1, 0}, {ex, sy, 0, 1}, {0, 0, -1}));
-		vertices.push_back(Arrays::Vertex(ch.handle, {1, 1}, {ex, ey, 0, 1}, {0, 0, -1}));
+		vertices.push_back(Arrays::Vertex{.texid=ch.handle, .texpos={0, 0}, .pos={sx, sy, 0, 1}, .normal={0, 0, -1}, .material={0, 0, 1}});
+		vertices.push_back(Arrays::Vertex{.texid=ch.handle, .texpos={0, 1}, .pos={sx, ey, 0, 1}, .normal={0, 0, -1}, .material={0, 0, 1}});
+		vertices.push_back(Arrays::Vertex{.texid=ch.handle, .texpos={1, 0}, .pos={ex, sy, 0, 1}, .normal={0, 0, -1}, .material={0, 0, 1}});
+		vertices.push_back(Arrays::Vertex{.texid=ch.handle, .texpos={1, 1}, .pos={ex, ey, 0, 1}, .normal={0, 0, -1}, .material={0, 0, 1}});
 		indices.insert(indices.end(), &index[0], &index[6]);
 
 		at += 4;

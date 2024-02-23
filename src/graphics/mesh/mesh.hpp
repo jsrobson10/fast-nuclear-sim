@@ -3,30 +3,34 @@
 
 #include <string>
 #include <sstream>
+#include <unordered_map>
+#include <string>
 #include <vector>
 
 #include <glm/matrix.hpp>
 
 #include "arrays.hpp"
-
+#include "light.hpp"
 
 namespace Sim::Graphics
 {
 
 struct Mesh
 {
+	std::unordered_map<std::string, glm::mat4> mat_nodes;
 	std::vector<Arrays::Vertex> vertices;
 	std::vector<unsigned int> indices;
+	std::vector<Light> lights;
 
-	constexpr Mesh() { }
+	Mesh();
 
 	void set_vertices(const Arrays::Vertex* data, size_t size);
 	void set_indices(const unsigned int* data, size_t size);
 	void load_model(std::string base, std::string path);
-	void load_model(std::string path) { load_model(".", path); }
+	void load_model(std::string path);
 	void load_text(const char* text, double size);
 	void add(const Mesh& o, glm::mat4 mat);
-	void add(const Mesh& o) { add(o, glm::mat4(1)); }
+	void add(const Mesh& o);
 
 	Mesh to_lines() const;
 	bool check_focus() const;

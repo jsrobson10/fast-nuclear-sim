@@ -152,10 +152,10 @@ static Mesh add_dot(glm::mat4 model_mat, glm::vec4 colour)
 {
 	unsigned int indices[] = {0, 1, 3, 0, 3, 2};
 	Arrays::Vertex vertices[] = {
-		{Texture::handle_white, {0, 0}, model_mat * glm::vec4(-0.75, -0.75, 0, 1), {0, 0, -1}, colour}, 
-		{Texture::handle_white, {0, 1}, model_mat * glm::vec4(-0.75,  0.75, 0, 1), {0, 0, -1}, colour}, 
-		{Texture::handle_white, {1, 0}, model_mat * glm::vec4( 0.75, -0.75, 0, 1), {0, 0, -1}, colour}, 
-		{Texture::handle_white, {1, 1}, model_mat * glm::vec4( 0.75,  0.75, 0, 1), {0, 0, -1}, colour}, 
+		{.texid=Texture::handle_white, .texpos={0, 0}, .pos=model_mat * glm::vec4(-0.75, -0.75, 0, 1), .normal={0, 0, -1}, .colour=colour, .material={0, 0, 1}}, 
+		{.texid=Texture::handle_white, .texpos={0, 1}, .pos=model_mat * glm::vec4(-0.75,  0.75, 0, 1), .normal={0, 0, -1}, .colour=colour, .material={0, 0, 1}}, 
+		{.texid=Texture::handle_white, .texpos={1, 0}, .pos=model_mat * glm::vec4( 0.75, -0.75, 0, 1), .normal={0, 0, -1}, .colour=colour, .material={0, 0, 1}}, 
+		{.texid=Texture::handle_white, .texpos={1, 1}, .pos=model_mat * glm::vec4( 0.75,  0.75, 0, 1), .normal={0, 0, -1}, .colour=colour, .material={0, 0, 1}}, 
 	};
 
 	Mesh mesh;
