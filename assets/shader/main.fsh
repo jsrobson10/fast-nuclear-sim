@@ -35,7 +35,7 @@ uniform vec3 camera_pos;
 
 uniform int lights_count;
 
-vec3 fresnelSchlick(float cosTheta, vec3 F0)
+vec3 FresnelSchlick(float cosTheta, vec3 F0)
 {
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
@@ -64,6 +64,7 @@ float GeometrySchlickGGX(float NdotV, float roughness)
 	
     return num / denom;
 }
+
 float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 {
     float NdotV = max(dot(N, V), 0.0);
@@ -74,9 +75,44 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
     return ggx1 * ggx2;
 }
 
+float LinRGB_To_sRGB(float c)
+{
+	if (c < 0.0031308f) {
+		return (c < 0.0f) ? 0.0f : c * 12.92f;
+	}
+
+	return 1.055f * pow(c, 1.0f / 2.4f) - 0.055f;
+}
+
+vec3 LinRGB_To_sRGB(vec3 c)
+{
+	c.r = LinRGB_To_sRGB(c.r);
+	c.g = LinRGB_To_sRGB(c.g);
+	c.b = LinRGB_To_sRGB(c.b);
+	return c;
+}
+
+float sRGB_To_LinRGB(float c)
+{
+	if (c < 0.04045f) {
+		return (c < 0.0f) ? 0.0f : c * (1.0f / 12.92f);
+	}
+
+	return pow((c + 0.055f) * (1.0f / 1.055f), 2.4f);
+}
+
+vec3 sRGB_To_LinRGB(vec3 c)
+{
+	c.r = sRGB_To_LinRGB(c.r);
+	c.g = sRGB_To_LinRGB(c.g);
+	c.b = sRGB_To_LinRGB(c.b);
+	return c;
+}
+
 void main()
 {
 	vec4 albedo = texture2D(frag_tex, vin.tex_pos) * vin.colour;
+	vec3 albedo_lin = sRGB_To_LinRGB(albedo.rgb);
 	
 	float roughness = vin.material[0];
 	float metalness = vin.material[1];
@@ -86,7 +122,7 @@ void main()
 	vec3 V = normalize(camera_pos - vin.pos.xyz);
 
 	vec3 F0 = vec3(0.04);
-	F0 = mix(F0, albedo.rgb, metalness);
+	F0 = mix(F0, albedo_lin, metalness);
 
 	vec3 Lo = vec3(0.0);
 	for(int i = 0; i < lights_count; i++)
@@ -103,7 +139,7 @@ void main()
 		// cook-torrance brdf
         float NDF = DistributionGGX(N, H, roughness);
         float G = GeometrySmith(N, V, L, roughness);
-        vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
+        vec3 F = FresnelSchlick(max(dot(H, V), 0.0), F0);
         
         vec3 kS = F;
         vec3 kD = vec3(1.0) - kS;
@@ -115,14 +151,12 @@ void main()
             
         // add to outgoing radiance Lo
         float NdotL = max(dot(N, L), 0.0);
-        Lo += (kD * albedo.rgb / PI + specular) * radiance * NdotL;
+        Lo += (kD * albedo_lin / PI + specular) * radiance * NdotL;
 	}
 	
-	vec3 ambient = vec3(0.03f) * albedo.rgb * brightness;
-	vec3 light = ambient + Lo;
+	vec3 ambient = vec3(0.03f) * albedo_lin * brightness;
+	vec3 light = LinRGB_To_sRGB(ambient + Lo);
 
-	light = light / (light + vec3(1.f));
-	light = pow(light, vec3(1.f/2.2f));
 	light = light * (1 - luminance) + albedo.rgb * luminance;
 	frag_colour = vec4(light, albedo.a);
 
