@@ -142,13 +142,6 @@ void Window::create()
 		}
 	}
 
-	for(Light& light : m.lights)
-	{
-		std::cout << "Sent light: " << light.pos << " with " << light.colour << "\n";
-	}
-
-	std::cout << "Light struct is " << sizeof(m.lights[0]) << " bytes\n";
-
 	// send all the light data
 	glGenBuffers(1, &ssbo_lights);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_lights);
@@ -184,6 +177,8 @@ void update_slow()
 	gm_dynamic_slow[gm_dynamic_slow_at].bind();
 	gm_dynamic_slow[gm_dynamic_slow_at].set(mesh, GL_DYNAMIC_DRAW);
 	gm_dynamic_slow_at = (gm_dynamic_slow_at + 1) % 2;
+
+	UI::update_slow();
 }
 
 void Window::update(double dt)
@@ -210,7 +205,7 @@ void Window::update(double dt)
 	{
 		gm_dynamic_fast.bind();
 		gm_dynamic_fast.set(mesh, GL_DYNAMIC_DRAW);
-		m_dynamic_fast = mesh;
+		m_dynamic_fast = std::move(mesh);
 	}
 
 	secs_wait_now += dt;

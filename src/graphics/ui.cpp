@@ -18,8 +18,12 @@
 
 using namespace Sim::Graphics;
 
-static GLMesh s_mesh;
+static GLMesh gm_ui;
+static GLMesh gm_dynamic_slow[2];
+
 static Widget::Clock w_clock;
+
+static int gm_dynamic_slow_at = 0;
 
 void UI::init()
 {
@@ -37,13 +41,24 @@ void UI::init()
 	m.set_indices(indices, 6);
 	m.set_vertices(vertices, 4);
 
-	s_mesh.bind();
-	s_mesh.set(m, GL_STATIC_DRAW);
+	gm_ui.bind();
+	gm_ui.set(m, GL_STATIC_DRAW);
 }
 
 void UI::update(double dt)
 {
 	w_clock.update(dt);
+}
+
+void UI::update_slow()
+{
+	Mesh mesh;
+
+	w_clock.remesh_slow(mesh);
+
+	gm_dynamic_slow[gm_dynamic_slow_at].bind();
+	gm_dynamic_slow[gm_dynamic_slow_at].set(mesh, GL_DYNAMIC_DRAW);
+	gm_dynamic_slow_at = (gm_dynamic_slow_at + 1) % 2;
 }
 
 void UI::render()
@@ -57,9 +72,13 @@ void UI::render()
 	glUniformMatrix4fv(Shader::MAIN["projection"], 1, false, &mat_projection[0][0]);
 	glUniformMatrix4fv(Shader::MAIN["camera"], 1, false, &mat_camera[0][0]);
 
-	s_mesh.bind();
-	s_mesh.uniform();
-	s_mesh.render();
+	gm_ui.bind();
+	gm_ui.uniform();
+	gm_ui.render();
+	
+	gm_dynamic_slow[gm_dynamic_slow_at].bind();
+	gm_dynamic_slow[gm_dynamic_slow_at].uniform();
+	gm_dynamic_slow[gm_dynamic_slow_at].render();
 
 	w_clock.render();
 }

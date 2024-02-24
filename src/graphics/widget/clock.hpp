@@ -8,9 +8,10 @@ namespace Sim::Graphics::Widget
 
 struct Clock
 {
-	GLMesh data;
+	double dt;
 	
 	void update(double dt);
+	void remesh_slow(Mesh& rmesh);
 	void render();
 };
 

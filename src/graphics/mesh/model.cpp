@@ -62,7 +62,7 @@ static void proc_mesh(ProcState& state, glm::mat4 mat, aiMesh* mesh, const aiSce
 	aiString name;
 
 	material->Get(AI_MATKEY_NAME, name);
-
+/*
 	std::cout << "Material " << name.C_Str() << " has " << material->mNumProperties << " properties\n";
 
 	for(int i = 0; i < material->mNumProperties; i++)
@@ -97,7 +97,7 @@ static void proc_mesh(ProcState& state, glm::mat4 mat, aiMesh* mesh, const aiSce
 		}
 		
 		std::cout << "\n";
-	}
+	}*/
 
 	glm::vec3 matv(0);
 	aiColor4D ai_cb;
@@ -116,8 +116,6 @@ static void proc_mesh(ProcState& state, glm::mat4 mat, aiMesh* mesh, const aiSce
 	{
 		cb = em;
 	}
-
-	std::cout << "Material: " << matv << "\n";
 
 	unsigned int handle = proc_texture(state, material, scene, aiTextureType_BASE_COLOR, 0);
 	unsigned int offset = state.offset;
@@ -238,6 +236,8 @@ void Mesh::load_model(std::string base, std::string filename)
 	Assimp::Importer importer;
 
 	const aiScene *scene = importer.ReadFile(path.c_str(), aiProcess_Triangulate | aiProcess_FlipUVs);
+	
+	std::cout << "Loaded model: " << path << "\n";
 
 	if(scene == nullptr)
 	{

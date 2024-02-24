@@ -92,7 +92,7 @@ unsigned int Texture::load(std::string path)
 		throw std::runtime_error("Failed to load path: " + path);
 	}
 
-	std::cout << "Loaded Image: " << path << "\n";
+	std::cout << "Loaded image: " << path << "\n";
 
 	loaded[path] = handle;
 	return handle;
