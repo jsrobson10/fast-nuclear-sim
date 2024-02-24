@@ -20,20 +20,12 @@ Vessel::Vessel()
 
 }
 
-void Vessel::init()
+void Vessel::init(Mesh& rmesh)
 {
-	mesh1.model_matrix = Locations::monitors[1];
-	mesh2.model_matrix = glm::translate(mesh1.model_matrix, glm::vec3(0.5, 0, 0));
+	mat = Locations::monitors[1];
 
-	mesh1.colour_matrix = mesh2.colour_matrix = {
-		1, 1, 1, 1,
-		0, 0, 0, 0,
-		0, 0, 0, 0,
-		0, 0, 0, 0
-	};
-	
 	std::stringstream ss;
-	Sim::Graphics::Mesh rmesh;
+	Sim::Graphics::Mesh mesh;
 
 	ss << "Reactor Vessel\n\n";
 	ss << "Heat\n";
@@ -47,27 +39,23 @@ void Vessel::init()
 	ss << "Temperature\nMin\nMax\n\n";
 	ss << "Control Rods\nMin\nMax\nSpeed\n";
 
-	rmesh.load_text(ss.str().c_str(), 0.04);
-	mesh1.bind();
-	mesh1.set(rmesh, GL_STATIC_DRAW);
+	mesh.load_text(ss.str().c_str(), 0.04);
+	rmesh.add(mesh, mat);
 }
 
 void Vessel::update(double dt)
 {
-	std::stringstream ss;
-	Sim::Graphics::Mesh rmesh;
-	Sim::System& sys = *System::active;
-	clock_now += dt;
+}
 
-	if(clock_at + 1.0/30.0 > clock_now)
-	{
-		return;
-	}
+void Vessel::remesh_slow(Mesh& rmesh)
+{
+	std::stringstream ss;
+	Sim::Graphics::Mesh mesh;
+	Sim::System& sys = *System::active;
 
 	double temp_min, temp_max;
 	double crod_min = INFINITY, crod_max = -INFINITY;
 
-	clock_at += 1.0/30.0;
 	sys.reactor.get_stats(Sim::Reactor::Rod::val_t::HEAT, temp_min, temp_max);
 
 	for(int i = 0; i < sys.reactor.size; i++)
@@ -110,19 +98,15 @@ void Vessel::update(double dt)
 	if(sys.reactor.rod_speed == 0) ss << " (Stopped)";
 	ss << "\n";
 
-	rmesh.load_text(ss.str().c_str(), 0.04);
-	mesh2.bind();
-	mesh2.set(rmesh, GL_DYNAMIC_DRAW);
+	mesh.load_text(ss.str().c_str(), 0.04);
+	rmesh.add(mesh, glm::translate(mat, glm::vec3(0.5, 0, 0)));
+}
+
+void Vessel::remesh_fast(Mesh& rmesh)
+{
 }
 
 void Vessel::render()
 {
-	mesh1.bind();
-	mesh1.uniform();
-	mesh1.render();
-
-	mesh2.bind();
-	mesh2.uniform();
-	mesh2.render();
 }
 

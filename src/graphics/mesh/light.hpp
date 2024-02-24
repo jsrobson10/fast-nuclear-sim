@@ -18,6 +18,8 @@ struct Light
 	float padding1;
 	glm::vec3 colour;
 	float padding2;
+	
+	constexpr bool operator==(const Light&) const = default;
 
 } __attribute__((packed));
 

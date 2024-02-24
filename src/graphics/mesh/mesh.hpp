@@ -29,6 +29,7 @@ struct Mesh
 	void load_model(std::string base, std::string path);
 	void load_model(std::string path);
 	void load_text(const char* text, double size);
+	void load_text(const char* text, double size, glm::vec2 align);
 	void add(const Mesh& o, glm::mat4 mat);
 	void add(const Mesh& o);
 
@@ -38,6 +39,8 @@ struct Mesh
 	bool check_intersect(glm::vec<3, double> pos, glm::vec<3, double> path) const;
 	glm::vec<3, double> calc_intersect(glm::vec<3, double> pos, glm::vec<3, double> path) const;
 	glm::vec<3, double> calc_intersect(glm::vec<3, double> pos, glm::vec<3, double> path, glm::vec<3, double>& normal_last) const;
+
+	bool operator==(const Mesh&) const = default;
 
 	template <class T>
 	void load_text(const char* header, T& item, double size)

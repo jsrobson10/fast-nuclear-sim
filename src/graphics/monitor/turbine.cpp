@@ -21,80 +21,33 @@ Turbine::Turbine()
 
 }
 
-void Turbine::init()
+void Turbine::init(Mesh& rmesh)
 {
-	mesh1.model_matrix = mesh2.model_matrix = Locations::monitors[4];
-	mesh1.colour_matrix = mesh2.colour_matrix = {
-		1, 1, 1, 1,
-		0, 0, 0, 0,
-		0, 0, 0, 0,
-		0, 0, 0, 0
-	};
+	mat = Locations::monitors[4];
 	
 	std::stringstream ss;
-	Sim::Graphics::Mesh rmesh, rmesh2;
+	Sim::Graphics::Mesh mesh;
 
 	ss << "Turbine\n\n";
 	ss << "Heat\nPressure\nSpeed\n\n";
 
-	rmesh.load_text(ss.str().c_str(), 0.04);
-	rmesh2.load_text("Synchroscope", 0.04);
-	rmesh.add(rmesh2, glm::translate(glm::mat4(1), glm::vec3(0, 0.6, 0)));
+	mesh.load_text(ss.str().c_str(), 0.04);
+	rmesh.add(mesh, mat);
 
-	mesh1.bind();
-	mesh1.set(rmesh, GL_STATIC_DRAW);
+	mesh.load_text("Synchroscope", 0.04);
+	rmesh.add(mesh, glm::translate(mat, glm::vec3(0, 0.6, 0)));
 	
-	rmesh.load_model("../assets/model", "synchroscope_dial.stl");
+	mesh.load_model("../assets/model", "synchroscope_dial.glb");
 	gm_synchroscope_dial.bind();
-	gm_synchroscope_dial.set(rmesh, GL_STATIC_DRAW);
+	gm_synchroscope_dial.set(mesh, GL_STATIC_DRAW);
 
-	rmesh.load_model("../assets/model", "turbine_breaker_switch.glb");
-	gm_switch_breaker.bind();
-	gm_switch_breaker.set(rmesh, GL_STATIC_DRAW);
-
+	g_switch_breaker.load_model("../assets/model", "turbine_breaker_switch.glb");
 	m_switch_breaker.load_model("../assets/model", "turbine_breaker_switch_click.stl");
 }
 
 void Turbine::update(double dt)
 {
 	System& sys = *System::active;
-	clock_now += dt;
-
-	if(clock_at + 1.0/30.0 < clock_now)
-	{
-		std::stringstream ss;
-		Sim::Graphics::Mesh rmesh, rmesh2;
-		clock_at += 1.0/30.0;
-
-		ss << "\n\n";
-		ss << show( sys.loop.turbine.get_heat() ) << " C\n";
-		ss << show( sys.loop.turbine.get_pressure() / 1000 ) << " kPa\n";
-		ss << show( sys.loop.generator.get_rpm() ) << " r/min\n";
-		
-		rmesh2.load_text(ss.str().c_str(), 0.04);
-		rmesh.add(rmesh2, glm::translate(glm::mat4(1), glm::vec3(0.5, 0, 0)));
-
-		ss = std::stringstream();
-
-		ss << "Local\n\n";
-		ss << show( sys.loop.generator.get_rpm() / 60 ) << " Hz\n";
-		Util::Streams::show_units( ss, sys.loop.generator.get_energy_generated() ) << "W\n";
-
-		rmesh2.load_text(ss.str().c_str(), 0.04);
-		rmesh.add(rmesh2, glm::translate(glm::mat4(1), glm::vec3(0.4, 0.7, 0)));
-
-		ss = std::stringstream();
-
-		ss << "Grid\n\n";
-		ss << show( sys.grid.frequency ) << " Hz\n";
-
-		rmesh2.load_text(ss.str().c_str(), 0.04);
-		rmesh.add(rmesh2, glm::translate(glm::mat4(1), glm::vec3(0.7, 0.7, 0)));
-
-		mesh2.bind();
-		mesh2.set(rmesh, GL_DYNAMIC_DRAW);
-	}
-
 	double rpm = sys.loop.generator.get_rpm();
 
 	if(rpm > 3570 && rpm < 3630)
@@ -109,19 +62,49 @@ void Turbine::update(double dt)
 	if(m_switch_breaker.check_focus())
 		sys.loop.generator.breaker_closed = !sys.loop.generator.breaker_closed;
 
-	gm_switch_breaker.model_matrix = glm::translate(glm::mat4(1), glm::vec3(0, sys.loop.generator.breaker_closed ? 0.07 : 0, 0));
+}
+
+void Turbine::remesh_slow(Mesh& rmesh)
+{
+	std::stringstream ss;
+	Sim::Graphics::Mesh mesh;
+	System& sys = *System::active;
+
+	ss << "\n\n";
+	ss << show( sys.loop.turbine.get_heat() ) << " C\n";
+	ss << show( sys.loop.turbine.get_pressure() / 1000 ) << " kPa\n";
+	ss << show( sys.loop.generator.get_rpm() ) << " r/min\n";
+	
+	mesh.load_text(ss.str().c_str(), 0.04);
+	rmesh.add(mesh, glm::translate(mat, glm::vec3(0.5, 0, 0)));
+
+	ss = std::stringstream();
+
+	ss << "Local\n\n";
+	ss << show( sys.loop.generator.get_rpm() / 60 ) << " Hz\n";
+	Util::Streams::show_units( ss, sys.loop.generator.get_energy_generated() ) << "W\n";
+
+	mesh.load_text(ss.str().c_str(), 0.04);
+	rmesh.add(mesh, glm::translate(mat, glm::vec3(0.4, 0.7, 0)));
+
+	ss = std::stringstream();
+
+	ss << "Grid\n\n";
+	ss << show( sys.grid.frequency ) << " Hz\n";
+
+	mesh.load_text(ss.str().c_str(), 0.04);
+	rmesh.add(mesh, glm::translate(mat, glm::vec3(0.7, 0.7, 0)));
+}
+
+void Turbine::remesh_fast(Mesh& rmesh)
+{
+	System& sys = *System::active;
+	float off1 = sys.loop.generator.breaker_closed ? 0.07 : 0;
+	rmesh.add(g_switch_breaker, glm::translate(glm::mat4(1), glm::vec3(0, off1, 0)));
 }
 
 void Turbine::render()
 {
-	mesh1.bind();
-	mesh1.uniform();
-	mesh1.render();
-
-	mesh2.bind();
-	mesh2.uniform();
-	mesh2.render();
-
 	double rpm = System::active->loop.generator.get_rpm();
 
 	if(rpm > 3570 && rpm < 3630)
@@ -130,9 +113,5 @@ void Turbine::render()
 		gm_synchroscope_dial.uniform();
 		gm_synchroscope_dial.render();
 	}
-
-	gm_switch_breaker.bind();
-	gm_switch_breaker.uniform();
-	gm_switch_breaker.render();
 }
 

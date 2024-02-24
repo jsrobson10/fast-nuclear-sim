@@ -8,14 +8,15 @@ namespace Sim::Graphics::Monitor
 
 class Vessel
 {
-	Sim::Graphics::GLMesh mesh1, mesh2;
-	double clock_at = 0, clock_now = 0;
+	glm::mat4 mat;
 	
 public:
 
 	Vessel();
-	void init();
+	void init(Mesh& rmesh);
 	void update(double dt);
+	void remesh_slow(Mesh& rmesh);
+	void remesh_fast(Mesh& rmesh);
 	void render();
 };
 

@@ -16,7 +16,6 @@ struct GLMesh
 	unsigned int vao = 0, vbo = 0, ebo = 0, size = 0;
 
 	glm::mat4 model_matrix {1.0f};
-	glm::mat4 colour_matrix {1.0f};
 
 	constexpr GLMesh() { }
 

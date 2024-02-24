@@ -38,7 +38,6 @@ void Clock::update(double dt)
 	
 	data.bind();
 	data.model_matrix = glm::translate(glm::mat4(1), glm::vec3(-wsize + glm::vec2(2, 2), 0));
-	data.colour_matrix = Arrays::colour({1, 1, 1, 1});
 	data.set(m, GL_DYNAMIC_DRAW);
 }
 

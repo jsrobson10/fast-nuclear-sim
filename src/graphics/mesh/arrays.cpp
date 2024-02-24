@@ -38,13 +38,3 @@ void Arrays::vertex_attrib_pointers()
 	glEnableVertexAttribArray(5);
 }
 
-glm::mat4 Arrays::colour(glm::vec4 c)
-{
-	return glm::mat4({
-		c.r, c.g, c.b, c.a,
-		0, 0, 0, 0,
-		0, 0, 0, 0,
-		0, 0, 0, 0
-	});
-}
-

@@ -34,8 +34,15 @@ using namespace Sim::Graphics;
 static GLFWwindow* win;
 static bool win_should_close = false;
 static unsigned int ssbo_lights;
+static double secs_wait_at = 0;
+static double secs_wait_now = 0;
 
-static GLMesh mesh_scene;
+static int gm_dynamic_slow_at = 0;
+
+static GLMesh gm_scene;
+static GLMesh gm_dynamic_slow[2];
+static GLMesh gm_dynamic_fast;
+static Mesh m_dynamic_fast;
 
 static Monitor::Vessel monitor_vessel;
 static Monitor::Core monitor_core;
@@ -151,21 +158,38 @@ void Window::create()
 
 	glUniform1i(Shader::MAIN["lights_count"], m.lights.size());
 
-	mesh_scene.bind();
-	mesh_scene.set(m, GL_STATIC_DRAW);
+	monitor_core.init(m);
+	monitor_vessel.init(m);
+	monitor_primary_loop.init(m);
+	monitor_secondary_loop.init(m);
+	monitor_turbine.init(m);
 
-	monitor_core.init();
-	monitor_vessel.init();
-	monitor_primary_loop.init();
-	monitor_secondary_loop.init();
-	monitor_turbine.init();
+	gm_scene.bind();
+	gm_scene.set(m, GL_STATIC_DRAW);
 
 	glfwShowWindow(win);
 	glViewport(0, 0, 800, 600);
 }
 
+void update_slow()
+{
+	Mesh mesh;
+
+	monitor_core.remesh_slow(mesh);
+	monitor_vessel.remesh_slow(mesh);
+	monitor_primary_loop.remesh_slow(mesh);
+	monitor_secondary_loop.remesh_slow(mesh);
+	monitor_turbine.remesh_slow(mesh);
+
+	gm_dynamic_slow[gm_dynamic_slow_at].bind();
+	gm_dynamic_slow[gm_dynamic_slow_at].set(mesh, GL_DYNAMIC_DRAW);
+	gm_dynamic_slow_at = (gm_dynamic_slow_at + 1) % 2;
+}
+
 void Window::update(double dt)
 {
+	Mesh mesh;
+
 	glfwPollEvents();
 
 	monitor_core.update(dt);
@@ -173,15 +197,43 @@ void Window::update(double dt)
 	monitor_primary_loop.update(dt);
 	monitor_secondary_loop.update(dt);
 	monitor_turbine.update(dt);
-
+	
 	UI::update(dt);
+	
+	monitor_core.remesh_fast(mesh);
+	monitor_vessel.remesh_fast(mesh);
+	monitor_primary_loop.remesh_fast(mesh);
+	monitor_secondary_loop.remesh_fast(mesh);
+	monitor_turbine.remesh_fast(mesh);
+	
+	if(mesh != m_dynamic_fast)
+	{
+		gm_dynamic_fast.bind();
+		gm_dynamic_fast.set(mesh, GL_DYNAMIC_DRAW);
+		m_dynamic_fast = mesh;
+	}
+
+	secs_wait_now += dt;
+	if(secs_wait_now > secs_wait_at + 1.0/30.0)
+	{
+		secs_wait_at += 1.0/30.0;
+		update_slow();
+	}
 }
 
 void render_scene()
 {
-	mesh_scene.bind();
-	mesh_scene.uniform();
-	mesh_scene.render();
+	gm_scene.bind();
+	gm_scene.uniform();
+	gm_scene.render();
+
+	gm_dynamic_slow[gm_dynamic_slow_at].bind();
+	gm_dynamic_slow[gm_dynamic_slow_at].uniform();
+	gm_dynamic_slow[gm_dynamic_slow_at].render();
+
+	gm_dynamic_fast.bind();
+	gm_dynamic_fast.uniform();
+	gm_dynamic_fast.render();
 
 	monitor_core.render();
 	monitor_vessel.render();

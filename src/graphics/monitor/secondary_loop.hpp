@@ -8,22 +8,23 @@ namespace Sim::Graphics::Monitor
 
 class SecondaryLoop
 {
-	Sim::Graphics::GLMesh mesh1, mesh2;
-	double clock_at = 0, clock_now = 0;
+	glm::mat4 mat;
 
-	Sim::Graphics::GLMesh gm_switch_2;
-	Sim::Graphics::GLMesh gm_switch_3;
+	Mesh g_switch_2;
+	Mesh g_switch_3;
 	
-	Sim::Graphics::Mesh m_joystick_turbine_bypass;
-	Sim::Graphics::Mesh m_joystick_turbine_inlet;
-	Sim::Graphics::Mesh m_switch_2;
-	Sim::Graphics::Mesh m_switch_3;
+	Mesh m_joystick_turbine_bypass;
+	Mesh m_joystick_turbine_inlet;
+	Mesh m_switch_2;
+	Mesh m_switch_3;
 	
 public:
 
 	SecondaryLoop();
-	void init();
+	void init(Mesh& rmesh);
 	void update(double dt);
+	void remesh_slow(Mesh& rmesh);
+	void remesh_fast(Mesh& rmesh);
 	void render();
 };
 

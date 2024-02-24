@@ -48,6 +48,7 @@ void Font::init()
 	FT_Set_Pixel_Sizes(face, 0, size);
 
 	GLuint texids[128];
+	std::vector<glm::vec<4, unsigned char>> pixels;
 	
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
@@ -74,10 +75,17 @@ void Font::init()
 			continue;
 		}
 
+		pixels.resize(width * height);
+
+		for(int i = 0; i < width * height; i++)
+		{
+			pixels[i] = glm::vec<4, unsigned char>(face->glyph->bitmap.buffer[i]);
+		}
+
 		glCreateTextures(GL_TEXTURE_2D, 1, &texids[i]);
 
-		glTextureStorage2D(texids[i], 1, GL_R8, width, height);
-		glTextureSubImage2D(texids[i], 0, 0, 0, width, height, GL_RED, GL_UNSIGNED_BYTE, face->glyph->bitmap.buffer);
+		glTextureStorage2D(texids[i], 1, GL_RGBA8, width, height);
+		glTextureSubImage2D(texids[i], 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, &pixels[0]);
 
 		glTextureParameteri(texids[i], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTextureParameteri(texids[i], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -148,5 +156,33 @@ void Mesh::load_text(const char* text, double size)
 
 	this->vertices = std::move(vertices);
 	this->indices = std::move(indices);
+}
+
+void Mesh::load_text(const char* text, double size, glm::vec2 align)
+{
+	glm::vec2 max;
+	
+	load_text(text, size);
+
+	for(Arrays::Vertex& v : vertices)
+	{
+		if(v.pos.x > max.x)
+		{
+			max.x = v.pos.x;
+		}
+
+		if(v.pos.y > max.y)
+		{
+			max.y = v.pos.y;
+		}
+	}
+
+	align *= max;
+
+	for(Arrays::Vertex& v : vertices)
+	{
+		v.pos.x -= align.x;
+		v.pos.y -= align.y;
+	}
 }
 

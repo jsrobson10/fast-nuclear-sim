@@ -8,18 +8,19 @@ namespace Sim::Graphics::Monitor
 
 class Turbine
 {
-	Sim::Graphics::GLMesh mesh1, mesh2;
-	double clock_at = 0, clock_now = 0;
+	glm::mat4 mat;
 
-	Sim::Graphics::GLMesh gm_synchroscope_dial;
-	Sim::Graphics::GLMesh gm_switch_breaker;
-	Sim::Graphics::Mesh m_switch_breaker;
+	GLMesh gm_synchroscope_dial;
+	Mesh g_switch_breaker;
+	Mesh m_switch_breaker;
 
 public:
 
 	Turbine();
-	void init();
+	void init(Mesh& rmesh);
 	void update(double dt);
+	void remesh_slow(Mesh& rmesh);
+	void remesh_fast(Mesh& rmesh);
 	void render();
 };
 

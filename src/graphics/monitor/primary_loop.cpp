@@ -55,20 +55,12 @@ PrimaryLoop::PrimaryLoop()
 
 }
 
-void PrimaryLoop::init()
+void PrimaryLoop::init(Mesh& rmesh)
 {
-	mesh1.model_matrix = Locations::monitors[3];
-	mesh2.model_matrix = glm::translate(mesh1.model_matrix, glm::vec3(0.5, 0, 0));
-
-	mesh1.colour_matrix = mesh2.colour_matrix = {
-		1, 1, 1, 1,
-		0, 0, 0, 0,
-		0, 0, 0, 0,
-		0, 0, 0, 0
-	};
+	mat = Locations::monitors[3];
 	
 	std::stringstream ss;
-	Sim::Graphics::Mesh rmesh;
+	Sim::Graphics::Mesh mesh;
 
 	ss << "Turbine Bypass Valve\n\n";
 	ss << "Opened\nFlow\nSetpoint\n\n";
@@ -82,21 +74,12 @@ void PrimaryLoop::init()
 	ss << "Pressure\n";
 	ss << "Level\n";
 
-	rmesh.load_text(ss.str().c_str(), 0.04);
-	mesh1.bind();
-	mesh1.set(rmesh, GL_STATIC_DRAW);
+	mesh.load_text(ss.str().c_str(), 0.04);
+	rmesh.add(mesh, mat);
 
-	rmesh.load_model("../assets/model", "pump_switch_1.glb");
-	gm_switch_pump.bind();
-	gm_switch_pump.set(rmesh, GL_STATIC_DRAW);
-	
-	rmesh.load_model("../assets/model", "turbine_valve_bypass_switch.glb");
-	gm_switch_bypass.bind();
-	gm_switch_bypass.set(rmesh, GL_STATIC_DRAW);
-
-	rmesh.load_model("../assets/model", "turbine_valve_inlet_switch.glb");
-	gm_switch_inlet.bind();
-	gm_switch_inlet.set(rmesh, GL_STATIC_DRAW);
+	g_switch_pump.load_model("../assets/model", "pump_switch_1.glb");
+	g_switch_bypass.load_model("../assets/model", "turbine_valve_bypass_switch.glb");
+	g_switch_inlet.load_model("../assets/model", "turbine_valve_inlet_switch.glb");
 
 	m_joystick_turbine_bypass.load_model("../assets/model", "turbine_valve_bypass_joystick.stl");
 	m_joystick_turbine_inlet.load_model("../assets/model", "turbine_valve_inlet_joystick.stl");
@@ -108,56 +91,6 @@ void PrimaryLoop::init()
 void PrimaryLoop::update(double dt)
 {
 	System& sys = *System::active;
-	clock_now += dt;
-
-	if(clock_at + 1.0/30.0 < clock_now)
-	{
-		std::stringstream ss;
-		Sim::Graphics::Mesh rmesh;
-		clock_at += 1.0/30.0;
-
-		ss << "\n\n";
-		ss << show( sys.loop.turbine_bypass_valve.get_state() * 100 ) << " %\n";
-		show_units( ss, sys.loop.turbine_bypass_valve.get_flow() ) << "g/s\n";
-
-		if(sys.loop.turbine_bypass_valve.get_auto())
-		{
-			ss << show( sys.loop.turbine_bypass_valve.get_setpoint() ) << " C\n";
-		}
-
-		else
-		{
-			ss << "-\n";
-		}
-
-		ss << "\n\n\n";
-		ss << show( sys.loop.turbine_inlet_valve.get_state() * 100 ) << " %\n";
-		show_units( ss, sys.loop.turbine_inlet_valve.get_flow() ) << "g/s\n";
-
-		if(sys.loop.turbine_inlet_valve.get_auto())
-		{
-			ss << show( sys.loop.turbine_inlet_valve.get_setpoint() ) << " C\n";
-		}
-
-		else
-		{
-			ss << "-\n";
-		}
-
-		ss << "\n\n\n";
-		ss << show( sys.loop.primary_pump.get_power() * 100 ) << " %\n";
-		ss << show( sys.loop.primary_pump.get_rpm() ) << " r/min\n";
-		show_units( ss, sys.loop.primary_pump.get_flow_mass() ) << "g/s\n";
-		ss << "\n\n\n";
-		ss << show( sys.loop.condenser.get_heat() ) << " C\n";
-		show_units( ss, sys.loop.condenser.get_steam() ) << "g\n";
-		show_units( ss, sys.loop.condenser.get_pressure() ) << "Pa\n";
-		ss << show( sys.loop.condenser.get_level() / 1000 ) << " / " << show( sys.loop.condenser.get_volume() / 1000 ) << " kL\n";
-
-		rmesh.load_text(ss.str().c_str(), 0.04);
-		mesh2.bind();
-		mesh2.set(rmesh, GL_DYNAMIC_DRAW);
-	}
 
 	if(m_joystick_turbine_bypass.check_focus())
 		Focus::set(std::make_unique<ValveJoystick>(&sys.loop.turbine_bypass_valve));
@@ -169,32 +102,70 @@ void PrimaryLoop::update(double dt)
 		sys.loop.turbine_inlet_valve.toggle_auto();
 	if(m_switch_bypass.check_focus())
 		sys.loop.turbine_bypass_valve.toggle_auto();
-	
-	gm_switch_inlet.model_matrix = glm::translate(glm::mat4(1), glm::vec3(0, sys.loop.turbine_inlet_valve.get_auto() ? 0.07 : 0, 0));
-	gm_switch_bypass.model_matrix = glm::translate(glm::mat4(1), glm::vec3(0, sys.loop.turbine_bypass_valve.get_auto() ? 0.07 : 0, 0));
-	gm_switch_pump.model_matrix = glm::translate(glm::mat4(1), glm::vec3(0, sys.loop.primary_pump.powered ? 0.07 : 0, 0));
+}
+
+void PrimaryLoop::remesh_slow(Mesh& rmesh)
+{
+	std::stringstream ss;
+	Sim::Graphics::Mesh mesh;
+	System& sys = *System::active;
+
+	ss << "\n\n";
+	ss << show( sys.loop.turbine_bypass_valve.get_state() * 100 ) << " %\n";
+	show_units( ss, sys.loop.turbine_bypass_valve.get_flow() ) << "g/s\n";
+
+	if(sys.loop.turbine_bypass_valve.get_auto())
+	{
+		ss << show( sys.loop.turbine_bypass_valve.get_setpoint() ) << " C\n";
+	}
+
+	else
+	{
+		ss << "-\n";
+	}
+
+	ss << "\n\n\n";
+	ss << show( sys.loop.turbine_inlet_valve.get_state() * 100 ) << " %\n";
+	show_units( ss, sys.loop.turbine_inlet_valve.get_flow() ) << "g/s\n";
+
+	if(sys.loop.turbine_inlet_valve.get_auto())
+	{
+		ss << show( sys.loop.turbine_inlet_valve.get_setpoint() ) << " C\n";
+	}
+
+	else
+	{
+		ss << "-\n";
+	}
+
+	ss << "\n\n\n";
+	ss << show( sys.loop.primary_pump.get_power() * 100 ) << " %\n";
+	ss << show( sys.loop.primary_pump.get_rpm() ) << " r/min\n";
+	show_units( ss, sys.loop.primary_pump.get_flow_mass() ) << "g/s\n";
+	ss << "\n\n\n";
+	ss << show( sys.loop.condenser.get_heat() ) << " C\n";
+	show_units( ss, sys.loop.condenser.get_steam() ) << "g\n";
+	show_units( ss, sys.loop.condenser.get_pressure() ) << "Pa\n";
+	ss << show( sys.loop.condenser.get_level() / 1000 ) << " / " << show( sys.loop.condenser.get_volume() / 1000 ) << " kL\n";
+
+	mesh.load_text(ss.str().c_str(), 0.04);
+	rmesh.add(mesh, glm::translate(mat, glm::vec3(0.5, 0, 0)));
+}
+
+void PrimaryLoop::remesh_fast(Mesh& rmesh)
+{
+	System& sys = *System::active;
+
+	float off1 = sys.loop.primary_pump.powered ? 0.07 : 0;
+	float off2 = sys.loop.turbine_bypass_valve.get_auto() ? 0.07 : 0;
+	float off3 = sys.loop.turbine_inlet_valve.get_auto() ? 0.07 : 0;
+
+	rmesh.add(g_switch_pump, glm::translate(glm::mat4(1), glm::vec3(0, off1, 0)));
+	rmesh.add(g_switch_bypass, glm::translate(glm::mat4(1), glm::vec3(0, off2, 0)));
+	rmesh.add(g_switch_inlet, glm::translate(glm::mat4(1), glm::vec3(0, off3, 0)));
 }
 
 void PrimaryLoop::render()
 {
-	mesh1.bind();
-	mesh1.uniform();
-	mesh1.render();
-
-	mesh2.bind();
-	mesh2.uniform();
-	mesh2.render();
-	
-	gm_switch_pump.bind();
-	gm_switch_pump.uniform();
-	gm_switch_pump.render();
-	
-	gm_switch_inlet.bind();
-	gm_switch_inlet.uniform();
-	gm_switch_inlet.render();
-
-	gm_switch_bypass.bind();
-	gm_switch_bypass.uniform();
-	gm_switch_bypass.render();
 }
 

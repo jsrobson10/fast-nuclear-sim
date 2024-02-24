@@ -226,19 +226,6 @@ static unsigned int proc_embedded_texture(aiTexture* tex)
 	return Texture::load_mem((unsigned char*)tex->pcData, tex->mWidth, tex->mHeight, 4);
 }
 
-glm::mat4 get_transforms(aiNode* node)
-{
-	glm::mat4 mat(1);
-
-	while(node->mParent != nullptr)
-	{
-		mat *= get_mat(node->mTransformation);
-		node = node->mParent;
-	}
-
-	return mat;
-}
-
 void Mesh::load_model(std::string path)
 {
 	load_model(".", path);
@@ -264,11 +251,13 @@ void Mesh::load_model(std::string base, std::string filename)
 		unsigned int handle = proc_embedded_texture(tex);
 		state.handles[tex] = handle;
 	}
+	
+	proc_node(state, glm::mat4(1), scene->mRootNode, scene);
 
 	for(int i = 0; i < scene->mNumLights; i++)
 	{
 		aiLight* light = scene->mLights[i];
-		glm::mat4 mat = get_transforms(scene->mRootNode->FindNode(light->mName));
+		glm::mat4 mat = state.mat_nodes[light->mName.C_Str()];
 
 		auto [x, y, z] = light->mPosition;
 		auto [r, g, b] = light->mColorDiffuse;
@@ -280,8 +269,6 @@ void Mesh::load_model(std::string base, std::string filename)
 			{r, g, b},
 		});
 	}
-
-	proc_node(state, glm::mat4(1), scene->mRootNode, scene);
 
 	mat_nodes = std::move(state.mat_nodes);
 	vertices = std::move(state.vertices);

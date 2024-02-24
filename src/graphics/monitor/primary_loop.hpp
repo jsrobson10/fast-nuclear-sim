@@ -8,16 +8,15 @@ namespace Sim::Graphics::Monitor
 
 class PrimaryLoop
 {
-	GLMesh mesh1, mesh2;
-	double clock_at = 0, clock_now = 0;
+	glm::mat4 mat;
 
-	GLMesh gm_switch_pump;
-	GLMesh gm_switch_bypass;
-	GLMesh gm_switch_inlet;
-	
 	Mesh m_joystick_turbine_bypass;
 	Mesh m_joystick_turbine_inlet;
 
+	Mesh g_switch_pump;
+	Mesh g_switch_bypass;
+	Mesh g_switch_inlet;
+	
 	Mesh m_switch_pump;
 	Mesh m_switch_bypass;
 	Mesh m_switch_inlet;
@@ -25,8 +24,10 @@ class PrimaryLoop
 public:
 
 	PrimaryLoop();
-	void init();
+	void init(Mesh& rmesh);
 	void update(double dt);
+	void remesh_slow(Mesh& rmesh);
+	void remesh_fast(Mesh& rmesh);
 	void render();
 };
 

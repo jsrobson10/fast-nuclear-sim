@@ -33,7 +33,6 @@ GLMesh::GLMesh(GLMesh&& o)
 	ebo = o.ebo;
 	vao = o.vao;
 	size = o.size;
-	colour_matrix = o.colour_matrix;
 	model_matrix = o.model_matrix;
 
 	o.vbo = 0;
@@ -53,18 +52,17 @@ void GLMesh::bind()
 	init(this);
 
 	glBindVertexArray(vao);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 }
 
 void GLMesh::uniform()
 {
 	glUniformMatrix4fv(Shader::MAIN["model"], 1, false, &model_matrix[0][0]);
-	glUniformMatrix4fv(Shader::MAIN["tex_mat"], 1, false, &colour_matrix[0][0]);
 }
 
 void GLMesh::set(const Mesh& m, int mode)
 {
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	glBufferData(GL_ARRAY_BUFFER, m.vertices.size() * sizeof(m.vertices[0]), &m.vertices[0], mode);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m.indices.size() * sizeof(m.indices[0]), &m.indices[0], mode);
 	this->size = m.indices.size();

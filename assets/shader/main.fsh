@@ -30,7 +30,6 @@ layout(std140, binding = 1) buffer ssbo_lights
 in flat sampler2D frag_tex;
 out vec4 frag_colour;
 
-uniform mat4 tex_mat;
 uniform vec3 brightness;
 uniform vec3 camera_pos;
 
@@ -77,7 +76,7 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 
 void main()
 {
-	vec4 albedo = (tex_mat * texture2D(frag_tex, vin.tex_pos)) * vin.colour;
+	vec4 albedo = texture2D(frag_tex, vin.tex_pos) * vin.colour;
 	
 	float roughness = vin.material[0];
 	float metalness = vin.material[1];

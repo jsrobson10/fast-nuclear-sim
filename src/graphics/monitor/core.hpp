@@ -8,21 +8,20 @@ namespace Sim::Graphics::Monitor
 
 class Core
 {
-	Sim::Graphics::GLMesh mesh1, mesh2;
-	double clock_at = 0, clock_now = 0;
-
-	Sim::Graphics::Mesh m_monitor;
-	Sim::Graphics::Mesh m_buttons[9];
-	Sim::Graphics::Mesh m_joystick;
-	Sim::Graphics::Mesh m_scram;
+	glm::mat4 mat;
+	Mesh m_monitor;
+	Mesh m_buttons[9];
+	Mesh m_joystick;
+	Mesh m_scram;
 	
 public:
 
-	bool is_dirty = false;
-
 	Core();
-	void init();
+	void init(Mesh& rmesh);
 	void update(double dt);
+	void remesh_slow(Mesh& rmesh);
+	void remesh_fast(Mesh& rmesh);
+	void remesh(Mesh& rmesh, bool fast);
 	void render();
 };
 

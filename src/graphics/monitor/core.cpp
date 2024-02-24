@@ -80,8 +80,6 @@ struct CoreMonitor : public Focus::FocusType
 		default:
 			return;
 		}
-
-		parent->is_dirty = true;
 	}
 };
 
@@ -97,7 +95,6 @@ struct CoreJoystick : public Focus::FocusType
 	virtual void on_cursor_pos(double x, double y)
 	{
 		System::active->reactor.add_rod_speed(y * 1e-6);
-		parent->is_dirty = true;
 	}
 
 	virtual ~CoreJoystick()
@@ -123,16 +120,13 @@ Core::Core()
 {
 }
 
-void Core::init()
+void Core::init(Mesh& rmesh)
 {
-	mesh1.model_matrix = mesh2.model_matrix = Locations::monitors[2];
-	mesh1.colour_matrix = mesh2.colour_matrix = Arrays::colour({1, 1, 1, 1});
-	
-	Sim::Graphics::Mesh rmesh;
-	
-	rmesh.load_text("Reactor Core", 0.04);
-	mesh1.bind();
-	mesh1.set(rmesh, GL_STATIC_DRAW);
+	Mesh mesh;
+	mat = Locations::monitors[2];
+
+	mesh.load_text("Reactor Core", 0.04);
+	rmesh.add(mesh, mat);
 
 	m_buttons[0].load_model("../assets/model/", "reactor_core_button1.stl");
 	m_buttons[1].load_model("../assets/model/", "reactor_core_button2.stl");
@@ -168,66 +162,44 @@ void Core::update(double dt)
 {
 	Sim::System& sys = *System::active;
 	
-	if(m_monitor.check_focus()) {
+	if(m_monitor.check_focus())
 		Focus::set(std::make_unique<CoreMonitor>(this));
-	}
-	if(m_joystick.check_focus()) {
+	if(m_joystick.check_focus())
 		Focus::set(std::make_unique<CoreJoystick>(this));
-	}
-	if(m_scram.check_focus()) {
+	if(m_scram.check_focus())
 		sys.reactor.scram();
-		is_dirty = true;
-	}
-	if(m_buttons[0].check_focus()) {
+	if(m_buttons[0].check_focus())
 		set_all(true);
-		is_dirty = true;
-	}
-	if(m_buttons[1].check_focus()) {
+	if(m_buttons[1].check_focus())
 		sys.reactor.move_cursor(-sys.reactor.height);
-		is_dirty = true;
-	}
-	if(m_buttons[2].check_focus()) {
+	if(m_buttons[2].check_focus())
 		set_all(false);
-		is_dirty = true;
-	}
-	if(m_buttons[3].check_focus()) {
+	if(m_buttons[3].check_focus())
 		sys.reactor.move_cursor(-1);
-		is_dirty = true;
-	}
-	if(m_buttons[4].check_focus()) {
+	if(m_buttons[4].check_focus())
 		sys.reactor.toggle_selected();
-		is_dirty = true;
-	}
-	if(m_buttons[5].check_focus()) {
+	if(m_buttons[5].check_focus())
 		sys.reactor.move_cursor(1);
-		is_dirty = true;
-	}
-	if(m_buttons[6].check_focus()) {
+	if(m_buttons[6].check_focus())
 		sys.reactor.reset_rod_speed();
-		is_dirty = true;
-	}
-	if(m_buttons[7].check_focus()) {
+	if(m_buttons[7].check_focus())
 		sys.reactor.move_cursor(sys.reactor.height);
-		is_dirty = true;
-	}
+}
 
-	clock_now += dt;
+void Core::remesh_slow(Mesh& rmesh)
+{
+	remesh(rmesh, false);
+}
 
-	if(clock_at + 1.0/30.0 > clock_now)
-	{
-		if(!is_dirty)
-		{
-			return;
-		}
-	}
+void Core::remesh_fast(Mesh& rmesh)
+{
+	remesh(rmesh, true);
+}
 
-	else
-	{
-		clock_at += 1.0/30.0;
-	}
-
-	Sim::Graphics::Mesh rmesh;
-	is_dirty = false;
+void Core::remesh(Mesh& rmesh, bool fast)
+{
+	Sim::System& sys = *System::active;
+	Sim::Graphics::Mesh mesh;
 	
 	double step = 1 / (sys.vessel.diameter / sys.reactor.cell_width * 0.8);
 	double sx = 0.5 - (sys.reactor.width - 1) * step / 2.0;
@@ -252,46 +224,44 @@ void Core::update(double dt)
 			continue;
 		}
 
-		glm::vec4 colour_heat = r->get_heat_colour() * glm::vec4(glm::vec3(1), 1);
-		glm::vec4 colour_spec = r->get_colour();
-
-		if(colour_heat[3] == 0)
-		{
-			continue;
-		}
-
 		glm::mat4 mat = glm::translate(glm::mat4(1), glm::vec3(ox, oy, 0)) * mat_scale;
 
-		rmesh.add(add_dot(mat, colour_heat));
-
-		if(sys.reactor.cursor == i)
+		if(!fast)
 		{
-			rmesh.add(add_dot(mat * mat_cursor, {1, 0, 0, 1}));
+			glm::vec4 colour_heat = r->get_heat_colour() * glm::vec4(glm::vec3(1), 1);
+			glm::vec4 colour_spec = r->get_colour();
+
+			if(colour_heat[3] == 0)
+			{
+				continue;
+			}
+
+			mesh.add(add_dot(mat, colour_heat));
+			
+			if(colour_spec[3] != 0)
+			{
+				mesh.add(add_dot(mat * mat_spec, colour_spec));
+			}
 		}
 
-		if(r->selected)
+		else
 		{
-			rmesh.add(add_dot(mat * mat_select, {1, 1, 0, 1}));
-		}
+			if(sys.reactor.cursor == i)
+			{
+				mesh.add(add_dot(mat * mat_cursor, {1, 0, 0, 1}));
+			}
 
-		if(colour_spec[3] != 0)
-		{
-			rmesh.add(add_dot(mat * mat_spec, colour_spec));
+			if(r->selected)
+			{
+				mesh.add(add_dot(mat * mat_select, {1, 1, 0, 1}));
+			}
 		}
 	}
-
-	mesh2.bind();
-	mesh2.set(rmesh, GL_DYNAMIC_DRAW);
+	
+	rmesh.add(mesh, mat);
 }
 
 void Core::render()
 {
-	mesh1.bind();
-	mesh1.uniform();
-	mesh1.render();
-
-	mesh2.bind();
-	mesh2.uniform();
-	mesh2.render();
 }
 
