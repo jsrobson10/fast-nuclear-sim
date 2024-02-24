@@ -16,12 +16,14 @@ public:
 	
 	static Shader MAIN;
 	static Shader BLUR;
+	static Shader LIGHT;
 
 	Shader();
 	Shader(const Shader& o) = delete;
 	Shader(Shader&& o);
 	~Shader();
 
+	void load(const char* path, const char* file_vsh, const char* file_gsh, const char* file_fsh);
 	void load(const char* path, const char* file_vsh, const char* file_fsh);
 	void use();
 

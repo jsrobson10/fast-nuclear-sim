@@ -119,6 +119,7 @@ void Window::create()
 	Font::init();
 	UI::init();
 
+	Shader::LIGHT.load("../assets/shader", "light.vsh", "light.gsh", "light.fsh");
 	Shader::MAIN.load("../assets/shader", "main.vsh", "main.fsh");
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -255,7 +256,7 @@ void Window::render()
 	projection_matrix = mat_projection;
 
 	glClearColor(0, 0, 0, 1.0f);
-	glClear(GL_DEPTH_BUFFER_BIT);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	glFrontFace(GL_CW);
 	
 	render_scene();

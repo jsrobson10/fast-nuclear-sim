@@ -13,6 +13,7 @@ using namespace Sim::Graphics;
 
 Shader Shader::MAIN;
 Shader Shader::BLUR;
+Shader Shader::LIGHT;
 
 static int load_shader(const char* src, int type)
 {
@@ -39,6 +40,12 @@ static std::string read_shader(const char* path)
 	return ss.str();
 }
 
+static std::string read_shader(const char* base, const char* file)
+{
+	std::string path = std::string(base) + "/" + std::string(file);
+	return read_shader(path.c_str());
+}
+
 Shader::Shader()
 {
 
@@ -60,18 +67,29 @@ Shader::~Shader()
 
 void Shader::load(const char* path, const char* file_vsh, const char* file_fsh)
 {
-	std::string path_vsh = std::string(path) + "/" + std::string(file_vsh);
-	std::string path_fsh = std::string(path) + "/" + std::string(file_fsh);
-	std::string shader_vsh = read_shader(path_vsh.c_str());
-	std::string shader_fsh = read_shader(path_fsh.c_str());
+	load(path, file_vsh, nullptr, file_fsh);
+}
+
+void Shader::load(const char* path, const char* file_vsh, const char* file_gsh, const char* file_fsh)
+{
+	std::string shader_vsh = file_vsh ? read_shader(path, file_vsh) : "";
+	std::string shader_gsh = file_gsh ? read_shader(path, file_gsh) : "";
+	std::string shader_fsh = file_fsh ? read_shader(path, file_fsh) : "";
 
 	int success;
-	int vsh_id = load_shader(shader_vsh.c_str(), GL_VERTEX_SHADER);
-	int fsh_id = load_shader(shader_fsh.c_str(), GL_FRAGMENT_SHADER);
+	int vsh_id = file_vsh ? load_shader(shader_vsh.c_str(), GL_VERTEX_SHADER) : 0;
+	int gsh_id = file_gsh ? load_shader(shader_gsh.c_str(), GL_GEOMETRY_SHADER) : 0;
+	int fsh_id = file_fsh ? load_shader(shader_fsh.c_str(), GL_FRAGMENT_SHADER) : 0;
+	
 	prog_id = glCreateProgram();
 
-	glAttachShader(prog_id, vsh_id);
-	glAttachShader(prog_id, fsh_id);
+	if(file_vsh)
+		glAttachShader(prog_id, vsh_id);
+	if(file_gsh)
+		glAttachShader(prog_id, gsh_id);
+	if(file_fsh)
+		glAttachShader(prog_id, fsh_id);
+
 	glLinkProgram(prog_id);
 	glGetProgramiv(prog_id, GL_LINK_STATUS, &success);
 
@@ -85,8 +103,13 @@ void Shader::load(const char* path, const char* file_vsh, const char* file_fsh)
 	}
 
 	glUseProgram(prog_id);
-	glDeleteShader(vsh_id);
-	glDeleteShader(fsh_id);
+
+	if(file_vsh)
+		glDeleteShader(vsh_id);
+	if(file_gsh)
+		glDeleteShader(gsh_id);
+	if(file_fsh)
+		glDeleteShader(fsh_id);
 }
 
 void Shader::use()
