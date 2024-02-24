@@ -75,38 +75,22 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
     return ggx1 * ggx2;
 }
 
-float LinRGB_To_sRGB(float c)
-{
-	if (c < 0.0031308f) {
-		return (c < 0.0f) ? 0.0f : c * 12.92f;
-	}
-
-	return 1.055f * pow(c, 1.0f / 2.4f) - 0.055f;
-}
-
 vec3 LinRGB_To_sRGB(vec3 c)
 {
-	c.r = LinRGB_To_sRGB(c.r);
-	c.g = LinRGB_To_sRGB(c.g);
-	c.b = LinRGB_To_sRGB(c.b);
-	return c;
-}
+	bvec3 th = lessThan(c, vec3(0.0031308f));
+	vec3 high = pow(c, vec3(1.0f / 2.4f)) * vec3(1.055f) - vec3(0.055f);
+	vec3 low = c * vec3(12.92f);
 
-float sRGB_To_LinRGB(float c)
-{
-	if (c < 0.04045f) {
-		return (c < 0.0f) ? 0.0f : c * (1.0f / 12.92f);
-	}
-
-	return pow((c + 0.055f) * (1.0f / 1.055f), 2.4f);
+	return mix(high, low, th);
 }
 
 vec3 sRGB_To_LinRGB(vec3 c)
 {
-	c.r = sRGB_To_LinRGB(c.r);
-	c.g = sRGB_To_LinRGB(c.g);
-	c.b = sRGB_To_LinRGB(c.b);
-	return c;
+	bvec3 th = lessThan(c, vec3(0.04045f));
+	vec3 high = pow((c + vec3(0.055f)) * vec3(1.0f / 1.055f), vec3(2.4f));
+	vec3 low = c * vec3(1.0f / 12.92f);
+
+	return mix(high, low, th);
 }
 
 void main()
@@ -157,7 +141,7 @@ void main()
 	vec3 ambient = vec3(0.03f) * albedo_lin * brightness;
 	vec3 light = LinRGB_To_sRGB(ambient + Lo);
 
-	light = light * (1 - luminance) + albedo.rgb * luminance;
+	light = mix(light, albedo.rgb, luminance);
 	frag_colour = vec4(light, albedo.a);
 
 	if(frag_colour.a == 0.f) discard;
