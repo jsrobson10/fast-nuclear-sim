@@ -1,13 +1,13 @@
 
 #version 460 core
 
-in vec4 frag_pos;
-out vec4 frag_colour;
+in vec3 frag_pos;
+
+uniform float far_plane;
 
 void main()
 {
 	float distance = length(frag_pos);
-	frag_colour = vec4(vec3(distance / 50.0f), 1);
-	gl_FragDepth = distance / 50.0f;
+	gl_FragDepth = distance / far_plane + 1e-4f;
 }
 

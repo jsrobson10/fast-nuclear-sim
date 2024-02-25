@@ -6,18 +6,22 @@ layout (triangle_strip, max_vertices=18) out;
 
 uniform mat4 shadow_mats[6];
 
-out vec4 frag_pos;
+in float emissive[];
+out vec3 frag_pos;
 
 void main()
 {
+	if(emissive[0] > 0) return;
+
 	for(int i = 0; i < 6; i++)
 	{
 		gl_Layer = i;
 
 		for(int j = 0; j < 3; j++)
 		{
-			frag_pos = gl_in[j].gl_Position;
-			gl_Position = shadow_mats[i] * frag_pos;
+			vec4 fp = gl_in[j].gl_Position;
+			gl_Position = shadow_mats[i] * fp;
+			frag_pos = fp.xyz;
 
 			EmitVertex();
 		}

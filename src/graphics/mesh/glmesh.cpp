@@ -56,7 +56,7 @@ void GLMesh::bind()
 
 void GLMesh::uniform()
 {
-	glUniformMatrix4fv(Shader::MAIN["model"], 1, false, &model_matrix[0][0]);
+	glUniformMatrix4fv(Shader::ACTIVE->get("model"), 1, false, &model_matrix[0][0]);
 }
 
 void GLMesh::set(const Mesh& m, int mode)

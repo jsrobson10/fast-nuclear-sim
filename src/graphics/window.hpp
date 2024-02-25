@@ -15,6 +15,7 @@ bool should_close();
 void create();
 void update(double dt);
 void render();
+void render_scene();
 void destroy();
 void close();
 

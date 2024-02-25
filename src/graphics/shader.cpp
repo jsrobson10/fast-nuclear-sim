@@ -14,6 +14,7 @@ using namespace Sim::Graphics;
 Shader Shader::MAIN;
 Shader Shader::BLUR;
 Shader Shader::LIGHT;
+Shader* Shader::ACTIVE;
 
 static int load_shader(const char* src, int type)
 {
@@ -110,11 +111,14 @@ void Shader::load(const char* path, const char* file_vsh, const char* file_gsh, 
 		glDeleteShader(gsh_id);
 	if(file_fsh)
 		glDeleteShader(fsh_id);
+
+	ACTIVE = this;
 }
 
 void Shader::use()
 {
 	glUseProgram(prog_id);
+	ACTIVE = this;
 }
 
 unsigned int Shader::operator [](const char* pos)
@@ -127,5 +131,10 @@ unsigned int Shader::operator [](const char* pos)
 	}
 
 	return uniform_locations[pos] = glGetUniformLocation(prog_id, pos);
+}
+
+unsigned int Shader::get(const char* pos)
+{
+	return operator[](pos);
 }
 

@@ -18,6 +18,8 @@ public:
 	static Shader BLUR;
 	static Shader LIGHT;
 
+	static Shader* ACTIVE;
+
 	Shader();
 	Shader(const Shader& o) = delete;
 	Shader(Shader&& o);
@@ -28,6 +30,7 @@ public:
 	void use();
 
 	unsigned int operator[](const char* pos);
+	unsigned int get(const char* pos);
 };
 
 };
