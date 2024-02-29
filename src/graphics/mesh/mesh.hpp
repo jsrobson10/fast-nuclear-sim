@@ -17,17 +17,13 @@ namespace Sim::Graphics
 
 struct Mesh
 {
-	std::unordered_map<std::string, glm::mat4> mat_nodes;
 	std::vector<Arrays::Vertex> vertices;
 	std::vector<unsigned int> indices;
-	std::vector<Light> lights;
 
 	Mesh();
 
 	void set_vertices(const Arrays::Vertex* data, size_t size);
 	void set_indices(const unsigned int* data, size_t size);
-	void load_model(std::string base, std::string path);
-	void load_model(std::string path);
 	void load_text(const char* text, double size);
 	void load_text(const char* text, double size, glm::vec2 align);
 	void add(const Mesh& o, glm::mat4 mat);

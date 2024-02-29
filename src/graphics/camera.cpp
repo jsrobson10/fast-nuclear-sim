@@ -79,9 +79,9 @@ glm::vec<3, double> Camera::get_pos()
 	return pos;
 }
 
-void Camera::init()
+void Camera::init(const Model& model)
 {
-	collision_scene.load_model("../assets/model", "scene_collisions.stl");
+	collision_scene = model.load("collision");
 }
 
 void Camera::update(double dt)

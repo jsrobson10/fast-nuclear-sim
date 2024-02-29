@@ -20,7 +20,7 @@ Vessel::Vessel()
 
 }
 
-void Vessel::init(Mesh& rmesh)
+void Vessel::init(const Model& model, Mesh& rmesh)
 {
 	mat = Locations::monitors[1];
 

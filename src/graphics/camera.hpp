@@ -5,6 +5,7 @@
 #include <json/json.h>
 
 #include "../system.hpp"
+#include "mesh/model.hpp"
 
 namespace Sim::Graphics::Camera
 {
@@ -18,7 +19,7 @@ double get_yaw();
 Json::Value serialize();
 void load(const Json::Value& node);
 
-void init();
+void init(const Model& model);
 void rotate(double pitch, double yaw);
 void move(double x, double y, double z);
 void update(double dt);

@@ -21,7 +21,7 @@ Turbine::Turbine()
 
 }
 
-void Turbine::init(Mesh& rmesh)
+void Turbine::init(const Model& model, Mesh& rmesh)
 {
 	mat = Locations::monitors[4];
 	
@@ -37,12 +37,12 @@ void Turbine::init(Mesh& rmesh)
 	mesh.load_text("Synchroscope", 0.04);
 	rmesh.add(mesh, glm::translate(mat, glm::vec3(0, 0.6, 0)));
 	
-	mesh.load_model("../assets/model", "synchroscope_dial.glb");
+	mesh = model.load("visual_synchroscope_dial");
 	gm_synchroscope_dial.bind();
 	gm_synchroscope_dial.set(mesh, GL_STATIC_DRAW);
 
-	g_switch_breaker.load_model("../assets/model", "turbine_breaker_switch.glb");
-	m_switch_breaker.load_model("../assets/model", "turbine_breaker_switch_click.stl");
+	g_switch_breaker = model.load("visual_breaker_switch");
+	m_switch_breaker = model.load("click_breaker_switch");
 }
 
 void Turbine::update(double dt)
@@ -61,7 +61,6 @@ void Turbine::update(double dt)
 
 	if(m_switch_breaker.check_focus())
 		sys.loop.generator.breaker_closed = !sys.loop.generator.breaker_closed;
-
 }
 
 void Turbine::remesh_slow(Mesh& rmesh)

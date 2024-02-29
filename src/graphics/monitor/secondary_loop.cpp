@@ -21,7 +21,7 @@ SecondaryLoop::SecondaryLoop()
 
 }
 
-void SecondaryLoop::init(Mesh& rmesh)
+void SecondaryLoop::init(const Model& model, Mesh& rmesh)
 {
 	mat = Locations::monitors[5];
 
@@ -38,13 +38,13 @@ void SecondaryLoop::init(Mesh& rmesh)
 	mesh.load_text(ss.str().c_str(), 0.04);
 	rmesh.add(mesh, mat);
 
-	g_switch_2.load_model("../assets/model", "pump_switch_2.glb");
-	g_switch_3.load_model("../assets/model", "pump_switch_3.glb");
+	g_switch_2 = model.load("visual_pump_switch_2");
+	g_switch_3 = model.load("visual_pump_switch_3");
 
-	m_joystick_turbine_bypass.load_model("../assets/model", "turbine_valve_bypass_joystick.stl");
-	m_joystick_turbine_inlet.load_model("../assets/model", "turbine_valve_inlet_joystick.stl");
-	m_switch_2.load_model("../assets/model", "pump_switch_click_2.stl");
-	m_switch_3.load_model("../assets/model", "pump_switch_click_3.stl");
+	m_joystick_turbine_bypass = model.load("click_bypass_joystick");
+	m_joystick_turbine_inlet = model.load("click_inlet_joystick");
+	m_switch_2 = model.load("click_pump_switch_2");
+	m_switch_3 = model.load("click_pump_switch_3");
 }
 
 void SecondaryLoop::update(double dt)

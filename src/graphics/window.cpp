@@ -25,6 +25,7 @@
 #include "monitor/secondary_loop.hpp"
 #include "monitor/turbine.hpp"
 #include "mesh/texture.hpp"
+#include "mesh/model.hpp"
 #include "mesh/gllight.hpp"
 #include "../system.hpp"
 #include "../util/streams.hpp"
@@ -124,7 +125,6 @@ void Window::create()
 	Mouse::init();
 	Resize::init();
 	Texture::init();
-	Camera::init();
 	Font::init();
 	UI::init();
 
@@ -134,45 +134,30 @@ void Window::create()
 	Sim::System& sys = *System::active;
 	Mesh m_scene;
 
-	m_scene.load_model("../assets", "scene.glb");
-
-	m_scene.lights[0].pos.x = 6;
-	m_scene.lights[1].pos.x = 0;
-
-	// find the floor parts of the model and set them slightly transparent
-	for(int i = 0; i < m_scene.indices.size(); i += 3)
-	{
-		Arrays::Vertex& v1 = m_scene.vertices[m_scene.indices[i]];
-		Arrays::Vertex& v2 = m_scene.vertices[m_scene.indices[i + 1]];
-		Arrays::Vertex& v3 = m_scene.vertices[m_scene.indices[i + 2]];
-
-		if(v1.pos.z <= 0 && v2.pos.z <= 0 && v3.pos.z <= 0)
-		{
-			v1.colour.w = 0.95;
-			v2.colour.w = 0.95;
-			v3.colour.w = 0.95;
-		}
-	}
+	Model model("../assets", "scene.glb");
+	m_scene = model.load("scene");
+	
+	Camera::init(model);
 
 	// send all the light data
 	glGenBuffers(1, &ssbo_lights);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_lights);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, m_scene.lights.size() * sizeof(m_scene.lights[0]), &m_scene.lights[0], GL_STATIC_DRAW);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, model.lights.size() * sizeof(model.lights[0]), &model.lights[0], GL_STATIC_DRAW);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, ssbo_lights);
 
-	glUniform1i(Shader::MAIN["lights_count"], m_scene.lights.size());
+	glUniform1i(Shader::MAIN["lights_count"], model.lights.size());
 
-	monitor_core.init(m_scene);
-	monitor_vessel.init(m_scene);
-	monitor_primary_loop.init(m_scene);
-	monitor_secondary_loop.init(m_scene);
-	monitor_turbine.init(m_scene);
+	monitor_core.init(model, m_scene);
+	monitor_vessel.init(model, m_scene);
+	monitor_primary_loop.init(model, m_scene);
+	monitor_secondary_loop.init(model, m_scene);
+	monitor_turbine.init(model, m_scene);
 
 	gm_scene.bind();
 	gm_scene.set(m_scene, GL_STATIC_DRAW);
 
 	glfwShowWindow(win);
-/*	
+
 	// setup lighting and prerender shadows
 	Shader::LIGHT.load("../assets/shader", "light.vsh", "light.gsh", "light.fsh");
 	glUniform1f(Shader::LIGHT["far_plane"], 100.0f);
@@ -180,28 +165,24 @@ void Window::create()
 	
 	std::vector<unsigned long> light_handles;
 	
-	for(int i = 0; i < m_scene.lights.size(); i++)
+	for(int i = 0; i < model.lights.size(); i++)
 	{
-		GLLight light(m_scene.lights[i]);
+		GLLight light(model.lights[i]);
 		light.render();
 
 		light_handles.push_back(light.handle);
 		lights.push_back(std::move(light));
 	}
 
-	for(int i = 0; i < lights.size(); i++)
-	{
-		std::cout << "handle " << i << ": " << light_handles[i] << "\n";
-	}
-
-	Shader::MAIN.use();*/
+	Shader::MAIN.use();
 	glUniform1f(Shader::MAIN["far_plane"], 100.0f);
+	glUniform1i(Shader::MAIN["shadows_enabled"], 1);
 	
-/*	// send all the light shadow map handles
+	// send all the light shadow map handles
 	glGenBuffers(1, &ssbo_shadow_maps);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_shadow_maps);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, light_handles.size() * sizeof(light_handles[0]), &light_handles[0], GL_STATIC_DRAW);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, ssbo_shadow_maps);*/
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, ssbo_shadow_maps);
 }
 
 void update_slow()
@@ -287,32 +268,19 @@ void Window::render()
 
 	glm::vec3 camera_pos = Camera::get_pos();
 	glm::mat4 mat_camera = Camera::get_matrix();
-	mat_camera = glm::scale(mat_camera, {1, 1, -1});
-	camera_pos.z *= -1;
 
 	Shader::MAIN.use();
 
 	glm::vec3 brightness = glm::vec3(System::active->grid.get_light_intensity());
-	glm::mat4 mat_projection = glm::perspective(glm::radians(90.0f), Resize::get_aspect(), 0.01f, 20.f);
+	glm::mat4 mat_projection = glm::perspective(glm::radians(90.0f), Resize::get_aspect(), 0.01f, 50.f);
 	glUniformMatrix4fv(Shader::MAIN["projection"], 1, false, &mat_projection[0][0]);
 	glUniformMatrix4fv(Shader::MAIN["camera"], 1, false, &mat_camera[0][0]);
-	glUniform3fv(Shader::MAIN["brightness"], 1, &brightness[0]);
 	glUniform3fv(Shader::MAIN["camera_pos"], 1, &camera_pos[0]);
-	projection_matrix = mat_projection;
+	glUniform3fv(Shader::MAIN["brightness"], 1, &brightness[0]);
 
+	glFrontFace(GL_CCW);
 	glClearColor(0, 0, 0, 1.0f);
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-	glCullFace(GL_BACK);
-	glFrontFace(GL_CW);
-	
-	render_scene();
-
-	camera_pos.z *= -1;
-	mat_camera = Camera::get_matrix();
-	glUniformMatrix4fv(Shader::MAIN["camera"], 1, false, &mat_camera[0][0]);
-	glUniform3fv(Shader::MAIN["camera_pos"], 1, &camera_pos[0]);
-	glClear(GL_DEPTH_BUFFER_BIT);
-	glFrontFace(GL_CCW);
 
 	render_scene();
 

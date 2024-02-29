@@ -2,10 +2,6 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
-#include <assimp/material.h>
 #include <glm/matrix.hpp>
 
 #include <unordered_map>
@@ -15,6 +11,7 @@
 #include "mesh.hpp"
 #include "arrays.hpp"
 #include "texture.hpp"
+#include "model.hpp"
 #include "../../util/streams.hpp"
 
 using namespace Sim::Graphics;
@@ -24,11 +21,9 @@ struct ProcState
 	unsigned int offset = 0;
 
 	std::string base;
-	std::vector<Light> lights;
 	std::vector<Arrays::Vertex> vertices;
 	std::vector<unsigned int> indices;
 	std::unordered_map<const aiTexture*, unsigned int> handles;
-	std::unordered_map<std::string, glm::mat4> mat_nodes;
 };
 
 static unsigned int proc_texture(const ProcState& state, aiMaterial* mat, const aiScene* scene, aiTextureType type, int index)
@@ -177,7 +172,7 @@ static void proc_mesh(ProcState& state, glm::mat4 mat, aiMesh* mesh, const aiSce
 	state.offset += mesh->mNumVertices;
 }
 
-glm::mat4 get_mat(aiMatrix4x4 m)
+glm::mat4 convert_mat(aiMatrix4x4 m)
 {
 	return {
 		m.a1, m.a2, m.a3, m.a4,
@@ -187,21 +182,38 @@ glm::mat4 get_mat(aiMatrix4x4 m)
 	};
 }
 
-static void proc_node(ProcState& state, glm::mat4 mat, aiNode* node, const aiScene* scene)
+bool starts_with(const char* base, const char* check)
 {
-	mat = get_mat(node->mTransformation) * mat;
-	std::string name(node->mName.C_Str());
-	state.mat_nodes[name] = mat;
-	
-	for(size_t i = 0; i < node->mNumMeshes; i++)
+	while(base[0] != '\0' && check[0] != '\0')
 	{
-		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		proc_mesh(state, mat, mesh, scene);
+		if(base[0] != check[0])
+		{
+			return false;
+		}
+
+		base++;
+		check++;
+	}
+
+	return (check[0] == '\0');
+}
+
+static void proc_node(ProcState& state, glm::mat4 mat, aiNode* node, const aiScene* scene, const char* search)
+{
+	mat = convert_mat(node->mTransformation) * mat;
+	
+	if(starts_with(node->mName.C_Str(), search))
+	{
+		for(size_t i = 0; i < node->mNumMeshes; i++)
+		{
+			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+			proc_mesh(state, mat, mesh, scene);
+		}
 	}
 
 	for(size_t i = 0; i < node->mNumChildren; i++)
 	{
-		proc_node(state, mat, node->mChildren[i], scene);
+		proc_node(state, mat, node->mChildren[i], scene, search);
 	}
 }
 
@@ -214,65 +226,92 @@ static unsigned int proc_embedded_texture(aiTexture* tex)
 		return Texture::load_mem((unsigned char*)tex->pcData, tex->mWidth);
 	}
 
-	// swizzle each pixel to get RGBA
+	std::vector<glm::vec<4, unsigned char>> pixels;
+	pixels.reserve(tex->mWidth * tex->mHeight);
+
+	// convert image to get RGBA
 	for(int i = 0; i < tex->mWidth * tex->mHeight; i++)
 	{
 		aiTexel t = tex->pcData[i];
-		tex->pcData[i] = {t.r, t.g, t.b, t.a};
+		pixels.push_back({t.r, t.g, t.b, t.a});
 	}
 
-	return Texture::load_mem((unsigned char*)tex->pcData, tex->mWidth, tex->mHeight, 4);
+	return Texture::load_mem(&pixels[0][0], tex->mWidth, tex->mHeight, 4);
 }
 
-void Mesh::load_model(std::string path)
+glm::mat4 get_transforms(const aiNode* node)
 {
-	load_model(".", path);
-}
+	glm::mat4 mat(1);
 
-void Mesh::load_model(std::string base, std::string filename)
-{
-	ProcState state {.base = base};
-	std::string path = base + "/" + filename;
-	Assimp::Importer importer;
-
-	const aiScene *scene = importer.ReadFile(path.c_str(), aiProcess_Triangulate | aiProcess_FlipUVs);
-	
-	std::cout << "Loaded model: " << path << "\n";
-
-	if(scene == nullptr)
+	while(node->mParent != nullptr)
 	{
-		std::cerr << "AssImp: Error loading model\n";
-		return;
+		mat = mat * convert_mat(node->mTransformation);
+		node = node->mParent;
 	}
+
+	return mat;
+}
+
+glm::mat4 Model::get_matrix(const char* name) const
+{
+	return get_transforms(scene->mRootNode->FindNode(name));
+}
+
+Model::Model(std::string base, std::string filename) : base(base)
+{
+	std::string path = base + "/" + filename;
+	scene = importer.ReadFile(path.c_str(), aiProcess_Triangulate | aiProcess_FlipUVs);
+
+	textures.reserve(scene->mNumTextures);
 
 	for(int i = 0; i < scene->mNumTextures; i++)
 	{
 		aiTexture* tex = scene->mTextures[i];
 		unsigned int handle = proc_embedded_texture(tex);
-		state.handles[tex] = handle;
+		textures.push_back(handle);
 	}
 	
-	proc_node(state, glm::mat4(1), scene->mRootNode, scene);
-
 	for(int i = 0; i < scene->mNumLights; i++)
 	{
 		aiLight* light = scene->mLights[i];
-		glm::mat4 mat = state.mat_nodes[light->mName.C_Str()];
+		glm::mat4 mat = get_matrix(light->mName.C_Str());
 
 		auto [x, y, z] = light->mPosition;
 		auto [r, g, b] = light->mColorDiffuse;
 
 		glm::vec4 pos = glm::vec4(x, y, z, 1) * mat;
 
-		state.lights.push_back({
+		lights.push_back({
 			glm::vec3(pos),
 			{r, g, b},
 		});
 	}
+}
 
-	mat_nodes = std::move(state.mat_nodes);
-	vertices = std::move(state.vertices);
-	indices = std::move(state.indices);
-	lights = std::move(state.lights);
+Mesh Model::load(const char* name, glm::mat4 mat) const
+{
+	Mesh mesh;
+	ProcState state {.base = base};
+	proc_node(state, mat, scene->mRootNode, scene, name);
+
+	mesh.vertices = std::move(state.vertices);
+	mesh.indices = std::move(state.indices);
+
+	return mesh;
+}
+
+Mesh Model::load_root(glm::mat4 mat) const
+{
+	return load("", mat);
+}
+
+Mesh Model::load(const char* name) const
+{
+	return load(name, glm::mat4(1));
+}
+
+Mesh Model::load_root() const
+{
+	return load("", glm::mat4(1));
 }
 

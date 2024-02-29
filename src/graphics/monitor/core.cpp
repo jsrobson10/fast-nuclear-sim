@@ -120,26 +120,26 @@ Core::Core()
 {
 }
 
-void Core::init(Mesh& rmesh)
+void Core::init(const Model& model, Mesh& rmesh)
 {
-	Mesh mesh;
+	Mesh mesh = model.load("translation_monitor_3");
 	mat = Locations::monitors[2];
 
 	mesh.load_text("Reactor Core", 0.04);
 	rmesh.add(mesh, mat);
 
-	m_buttons[0].load_model("../assets/model/", "reactor_core_button1.stl");
-	m_buttons[1].load_model("../assets/model/", "reactor_core_button2.stl");
-	m_buttons[2].load_model("../assets/model/", "reactor_core_button3.stl");
-	m_buttons[3].load_model("../assets/model/", "reactor_core_button4.stl");
-	m_buttons[4].load_model("../assets/model/", "reactor_core_button5.stl");
-	m_buttons[5].load_model("../assets/model/", "reactor_core_button6.stl");
-	m_buttons[6].load_model("../assets/model/", "reactor_core_button7.stl");
-	m_buttons[7].load_model("../assets/model/", "reactor_core_button8.stl");
-	m_buttons[8].load_model("../assets/model/", "reactor_core_button9.stl");
-	m_joystick.load_model("../assets/model/", "reactor_core_joystick.stl");
-	m_monitor.load_model("../assets/model/", "reactor_core_input.stl");
-	m_scram.load_model("../assets/model/", "reactor_core_scram.stl");
+	m_buttons[0] = model.load("click_numpad_1");
+	m_buttons[1] = model.load("click_numpad_2");
+	m_buttons[2] = model.load("click_numpad_3");
+	m_buttons[3] = model.load("click_numpad_4");
+	m_buttons[4] = model.load("click_numpad_5");
+	m_buttons[5] = model.load("click_numpad_6");
+	m_buttons[6] = model.load("click_numpad_7");
+	m_buttons[7] = model.load("click_numpad_8");
+	m_buttons[8] = model.load("click_numpad_9");
+	m_joystick = model.load("click_reactor_joystick");
+	m_monitor = model.load("translation_monitor_3");
+	m_scram = model.load("click_scram");
 }
 
 static Mesh add_dot(glm::mat4 model_mat, glm::vec4 colour)

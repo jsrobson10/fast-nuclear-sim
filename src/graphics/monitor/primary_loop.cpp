@@ -55,7 +55,7 @@ PrimaryLoop::PrimaryLoop()
 
 }
 
-void PrimaryLoop::init(Mesh& rmesh)
+void PrimaryLoop::init(const Model& model, Mesh& rmesh)
 {
 	mat = Locations::monitors[3];
 	
@@ -77,15 +77,15 @@ void PrimaryLoop::init(Mesh& rmesh)
 	mesh.load_text(ss.str().c_str(), 0.04);
 	rmesh.add(mesh, mat);
 
-	g_switch_pump.load_model("../assets/model", "pump_switch_1.glb");
-	g_switch_bypass.load_model("../assets/model", "turbine_valve_bypass_switch.glb");
-	g_switch_inlet.load_model("../assets/model", "turbine_valve_inlet_switch.glb");
+	g_switch_pump = model.load("visual_pump_switch_1");
+	g_switch_bypass = model.load("visual_bypass_switch");
+	g_switch_inlet = model.load("visual_inlet_switch");
 
-	m_joystick_turbine_bypass.load_model("../assets/model", "turbine_valve_bypass_joystick.stl");
-	m_joystick_turbine_inlet.load_model("../assets/model", "turbine_valve_inlet_joystick.stl");
-	m_switch_pump.load_model("../assets/model", "pump_switch_click_1.stl");
-	m_switch_bypass.load_model("../assets/model", "turbine_valve_bypass_switch_click.stl");
-	m_switch_inlet.load_model("../assets/model", "turbine_valve_inlet_switch_click.stl");
+	m_joystick_turbine_bypass = model.load("click_bypass_joystick");
+	m_joystick_turbine_inlet = model.load("click_inlet_joystick");
+	m_switch_pump = model.load("click_pump_switch_1");
+	m_switch_bypass = model.load("click_bypass_switch");
+	m_switch_inlet = model.load("click_inlet_switch");
 }
 
 void PrimaryLoop::update(double dt)

@@ -7,11 +7,12 @@ layout (triangle_strip, max_vertices=18) out;
 uniform mat4 shadow_mats[6];
 
 in float emissive[];
+in float base_transparency[];
 out vec3 frag_pos;
 
 void main()
 {
-	if(emissive[0] > 0) return;
+	if(emissive[0] > 0 || base_transparency[0] > 0) return;
 
 	for(int i = 0; i < 6; i++)
 	{

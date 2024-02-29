@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include "../mesh/model.hpp"
 #include "../mesh/glmesh.hpp"
 
 namespace Sim::Graphics::Monitor
@@ -17,7 +18,7 @@ class Turbine
 public:
 
 	Turbine();
-	void init(Mesh& rmesh);
+	void init(const Model& model, Mesh& rmesh);
 	void update(double dt);
 	void remesh_slow(Mesh& rmesh);
 	void remesh_fast(Mesh& rmesh);

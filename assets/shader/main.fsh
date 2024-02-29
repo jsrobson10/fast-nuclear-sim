@@ -2,23 +2,7 @@
 #version 460 core
 #extension GL_ARB_bindless_texture : require
 
-const float PI = 3.141592;
-const float Epsilon = 0.00001;
-
-// Constant normal incidence Fresnel factor for all dielectrics.
-const vec3 Fdielectric = vec3(0.04);
-
-const int SampleOffsetsLen = 8;
-const vec3 SampleOffsets[SampleOffsetsLen] = {
-	vec3(-1.f,-1.f,-1.f),
-	vec3(-1.f,-1.f, 1.f),
-	vec3(-1.f, 1.f,-1.f),
-	vec3(-1.f, 1.f, 1.f),
-	vec3( 1.f,-1.f,-1.f),
-	vec3( 1.f,-1.f, 1.f),
-	vec3( 1.f, 1.f,-1.f),
-	vec3( 1.f, 1.f, 1.f),
-};
+const float PI = 3.141592f;
 
 in VS_OUT {
 	vec3 normal;
@@ -55,18 +39,18 @@ uniform bool shadows_enabled;
 
 vec3 FresnelSchlick(float cosTheta, vec3 F0)
 {
-	return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+	return F0 + (1.f - F0) * pow(clamp(1.f - cosTheta, 0.f, 1.f), 5.f);
 }
 
 float DistributionGGX(vec3 N, vec3 H, float roughness)
 {
 	float a	  = roughness*roughness;
 	float a2	 = a*a;
-	float NdotH  = max(dot(N, H), 0.0);
+	float NdotH  = max(dot(N, H), 0.f);
 	float NdotH2 = NdotH*NdotH;
 	
 	float num   = a2;
-	float denom = (NdotH2 * (a2 - 1.0) + 1.0);
+	float denom = (NdotH2 * (a2 - 1.f) + 1.f);
 	denom = PI * denom * denom;
 	
 	return num / denom;
@@ -74,19 +58,19 @@ float DistributionGGX(vec3 N, vec3 H, float roughness)
 
 float GeometrySchlickGGX(float NdotV, float roughness)
 {
-	float r = (roughness + 1.0);
-	float k = (r*r) / 8.0;
+	float r = (roughness + 1.f);
+	float k = (r*r) / 8.f;
 
 	float num   = NdotV;
-	float denom = NdotV * (1.0 - k) + k;
+	float denom = NdotV * (1.f - k) + k;
 	
 	return num / denom;
 }
 
 float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 {
-	float NdotV = max(dot(N, V), 0.0);
-	float NdotL = max(dot(N, L), 0.0);
+	float NdotV = max(dot(N, V), 0.f);
+	float NdotL = max(dot(N, L), 0.f);
 	float ggx2  = GeometrySchlickGGX(NdotV, roughness);
 	float ggx1  = GeometrySchlickGGX(NdotL, roughness);
 	
@@ -114,6 +98,8 @@ vec3 sRGB_To_LinRGB(vec3 c)
 void main()
 {
 	vec4 albedo = texture2D(frag_tex, vin.tex_pos) * vin.colour;
+	if(albedo.a == 0.f) discard;
+
 	vec3 albedo_lin = sRGB_To_LinRGB(albedo.rgb);
 	
 	float roughness = vin.material[0];
@@ -123,10 +109,10 @@ void main()
 	vec3 N = normalize(vin.normal);
 	vec3 V = normalize(camera_pos - vin.pos.xyz);
 
-	vec3 F0 = vec3(0.04);
+	vec3 F0 = vec3(0.04f);
 	F0 = mix(F0, albedo_lin, metalness);
 
-	vec3 Lo = vec3(0.0);
+	vec3 Lo = vec3(0.0f);
 	for(int i = 0; i < lights_count; i++)
 	{
 		Light l = lights[i];
@@ -141,38 +127,35 @@ void main()
 		// cook-torrance brdf
 		float NDF = DistributionGGX(N, H, roughness);
 		float G = GeometrySmith(N, V, L, roughness);
-		vec3 F = FresnelSchlick(max(dot(H, V), 0.0), F0);
+		vec3 F = FresnelSchlick(max(dot(H, V), 0.f), F0);
 		
 		vec3 kS = F;
-		vec3 kD = vec3(1.0) - kS;
-		kD *= 1.0 - metalness;
+		vec3 kD = vec3(1.f) - kS;
+		kD *= 1.f - metalness;
 		
 		vec3 numerator = NDF * G * F;
-		float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
+		float denominator = 4.f * max(dot(N, V), 0.f) * max(dot(N, L), 0.f) + 1e-4f;
 		vec3 specular = numerator / denominator;
 		
-		float amount = 0;
+		float light_m;
+		float spec_m;
 
 		if(shadows_enabled)
 		{
-			float texel_size = 1.f / textureSize(shadow_maps[i], 0)[0];
-
-			for(int j = 0; j < SampleOffsetsLen; j++)
-			{
-				amount += ((texture(shadow_maps[i], -L + SampleOffsets[j] * texel_size).r * far_plane > d) ? 1.f : 0.5f);
-			}
-
-			amount /= SampleOffsetsLen;
+			float max_d = texture(shadow_maps[i], -L).r * far_plane + 1e-2f;
+			spec_m = max_d > d ? 1.f : 0.f;
+			light_m = spec_m * 0.25f + 0.75f;
 		}
 
 		else
 		{
-			amount = 1.f;
+			light_m = 1.f;
+			spec_m = 1.f;
 		}
 
 		// add to outgoing radiance Lo
-		float NdotL = max(dot(N, L), 0.0);
-		Lo += (kD * albedo_lin / PI + specular) * radiance * NdotL * amount;
+		float NdotL = max(dot(N, L), 0.f);
+		Lo += (kD * albedo_lin / PI + specular * spec_m) * radiance * NdotL * light_m;
 	}
 	
 	vec3 ambient = vec3(0.03f) * albedo_lin * brightness;
@@ -181,6 +164,5 @@ void main()
 	light = mix(light, albedo.rgb, luminance);
 	frag_colour = vec4(light, albedo.a);
 
-	if(frag_colour.a == 0.f) discard;
 }
 

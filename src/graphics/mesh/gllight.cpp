@@ -14,7 +14,7 @@ using namespace Sim::Graphics;
 
 static glm::mat4 shadow_mats[6];
 
-GLLight::GLLight(Light light) : light(light), size(4096)
+GLLight::GLLight(Light light) : light(light), size(1024)
 {
 	glGenTextures(1, &id);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, id);
@@ -53,8 +53,6 @@ GLLight::GLLight(GLLight&& o) : light(o.light), size(o.size)
 
 GLLight::~GLLight()
 {
-	std::cout << "Destructor called for " << fbo << ":" << id << ":" << handle << "\n";
-
 	if(fbo)
 		glDeleteFramebuffers(1, &fbo);
 	if(id)
