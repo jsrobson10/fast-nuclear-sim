@@ -7,6 +7,8 @@
 #include <glm/ext/matrix_clip_space.hpp> // glm::perspective
 
 #include <iostream>
+#include <vector>
+#include <memory>
 
 #include "mesh/mesh.hpp"
 #include "mesh/arrays.hpp"
@@ -27,6 +29,8 @@
 #include "mesh/texture.hpp"
 #include "mesh/model.hpp"
 #include "mesh/gllight.hpp"
+#include "mesh/meshgen.hpp"
+#include "equipment/reactor.hpp"
 #include "../system.hpp"
 #include "../util/streams.hpp"
 #include "ui.hpp"
@@ -43,17 +47,14 @@ static double secs_wait_now = 0;
 static int gm_dynamic_slow_at = 0;
 
 static GLMesh gm_scene;
+static GLMesh gm_transparent;
 static GLMesh gm_dynamic_slow[2];
 static GLMesh gm_dynamic_fast;
 static Mesh m_dynamic_fast;
 
 static std::vector<GLLight> lights;
-
-static Monitor::Vessel monitor_vessel;
-static Monitor::Core monitor_core;
-static Monitor::PrimaryLoop monitor_primary_loop;
-static Monitor::SecondaryLoop monitor_secondary_loop;
-static Monitor::Turbine monitor_turbine;
+static std::vector<std::unique_ptr<MeshGen>> monitors;
+static std::vector<std::unique_ptr<MeshGen>> equipment;
 
 glm::mat4 Window::projection_matrix;
 
@@ -132,9 +133,10 @@ void Window::create()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	Sim::System& sys = *System::active;
-	Mesh m_scene;
+	Mesh m_scene, m_transparent;
 
 	Model model("../assets", "scene.glb");
+	m_transparent = model.load("visual_water");
 	m_scene = model.load("scene");
 	
 	Camera::init(model);
@@ -147,14 +149,19 @@ void Window::create()
 
 	glUniform1i(Shader::MAIN["lights_count"], model.lights.size());
 
-	monitor_core.init(model, m_scene);
-	monitor_vessel.init(model, m_scene);
-	monitor_primary_loop.init(model, m_scene);
-	monitor_secondary_loop.init(model, m_scene);
-	monitor_turbine.init(model, m_scene);
+	monitors.push_back(std::make_unique<Monitor::Core>(model, m_scene));
+	monitors.push_back(std::make_unique<Monitor::Vessel>(model, m_scene));
+	monitors.push_back(std::make_unique<Monitor::PrimaryLoop>(model, m_scene));
+	monitors.push_back(std::make_unique<Monitor::SecondaryLoop>(model, m_scene));
+	monitors.push_back(std::make_unique<Monitor::Turbine>(model, m_scene));
+
+	equipment.push_back(std::make_unique<Equipment::Reactor>(model, m_scene));
 
 	gm_scene.bind();
 	gm_scene.set(m_scene, GL_STATIC_DRAW);
+
+	gm_transparent.bind();
+	gm_transparent.set(m_transparent, GL_STATIC_DRAW);
 
 	glfwShowWindow(win);
 
@@ -189,11 +196,15 @@ void update_slow()
 {
 	Mesh mesh;
 
-	monitor_core.remesh_slow(mesh);
-	monitor_vessel.remesh_slow(mesh);
-	monitor_primary_loop.remesh_slow(mesh);
-	monitor_secondary_loop.remesh_slow(mesh);
-	monitor_turbine.remesh_slow(mesh);
+	for(auto& monitor : monitors)
+	{
+		monitor->remesh_slow(mesh);
+	}
+
+	for(auto& equipment : equipment)
+	{
+		equipment->remesh_slow(mesh);
+	}
 
 	gm_dynamic_slow[gm_dynamic_slow_at].bind();
 	gm_dynamic_slow[gm_dynamic_slow_at].set(mesh, GL_DYNAMIC_DRAW);
@@ -208,19 +219,27 @@ void Window::update(double dt)
 
 	glfwPollEvents();
 
-	monitor_core.update(dt);
-	monitor_vessel.update(dt);
-	monitor_primary_loop.update(dt);
-	monitor_secondary_loop.update(dt);
-	monitor_turbine.update(dt);
+	for(auto& monitor : monitors)
+	{
+		monitor->update(dt);
+	}
+
+	for(auto& equipment : equipment)
+	{
+		equipment->update(dt);
+	}
 	
 	UI::update(dt);
-	
-	monitor_core.remesh_fast(mesh);
-	monitor_vessel.remesh_fast(mesh);
-	monitor_primary_loop.remesh_fast(mesh);
-	monitor_secondary_loop.remesh_fast(mesh);
-	monitor_turbine.remesh_fast(mesh);
+
+	for(auto& monitor : monitors)
+	{
+		monitor->remesh_fast(mesh);
+	}
+
+	for(auto& equipment : equipment)
+	{
+		equipment->remesh_fast(mesh);
+	}
 	
 	if(mesh != m_dynamic_fast)
 	{
@@ -251,11 +270,19 @@ void Window::render_scene()
 	gm_dynamic_fast.uniform();
 	gm_dynamic_fast.render();
 
-	monitor_core.render();
-	monitor_vessel.render();
-	monitor_primary_loop.render();
-	monitor_secondary_loop.render();
-	monitor_turbine.render();
+	for(auto& monitor : monitors)
+	{
+		monitor->render();
+	}
+
+	for(auto& equipment : equipment)
+	{
+		equipment->render();
+	}
+	
+	gm_transparent.bind();
+	gm_transparent.uniform();
+	gm_transparent.render();
 
 	Focus::render();
 }
@@ -263,16 +290,15 @@ void Window::render_scene()
 void Window::render()
 {
 	glm::vec<2, int> size = Resize::get_size();
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(0, 0, size.x, size.y);
-
 	glm::vec3 camera_pos = Camera::get_pos();
 	glm::mat4 mat_camera = Camera::get_matrix();
 
 	Shader::MAIN.use();
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(0, 0, size.x, size.y);
 
 	glm::vec3 brightness = glm::vec3(System::active->grid.get_light_intensity());
-	glm::mat4 mat_projection = glm::perspective(glm::radians(90.0f), Resize::get_aspect(), 0.01f, 50.f);
+	glm::mat4 mat_projection = glm::perspective(glm::radians(90.0f), Resize::get_aspect(), 0.01f, 100.f);
 	glUniformMatrix4fv(Shader::MAIN["projection"], 1, false, &mat_projection[0][0]);
 	glUniformMatrix4fv(Shader::MAIN["camera"], 1, false, &mat_camera[0][0]);
 	glUniform3fv(Shader::MAIN["camera_pos"], 1, &camera_pos[0]);

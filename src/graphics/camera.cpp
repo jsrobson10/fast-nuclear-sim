@@ -123,11 +123,10 @@ void Camera::update(double dt)
 		velocity.z += 3.5;
 	}
 
-	glm::vec<3, double> normal_last(0);
 	glm::vec<3, double> velocity2;
    
-	velocity2 = collision_scene.calc_intersect(pos, velocity * dt, normal_last);
-	velocity2 = collision_scene.calc_intersect(pos + glm::vec<3, double>(0, 0, -1.5), velocity2, normal_last) / dt;
+	velocity2 = collision_scene.calc_intersect(pos, velocity * dt);
+	velocity2 = collision_scene.calc_intersect(pos + glm::vec<3, double>(0, 0, -1.5), velocity2) / dt;
 
 	pos += velocity2 * dt;
 	on_ground = ((velocity * dt / dt).z != velocity2.z);

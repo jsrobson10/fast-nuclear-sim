@@ -155,17 +155,11 @@ bool Mesh::check_intersect(vec3 pos, vec3 path) const
 	return false;
 }
 
-vec3 Mesh::calc_intersect(vec3 pos, vec3 path) const
-{
-	vec3 normal_last(0);
-	return calc_intersect(pos, path, normal_last);
-}
-
-static bool calc_intercept_vert(vec3 v[3], vec3 pos, vec3& path, vec3& path_n, vec3& normal_last, double& l)
+static bool calc_intercept_vert(vec3 v[3], vec3 pos, vec3& path, vec3& path_n, double& l)
 {
 	vec3 ipoint;
 	vec3 normal = glm::normalize(glm::cross(v[1] - v[0], v[2] - v[0]));
-	double d = glm::dot(normal, path);
+	double d = glm::dot(path, normal);
 
 	if(d >= 0)
 		return false;
@@ -174,20 +168,11 @@ static bool calc_intercept_vert(vec3 v[3], vec3 pos, vec3& path, vec3& path_n, v
 	if(l < glm::length(ipoint - pos))
 		return false;
 
-	if(normal_last != vec3(0))
+	if(d < 0)
 	{
-		vec3 n = glm::cross(normal_last, normal);
-
-		if(glm::length(n) > 0)
-		{
-			normal = glm::normalize(glm::cross(glm::cross(normal_last, normal), normal_last));
-			d = glm::dot(normal, path);
-		}
+		path -= normal * d;
+		l = glm::length(path);
 	}
-	
-	path -= normal * d;
-	normal_last = normal;
-	l = glm::length(path);
 
 	if(l > 0)
 	{
@@ -197,7 +182,7 @@ static bool calc_intercept_vert(vec3 v[3], vec3 pos, vec3& path, vec3& path_n, v
 	return true;
 }
 
-vec3 Mesh::calc_intersect(vec3 pos, vec3 path, vec3& normal_last) const
+vec3 Mesh::calc_intersect(vec3 pos, vec3 path) const
 {
 	double l = glm::length(path);
 
@@ -217,7 +202,7 @@ vec3 Mesh::calc_intersect(vec3 pos, vec3 path, vec3& normal_last) const
 			vec3(this->vertices[indices[i + 2]].pos)
 		};
 		
-		if(calc_intercept_vert(v, pos, path, path_n, normal_last, l))
+		if(calc_intercept_vert(v, pos, path, path_n, l))
 		{
 			i_found = i;
 		}
@@ -236,7 +221,7 @@ vec3 Mesh::calc_intersect(vec3 pos, vec3 path, vec3& normal_last) const
 			vec3(this->vertices[indices[i + 2]].pos)
 		};
 		
-		calc_intercept_vert(v, pos, path, path_n, normal_last, l);
+		calc_intercept_vert(v, pos, path, path_n, l);
 
 		if(l == 0)
 		{

@@ -34,7 +34,6 @@ struct Mesh
 	bool check_focus(double len) const;
 	bool check_intersect(glm::vec<3, double> pos, glm::vec<3, double> path) const;
 	glm::vec<3, double> calc_intersect(glm::vec<3, double> pos, glm::vec<3, double> path) const;
-	glm::vec<3, double> calc_intersect(glm::vec<3, double> pos, glm::vec<3, double> path, glm::vec<3, double>& normal_last) const;
 
 	bool operator==(const Mesh&) const = default;
 

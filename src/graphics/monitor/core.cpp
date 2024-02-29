@@ -116,11 +116,7 @@ struct CoreJoystick : public Focus::FocusType
 	}
 };
 
-Core::Core()
-{
-}
-
-void Core::init(const Model& model, Mesh& rmesh)
+Core::Core(const Model& model, Mesh& rmesh)
 {
 	Mesh mesh = model.load("translation_monitor_3");
 	mat = Locations::monitors[2];
@@ -204,7 +200,7 @@ void Core::remesh(Mesh& rmesh, bool fast)
 	double step = 1 / (sys.vessel.diameter / sys.reactor.cell_width * 0.8);
 	double sx = 0.5 - (sys.reactor.width - 1) * step / 2.0;
 	double sy = 0.5 - (sys.reactor.height - 1) * step / 2.0;
-
+	
 	glm::mat4 mat_scale = glm::scale(glm::mat4(1), glm::vec3(step * 0.4, step * 0.4, 1));
 	glm::mat4 mat_select = glm::translate(glm::mat4(1), glm::vec3(-0.8, -0.8, -0.001)) * glm::scale(glm::mat4(1), glm::vec3(0.25, 0.25, 1));
 	glm::mat4 mat_cursor = glm::translate(glm::mat4(1), glm::vec3(-0.8, 0.8, -0.001)) * glm::scale(glm::mat4(1), glm::vec3(0.25, 0.25, 1));

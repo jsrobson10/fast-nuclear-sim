@@ -15,12 +15,7 @@
 using namespace Sim::Graphics::Monitor;
 using namespace Sim::Util::Streams;
 
-Vessel::Vessel()
-{
-
-}
-
-void Vessel::init(const Model& model, Mesh& rmesh)
+Vessel::Vessel(const Model& model, Mesh& rmesh)
 {
 	mat = Locations::monitors[1];
 

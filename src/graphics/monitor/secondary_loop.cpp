@@ -16,12 +16,8 @@ using namespace Sim::Graphics;
 using namespace Sim::Graphics::Monitor;
 using namespace Sim::Util::Streams;
 
-SecondaryLoop::SecondaryLoop()
-{
 
-}
-
-void SecondaryLoop::init(const Model& model, Mesh& rmesh)
+SecondaryLoop::SecondaryLoop(const Model& model, Mesh& rmesh)
 {
 	mat = Locations::monitors[5];
 

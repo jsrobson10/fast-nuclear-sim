@@ -3,11 +3,12 @@
 
 #include "../mesh/model.hpp"
 #include "../mesh/glmesh.hpp"
+#include "../mesh/meshgen.hpp"
 
 namespace Sim::Graphics::Monitor
 {
 
-class Turbine
+class Turbine : public MeshGen
 {
 	glm::mat4 mat;
 
@@ -17,12 +18,11 @@ class Turbine
 
 public:
 
-	Turbine();
-	void init(const Model& model, Mesh& rmesh);
-	void update(double dt);
-	void remesh_slow(Mesh& rmesh);
-	void remesh_fast(Mesh& rmesh);
-	void render();
+	Turbine(const Model& model, Mesh& rmesh);
+	virtual void update(double dt);
+	virtual void remesh_slow(Mesh& rmesh);
+	virtual void remesh_fast(Mesh& rmesh);
+	virtual void render();
 };
 
 };

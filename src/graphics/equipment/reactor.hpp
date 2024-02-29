@@ -1,19 +1,18 @@
 
 #pragma once
 
-#include "../mesh/model.hpp"
 #include "../mesh/meshgen.hpp"
 
-namespace Sim::Graphics::Monitor
+namespace Sim::Graphics::Equipment
 {
 
-class Vessel : public MeshGen
+class Reactor : public MeshGen
 {
-	glm::mat4 mat;
-	
+	Mesh g_control_rod;
+
 public:
 
-	Vessel(const Model& model, Mesh& rmesh);
+	Reactor(const Model& model, Mesh& rmesh);
 	virtual void update(double dt);
 	virtual void remesh_slow(Mesh& rmesh);
 	virtual void remesh_fast(Mesh& rmesh);

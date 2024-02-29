@@ -49,13 +49,7 @@ struct ValveJoystick : public Focus::FocusType
 	}
 };
 
-
-PrimaryLoop::PrimaryLoop()
-{
-
-}
-
-void PrimaryLoop::init(const Model& model, Mesh& rmesh)
+PrimaryLoop::PrimaryLoop(const Model& model, Mesh& rmesh)
 {
 	mat = Locations::monitors[3];
 	

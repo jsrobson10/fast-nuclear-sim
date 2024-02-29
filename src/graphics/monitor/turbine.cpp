@@ -16,12 +16,7 @@ using namespace Sim::Graphics;
 using namespace Sim::Graphics::Monitor;
 using namespace Sim::Util::Streams;
 
-Turbine::Turbine()
-{
-
-}
-
-void Turbine::init(const Model& model, Mesh& rmesh)
+Turbine::Turbine(const Model& model, Mesh& rmesh)
 {
 	mat = Locations::monitors[4];
 	

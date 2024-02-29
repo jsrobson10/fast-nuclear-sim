@@ -2,13 +2,15 @@
 #pragma once
 
 #include "../mesh/model.hpp"
+#include "../mesh/meshgen.hpp"
 
 namespace Sim::Graphics::Monitor
 {
 
-class Core
+class Core : public MeshGen
 {
 	glm::mat4 mat;
+
 	Mesh m_monitor;
 	Mesh m_buttons[9];
 	Mesh m_joystick;
@@ -16,13 +18,12 @@ class Core
 	
 public:
 
-	Core();
-	void init(const Model& model, Mesh& rmesh);
-	void update(double dt);
-	void remesh_slow(Mesh& rmesh);
-	void remesh_fast(Mesh& rmesh);
+	Core(const Model& model, Mesh& rmesh);
 	void remesh(Mesh& rmesh, bool fast);
-	void render();
+	virtual void update(double dt);
+	virtual void remesh_slow(Mesh& rmesh);
+	virtual void remesh_fast(Mesh& rmesh);
+	virtual void render();
 };
 
 };
