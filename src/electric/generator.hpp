@@ -34,11 +34,13 @@ public:
 	void update(double dt);
 	
 	double get_rpm() const;
+	double get_frequency() const;
+	double get_power() const;
+	double get_voltage() const;
 	double get_phase_diff() const;
 	
 	operator Json::Value() const;
 	
-	constexpr double get_energy_generated() const { return energy_generated; }
 	constexpr double get_phase() const { return phase; }
 };
 

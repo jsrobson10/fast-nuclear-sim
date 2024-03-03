@@ -189,7 +189,7 @@ void Core::remesh_slow(Mesh& rmesh)
 	Sim::System& sys = *System::active;
 	Sim::Graphics::Mesh mesh;
 	
-	double step = 1 / (sys.vessel.diameter / sys.reactor.cell_width * 0.8);
+	double step = sys.reactor.cell_width / sys.vessel.diameter * 0.8;
 	double sx = 0.5 - (sys.reactor.width - 1) * step / 2.0;
 	double sy = 0.5 - (sys.reactor.height - 1) * step / 2.0;
 	

@@ -9,6 +9,7 @@
 #include "reactor/coolant/pipe.hpp"
 #include "reactor/coolant/heater.hpp"
 #include "graphics/camera.hpp"
+#include "graphics/window.hpp"
 
 using namespace Sim;
 
@@ -38,7 +39,7 @@ const char* CORE_LAYOUT[] = {
 
 System::System() :
 		vessel(Coolant::WATER, 8, 10, 6e6, 5e5, 10),
-		reactor(Reactor::Builder(19, 19, 1.0 / 4.0, 4, Reactor::Fuel::FuelRod(0.5), &vessel, CORE_LAYOUT)),
+		reactor(Reactor::Builder(19, 19, 0.4, 4, Reactor::Fuel::FuelRod(0.5), &vessel, CORE_LAYOUT)),
 		evaporator(Coolant::WATER, 2, 30, 0, 1000),
 		sink(Coolant::WATER, 11, 0, 0),
 		grid(),
@@ -113,6 +114,8 @@ void System::load(const char* path)
 	Graphics::Camera::load(root["camera"]);
 	std::unique_ptr<System> sys = std::make_unique<System>(root);
 	active = std::move(sys);
+
+	Graphics::Window::reload();
 }
 
 void System::save()

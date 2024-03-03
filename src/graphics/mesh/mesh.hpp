@@ -24,6 +24,7 @@ struct Mesh
 	Mesh();
 
 	void set_transform_id();
+	void set_texture_id(unsigned int id);
 	void set_vertices(const Arrays::Vertex* data, size_t size);
 	void set_indices(const unsigned int* data, size_t size);
 	void load_text(const char* text, double size);

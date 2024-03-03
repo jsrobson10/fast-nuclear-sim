@@ -50,6 +50,8 @@ static double secs_wait_now = 0;
 static int gm_dynamic_slow_at = 0;
 static int ssbo_transforms_at = 0;
 
+static Mesh g_scene;
+
 static GLMesh gm_scene;
 static GLMesh gm_transparent;
 static GLMesh gm_dynamic_slow[2];
@@ -70,6 +72,36 @@ static void GLAPIENTRY cb_debug_message(GLenum source, GLenum type, GLuint id, G
 	else if(severity != GL_DEBUG_SEVERITY_NOTIFICATION)
 	{
 		std::cout << "GL CALLBACK: " << message << "\n";
+	}
+}
+
+void remesh_static()
+{
+	Mesh mesh(g_scene);
+
+	for(auto& monitor : monitors)
+	{
+		monitor->remesh_static(mesh);
+	}
+
+	for(auto& equipment : equipment)
+	{
+		equipment->remesh_static(mesh);
+	}
+
+	gm_scene.bind();
+	gm_scene.set(mesh, GL_STATIC_DRAW);
+
+	std::cout << "Remeshed static\n";
+}
+
+void render_shadow_map()
+{
+	Shader::LIGHT.use();
+
+	for(auto& light : lights)
+	{
+		light.render();
 	}
 }
 
@@ -135,11 +167,14 @@ void Window::create()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	Sim::System& sys = *System::active;
-	Mesh m_scene, m_transparent;
+	Mesh m_transparent;
 
 	Model model("../assets", "scene.glb");
 	m_transparent = model.load("visual_water");
-	m_scene = model.load("scene");
+
+	g_scene.add(model.load("cr"));
+	g_scene.add(model.load("cb"));
+	g_scene.add(model.load("hw"));
 	
 	Camera::init(model);
 
@@ -158,18 +193,7 @@ void Window::create()
 	monitors.push_back(std::make_unique<Monitor::Turbine>(model));
 	equipment.push_back(std::make_unique<Equipment::Reactor>(model));
 
-	for(auto& monitor : monitors)
-	{
-		monitor->remesh_static(m_scene);
-	}
-
-	for(auto& equipment : equipment)
-	{
-		equipment->remesh_static(m_scene);
-	}
-
-	gm_scene.bind();
-	gm_scene.set(m_scene, GL_STATIC_DRAW);
+	remesh_static();
 
 	gm_transparent.bind();
 	gm_transparent.set(m_transparent, GL_STATIC_DRAW);
@@ -244,6 +268,12 @@ void update_slow()
 	gm_dynamic_slow_at = (gm_dynamic_slow_at + 1) % 2;
 
 	UI::update_slow();
+}
+
+void Window::reload()
+{
+	remesh_static();
+	render_shadow_map();
 }
 
 void Window::update(double dt)

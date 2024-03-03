@@ -25,6 +25,14 @@ void Mesh::set_transform_id()
 	max_transform_id = 0;
 }
 
+void Mesh::set_texture_id(unsigned int id)
+{
+	for(unsigned int i = 0; i < vertices.size(); i++)
+	{
+		vertices[i].texid = id;
+	}
+}
+
 void Mesh::add(const Mesh& o, glm::mat4 mat)
 {
 	unsigned int off = vertices.size();

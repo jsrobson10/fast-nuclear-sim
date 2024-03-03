@@ -12,7 +12,10 @@ class Turbine : public MeshGen
 {
 	glm::mat4 mat;
 
-	Mesh g_synchroscope_dial;
+	Mesh g_dial_phase;
+	Mesh g_dial_voltage;
+	Mesh g_dial_power;
+	Mesh g_dial_frequency;
 	Mesh g_switch_breaker;
 	Mesh m_switch_breaker;
 

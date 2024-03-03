@@ -33,9 +33,9 @@ out vec4 frag_colour;
 
 uniform vec3 brightness;
 uniform vec3 camera_pos;
-uniform int lights_count;
 uniform float far_plane;
 uniform bool shadows_enabled;
+uniform int lights_count;
 
 vec3 FresnelSchlick(float cosTheta, vec3 F0)
 {

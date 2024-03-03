@@ -121,6 +121,22 @@ double Generator::get_phase_diff() const
 	return Util::Math::mod(phase - grid->get_phase() + M_PI, 2*M_PI) - M_PI;
 }
 
+double Generator::get_frequency() const
+{
+	return get_rpm() / 60;
+}
+
+double Generator::get_power() const
+{
+	return energy_generated;
+}
+
+double Generator::get_voltage() const
+{
+	// TODO: implement this
+	return get_frequency() / 60 * 20e3;
+}
+
 Generator::operator Json::Value() const
 {
 	Json::Value node;
