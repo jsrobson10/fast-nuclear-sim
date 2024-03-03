@@ -121,6 +121,11 @@ void Shader::use()
 	ACTIVE = this;
 }
 
+void Shader::block_binding(const char* name, unsigned int binding)
+{
+	glUniformBlockBinding(prog_id, get_block_index(name), binding);
+}
+
 unsigned int Shader::operator [](const char* pos)
 {
 	auto it = uniform_locations.find(pos);
@@ -131,6 +136,18 @@ unsigned int Shader::operator [](const char* pos)
 	}
 
 	return uniform_locations[pos] = glGetUniformLocation(prog_id, pos);
+}
+
+unsigned int Shader::get_block_index(const char* pos)
+{
+	auto it = uniform_block_indices.find(pos);
+
+	if(it != uniform_block_indices.end())
+	{
+		return it->second;
+	}
+
+	return uniform_block_indices[pos] = glGetUniformBlockIndex(prog_id, pos);
 }
 
 unsigned int Shader::get(const char* pos)

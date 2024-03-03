@@ -37,20 +37,22 @@
 
 using namespace Sim::Graphics;
 
+constexpr int SSBO_TRANSFORMS_LEN = 2;
+
 static GLFWwindow* win;
 static bool win_should_close = false;
 static unsigned int ssbo_lights;
 static unsigned int ssbo_shadow_maps;
+static unsigned int ssbo_transforms[SSBO_TRANSFORMS_LEN];
 static double secs_wait_at = 0;
 static double secs_wait_now = 0;
 
 static int gm_dynamic_slow_at = 0;
+static int ssbo_transforms_at = 0;
 
 static GLMesh gm_scene;
 static GLMesh gm_transparent;
 static GLMesh gm_dynamic_slow[2];
-static GLMesh gm_dynamic_fast;
-static Mesh m_dynamic_fast;
 
 static std::vector<GLLight> lights;
 static std::vector<std::unique_ptr<MeshGen>> monitors;
@@ -149,13 +151,22 @@ void Window::create()
 
 	glUniform1i(Shader::MAIN["lights_count"], model.lights.size());
 
-	monitors.push_back(std::make_unique<Monitor::Core>(model, m_scene));
-	monitors.push_back(std::make_unique<Monitor::Vessel>(model, m_scene));
-	monitors.push_back(std::make_unique<Monitor::PrimaryLoop>(model, m_scene));
-	monitors.push_back(std::make_unique<Monitor::SecondaryLoop>(model, m_scene));
-	monitors.push_back(std::make_unique<Monitor::Turbine>(model, m_scene));
+	monitors.push_back(std::make_unique<Monitor::Core>(model));
+	monitors.push_back(std::make_unique<Monitor::Vessel>(model));
+	monitors.push_back(std::make_unique<Monitor::PrimaryLoop>(model));
+	monitors.push_back(std::make_unique<Monitor::SecondaryLoop>(model));
+	monitors.push_back(std::make_unique<Monitor::Turbine>(model));
+	equipment.push_back(std::make_unique<Equipment::Reactor>(model));
 
-	equipment.push_back(std::make_unique<Equipment::Reactor>(model, m_scene));
+	for(auto& monitor : monitors)
+	{
+		monitor->remesh_static(m_scene);
+	}
+
+	for(auto& equipment : equipment)
+	{
+		equipment->remesh_static(m_scene);
+	}
 
 	gm_scene.bind();
 	gm_scene.set(m_scene, GL_STATIC_DRAW);
@@ -190,6 +201,28 @@ void Window::create()
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_shadow_maps);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, light_handles.size() * sizeof(light_handles[0]), &light_handles[0], GL_STATIC_DRAW);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, ssbo_shadow_maps);
+
+	// setup the transforms ssbos and their initial values
+	
+	std::vector<glm::mat4> transforms;
+
+	for(auto& monitor : monitors)
+	{
+		monitor->get_static_transforms(transforms);
+	}
+
+	for(auto& equipment : equipment)
+	{
+		equipment->get_static_transforms(transforms);
+	}
+
+	glGenBuffers(SSBO_TRANSFORMS_LEN, ssbo_transforms);
+
+	for(int i = 0; i < SSBO_TRANSFORMS_LEN; i++)
+	{
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_transforms[i]);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, transforms.size() * sizeof(transforms[0]), &transforms[0], GL_DYNAMIC_DRAW);
+	}
 }
 
 void update_slow()
@@ -216,37 +249,28 @@ void update_slow()
 void Window::update(double dt)
 {
 	Mesh mesh;
+	std::vector<glm::mat4> transforms;
 
 	glfwPollEvents();
 
 	for(auto& monitor : monitors)
 	{
 		monitor->update(dt);
+		monitor->get_static_transforms(transforms);
 	}
 
 	for(auto& equipment : equipment)
 	{
 		equipment->update(dt);
+		equipment->get_static_transforms(transforms);
 	}
 	
 	UI::update(dt);
 
-	for(auto& monitor : monitors)
-	{
-		monitor->remesh_fast(mesh);
-	}
-
-	for(auto& equipment : equipment)
-	{
-		equipment->remesh_fast(mesh);
-	}
-	
-	if(mesh != m_dynamic_fast)
-	{
-		gm_dynamic_fast.bind();
-		gm_dynamic_fast.set(mesh, GL_DYNAMIC_DRAW);
-		m_dynamic_fast = std::move(mesh);
-	}
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, ssbo_transforms[ssbo_transforms_at]);
+	ssbo_transforms_at = (ssbo_transforms_at + 1) % SSBO_TRANSFORMS_LEN;
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_transforms[ssbo_transforms_at]);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, transforms.size() * sizeof(transforms[0]), &transforms[0], GL_DYNAMIC_DRAW);
 
 	secs_wait_now += dt;
 	if(secs_wait_now > secs_wait_at + 1.0/30.0)
@@ -265,20 +289,6 @@ void Window::render_scene()
 	gm_dynamic_slow[gm_dynamic_slow_at].bind();
 	gm_dynamic_slow[gm_dynamic_slow_at].uniform();
 	gm_dynamic_slow[gm_dynamic_slow_at].render();
-
-	gm_dynamic_fast.bind();
-	gm_dynamic_fast.uniform();
-	gm_dynamic_fast.render();
-
-	for(auto& monitor : monitors)
-	{
-		monitor->render();
-	}
-
-	for(auto& equipment : equipment)
-	{
-		equipment->render();
-	}
 	
 	gm_transparent.bind();
 	gm_transparent.uniform();
@@ -303,6 +313,7 @@ void Window::render()
 	glUniformMatrix4fv(Shader::MAIN["camera"], 1, false, &mat_camera[0][0]);
 	glUniform3fv(Shader::MAIN["camera_pos"], 1, &camera_pos[0]);
 	glUniform3fv(Shader::MAIN["brightness"], 1, &brightness[0]);
+	projection_matrix = mat_projection;
 
 	glFrontFace(GL_CCW);
 	glClearColor(0, 0, 0, 1.0f);

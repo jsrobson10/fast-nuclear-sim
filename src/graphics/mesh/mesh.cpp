@@ -15,11 +15,22 @@ Mesh::Mesh()
 
 }
 
+void Mesh::set_transform_id()
+{
+	for(unsigned int i = 0; i < vertices.size(); i++)
+	{
+		vertices[i].transform_id = 0;
+	}
+
+	max_transform_id = 0;
+}
+
 void Mesh::add(const Mesh& o, glm::mat4 mat)
 {
 	unsigned int off = vertices.size();
-	glm::mat3 mat3(mat);
+	float t_off = max_transform_id + 1;
 
+	glm::mat3 mat3(mat);
 	vertices.reserve(vertices.size() + o.vertices.size());
 	indices.reserve(indices.size() + o.indices.size());
 
@@ -28,6 +39,13 @@ void Mesh::add(const Mesh& o, glm::mat4 mat)
 		Arrays::Vertex v = o.vertices[i];
 		v.normal = mat3 * v.normal;
 		v.pos = mat * v.pos;
+
+		if(v.transform_id >= 0)
+		{
+			v.transform_id += t_off;
+			max_transform_id = std::max(max_transform_id, v.transform_id);
+		}
+
 		vertices.push_back(v);
 	}
 
@@ -192,40 +210,29 @@ vec3 Mesh::calc_intersect(vec3 pos, vec3 path) const
 	}
 
 	vec3 path_n = path / l;
-	unsigned int i_found = 0;
+	bool changing = true;
 
-	for(unsigned int i = 0; i < indices.size(); i += 3)
+	while(changing)
 	{
-		vec3 v[3] = {
-			vec3(this->vertices[indices[i]].pos),
-			vec3(this->vertices[indices[i + 1]].pos),
-			vec3(this->vertices[indices[i + 2]].pos)
-		};
-		
-		if(calc_intercept_vert(v, pos, path, path_n, l))
-		{
-			i_found = i;
-		}
+		changing = false;
 
-		if(l == 0)
+		for(unsigned int i = 0; i < indices.size(); i += 3)
 		{
-			return path;
-		}
-	}
+			vec3 v[3] = {
+				vec3(this->vertices[indices[i]].pos),
+				vec3(this->vertices[indices[i + 1]].pos),
+				vec3(this->vertices[indices[i + 2]].pos)
+			};
+			
+			if(calc_intercept_vert(v, pos, path, path_n, l))
+			{
+				changing = true;
+			}
 
-	for(unsigned int i = 0; i < i_found; i += 3)
-	{
-		vec3 v[3] = {
-			vec3(this->vertices[indices[i]].pos),
-			vec3(this->vertices[indices[i + 1]].pos),
-			vec3(this->vertices[indices[i + 2]].pos)
-		};
-		
-		calc_intercept_vert(v, pos, path, path_n, l);
-
-		if(l == 0)
-		{
-			return path;
+			if(l == 0)
+			{
+				return path;
+			}
 		}
 	}
 

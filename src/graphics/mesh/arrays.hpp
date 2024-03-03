@@ -14,6 +14,7 @@ struct Vertex
 	glm::vec3 normal = {0, 0, 0};
 	glm::vec4 colour = {1, 1, 1, 1};
 	glm::vec3 material = {0, 0, 0};
+	float transform_id = -1;
 
 	constexpr bool operator==(const Vertex&) const = default;
 

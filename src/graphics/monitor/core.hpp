@@ -18,12 +18,10 @@ class Core : public MeshGen
 	
 public:
 
-	Core(const Model& model, Mesh& rmesh);
-	void remesh(Mesh& rmesh, bool fast);
+	Core(const Model& model);
 	virtual void update(double dt);
+	virtual void remesh_static(Mesh& rmesh);
 	virtual void remesh_slow(Mesh& rmesh);
-	virtual void remesh_fast(Mesh& rmesh);
-	virtual void render();
 };
 
 };

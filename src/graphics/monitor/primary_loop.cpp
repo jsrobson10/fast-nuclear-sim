@@ -49,12 +49,29 @@ struct ValveJoystick : public Focus::FocusType
 	}
 };
 
-PrimaryLoop::PrimaryLoop(const Model& model, Mesh& rmesh)
+PrimaryLoop::PrimaryLoop(const Model& model)
 {
 	mat = Locations::monitors[3];
 	
+	g_switch_pump = model.load("visual_pump_switch_1");
+	g_switch_bypass = model.load("visual_bypass_switch");
+	g_switch_inlet = model.load("visual_inlet_switch");
+
+	m_joystick_turbine_bypass = model.load("click_bypass_joystick");
+	m_joystick_turbine_inlet = model.load("click_inlet_joystick");
+	m_switch_pump = model.load("click_pump_switch_1");
+	m_switch_bypass = model.load("click_bypass_switch");
+	m_switch_inlet = model.load("click_inlet_switch");
+
+	g_switch_pump.set_transform_id();
+	g_switch_bypass.set_transform_id();
+	g_switch_inlet.set_transform_id();
+}
+
+void PrimaryLoop::remesh_static(Mesh& rmesh)
+{
 	std::stringstream ss;
-	Sim::Graphics::Mesh mesh;
+	Mesh mesh;
 
 	ss << "Turbine Bypass Valve\n\n";
 	ss << "Opened\nFlow\nSetpoint\n\n";
@@ -71,15 +88,9 @@ PrimaryLoop::PrimaryLoop(const Model& model, Mesh& rmesh)
 	mesh.load_text(ss.str().c_str(), 0.04);
 	rmesh.add(mesh, mat);
 
-	g_switch_pump = model.load("visual_pump_switch_1");
-	g_switch_bypass = model.load("visual_bypass_switch");
-	g_switch_inlet = model.load("visual_inlet_switch");
-
-	m_joystick_turbine_bypass = model.load("click_bypass_joystick");
-	m_joystick_turbine_inlet = model.load("click_inlet_joystick");
-	m_switch_pump = model.load("click_pump_switch_1");
-	m_switch_bypass = model.load("click_bypass_switch");
-	m_switch_inlet = model.load("click_inlet_switch");
+	rmesh.add(g_switch_pump);
+	rmesh.add(g_switch_bypass);
+	rmesh.add(g_switch_inlet);
 }
 
 void PrimaryLoop::update(double dt)
@@ -146,7 +157,7 @@ void PrimaryLoop::remesh_slow(Mesh& rmesh)
 	rmesh.add(mesh, glm::translate(mat, glm::vec3(0.5, 0, 0)));
 }
 
-void PrimaryLoop::remesh_fast(Mesh& rmesh)
+void PrimaryLoop::get_static_transforms(std::vector<glm::mat4>& transforms)
 {
 	System& sys = *System::active;
 
@@ -154,12 +165,8 @@ void PrimaryLoop::remesh_fast(Mesh& rmesh)
 	float off2 = sys.loop.turbine_bypass_valve.get_auto() ? 0.07 : 0;
 	float off3 = sys.loop.turbine_inlet_valve.get_auto() ? 0.07 : 0;
 
-	rmesh.add(g_switch_pump, glm::translate(glm::mat4(1), glm::vec3(0, off1, 0)));
-	rmesh.add(g_switch_bypass, glm::translate(glm::mat4(1), glm::vec3(0, off2, 0)));
-	rmesh.add(g_switch_inlet, glm::translate(glm::mat4(1), glm::vec3(0, off3, 0)));
-}
-
-void PrimaryLoop::render()
-{
+	transforms.push_back(glm::translate(glm::mat4(1), glm::vec3(0, off1, 0)));
+	transforms.push_back(glm::translate(glm::mat4(1), glm::vec3(0, off2, 0)));
+	transforms.push_back(glm::translate(glm::mat4(1), glm::vec3(0, off3, 0)));
 }
 

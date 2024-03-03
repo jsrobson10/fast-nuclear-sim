@@ -9,16 +9,34 @@
 
 using namespace Sim::Graphics::Equipment;
 
-Reactor::Reactor(const Model& model, Mesh& rmesh)
+Reactor::Reactor(const Model& model)
 {
 	g_control_rod = model.load("visual_control_rod");
 }
 
-void Reactor::update(double dt)
+void Reactor::remesh_static(Mesh& rmesh)
 {
+	Sim::System& sys = *Sim::System::active;
+
+	for(int i = 0; i < sys.reactor.size; i++)
+	{
+		Sim::Reactor::Rod* r = sys.reactor.rods[i].get();
+
+		if(!r->should_display())
+		{
+			continue;
+		}
+
+		if(r->get_colour()[3] != 0)
+		{
+			Mesh m = g_control_rod;
+			m.set_transform_id();
+			rmesh.add(m);
+		}
+	}
 }
 
-void Reactor::remesh_slow(Mesh& rmesh)
+void Reactor::get_static_transforms(std::vector<glm::mat4>& transforms)
 {
 	Sim::System& sys = *Sim::System::active;
 
@@ -42,17 +60,8 @@ void Reactor::remesh_slow(Mesh& rmesh)
 
 		if(r->get_colour()[3] != 0)
 		{
-			rmesh.add(g_control_rod, glm::translate(glm::mat4(1), glm::vec3(ox, oy, (1 - r->get_colour().r) * sys.reactor.cell_height)));
+			transforms.push_back(glm::translate(glm::mat4(1), glm::vec3(ox, oy, (1 - r->get_colour().r) * sys.reactor.cell_height)));
 		}
 	}
 }
-
-void Reactor::remesh_fast(Mesh& rmesh)
-{
-}
-
-void Reactor::render()
-{
-}
-
 

@@ -36,5 +36,8 @@ void Arrays::vertex_attrib_pointers()
 
 	glVertexAttribPointer(5, 3, GL_FLOAT, false, sizeof(v), ptr_diff(&v.material, &v));
 	glEnableVertexAttribArray(5);
+
+	glVertexAttribPointer(6, 1, GL_FLOAT, false, sizeof(v), ptr_diff(&v.transform_id, &v));
+	glEnableVertexAttribArray(6);
 }
 

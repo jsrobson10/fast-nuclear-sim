@@ -13,11 +13,9 @@ class Vessel : public MeshGen
 	
 public:
 
-	Vessel(const Model& model, Mesh& rmesh);
-	virtual void update(double dt);
+	Vessel(const Model& model);
+	virtual void remesh_static(Mesh& rmesh);
 	virtual void remesh_slow(Mesh& rmesh);
-	virtual void remesh_fast(Mesh& rmesh);
-	virtual void render();
 };
 
 };

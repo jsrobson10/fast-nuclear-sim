@@ -18,12 +18,12 @@ struct Light
 	vec4 colour;
 };
 
-layout(std140, binding = 1) buffer ssbo_lights
+layout(std140, binding = 1) readonly buffer LightBuffer
 {
 	Light lights[];
 };
 
-layout(std430, binding = 2) buffer ssbo_shadow_maps
+layout(std430, binding = 2) readonly buffer ShadowMapBuffer
 {
 	samplerCube shadow_maps[];
 };
@@ -97,10 +97,11 @@ vec3 sRGB_To_LinRGB(vec3 c)
 
 void main()
 {
-	vec4 albedo = texture2D(frag_tex, vin.tex_pos) * vin.colour;
+	vec4 albedo = texture2D(frag_tex, vin.tex_pos);
 	if(albedo.a == 0.f) discard;
 
-	vec3 albedo_lin = sRGB_To_LinRGB(albedo.rgb);
+	vec3 albedo_lin = sRGB_To_LinRGB(albedo.rgb) * vin.colour.rgb;
+	albedo *= vin.colour;
 	
 	float roughness = vin.material[0];
 	float metalness = vin.material[1];
@@ -163,6 +164,5 @@ void main()
 
 	light = mix(light, albedo.rgb, luminance);
 	frag_colour = vec4(light, albedo.a);
-
 }
 

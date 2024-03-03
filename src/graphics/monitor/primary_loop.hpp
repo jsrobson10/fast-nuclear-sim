@@ -24,11 +24,11 @@ class PrimaryLoop : public MeshGen
 	
 public:
 
-	PrimaryLoop(const Model& model, Mesh& rmesh);
+	PrimaryLoop(const Model& model);
 	virtual void update(double dt);
+	virtual void get_static_transforms(std::vector<glm::mat4>& transforms);
+	virtual void remesh_static(Mesh& rmesh);
 	virtual void remesh_slow(Mesh& rmesh);
-	virtual void remesh_fast(Mesh& rmesh);
-	virtual void render();
 };
 
 };

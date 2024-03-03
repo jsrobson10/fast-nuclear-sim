@@ -15,10 +15,13 @@
 using namespace Sim::Graphics::Monitor;
 using namespace Sim::Util::Streams;
 
-Vessel::Vessel(const Model& model, Mesh& rmesh)
+Vessel::Vessel(const Model& model)
 {
 	mat = Locations::monitors[1];
+}
 
+void Vessel::remesh_static(Mesh& rmesh)
+{
 	std::stringstream ss;
 	Sim::Graphics::Mesh mesh;
 
@@ -36,10 +39,6 @@ Vessel::Vessel(const Model& model, Mesh& rmesh)
 
 	mesh.load_text(ss.str().c_str(), 0.04);
 	rmesh.add(mesh, mat);
-}
-
-void Vessel::update(double dt)
-{
 }
 
 void Vessel::remesh_slow(Mesh& rmesh)
@@ -95,13 +94,5 @@ void Vessel::remesh_slow(Mesh& rmesh)
 
 	mesh.load_text(ss.str().c_str(), 0.04);
 	rmesh.add(mesh, glm::translate(mat, glm::vec3(0.5, 0, 0)));
-}
-
-void Vessel::remesh_fast(Mesh& rmesh)
-{
-}
-
-void Vessel::render()
-{
 }
 

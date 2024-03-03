@@ -116,14 +116,9 @@ struct CoreJoystick : public Focus::FocusType
 	}
 };
 
-Core::Core(const Model& model, Mesh& rmesh)
+Core::Core(const Model& model)
 {
-	Mesh mesh = model.load("translation_monitor_3");
 	mat = Locations::monitors[2];
-
-	mesh.load_text("Reactor Core", 0.04);
-	rmesh.add(mesh, mat);
-
 	m_buttons[0] = model.load("click_numpad_1");
 	m_buttons[1] = model.load("click_numpad_2");
 	m_buttons[2] = model.load("click_numpad_3");
@@ -136,6 +131,13 @@ Core::Core(const Model& model, Mesh& rmesh)
 	m_joystick = model.load("click_reactor_joystick");
 	m_monitor = model.load("translation_monitor_3");
 	m_scram = model.load("click_scram");
+}
+
+void Core::remesh_static(Mesh& rmesh)
+{
+	Mesh mesh;
+	mesh.load_text("Reactor Core", 0.04);
+	rmesh.add(mesh, mat);
 }
 
 static Mesh add_dot(glm::mat4 model_mat, glm::vec4 colour)
@@ -184,16 +186,6 @@ void Core::update(double dt)
 
 void Core::remesh_slow(Mesh& rmesh)
 {
-	remesh(rmesh, false);
-}
-
-void Core::remesh_fast(Mesh& rmesh)
-{
-	remesh(rmesh, true);
-}
-
-void Core::remesh(Mesh& rmesh, bool fast)
-{
 	Sim::System& sys = *System::active;
 	Sim::Graphics::Mesh mesh;
 	
@@ -221,43 +213,32 @@ void Core::remesh(Mesh& rmesh, bool fast)
 		}
 
 		glm::mat4 mat = glm::translate(glm::mat4(1), glm::vec3(ox, oy, 0)) * mat_scale;
+		glm::vec4 colour_heat = r->get_heat_colour() * glm::vec4(glm::vec3(1), 1);
+		glm::vec4 colour_spec = r->get_colour();
 
-		if(!fast)
+		if(colour_heat[3] == 0)
 		{
-			glm::vec4 colour_heat = r->get_heat_colour() * glm::vec4(glm::vec3(1), 1);
-			glm::vec4 colour_spec = r->get_colour();
-
-			if(colour_heat[3] == 0)
-			{
-				continue;
-			}
-
-			mesh.add(add_dot(mat, colour_heat));
-			
-			if(colour_spec[3] != 0)
-			{
-				mesh.add(add_dot(mat * mat_spec, colour_spec));
-			}
+			continue;
 		}
 
-		else
+		mesh.add(add_dot(mat, colour_heat));
+		
+		if(colour_spec[3] != 0)
 		{
-			if(sys.reactor.cursor == i)
-			{
-				mesh.add(add_dot(mat * mat_cursor, {1, 0, 0, 1}));
-			}
+			mesh.add(add_dot(mat * mat_spec, colour_spec));
+		}
 
-			if(r->selected)
-			{
-				mesh.add(add_dot(mat * mat_select, {1, 1, 0, 1}));
-			}
+		if(sys.reactor.cursor == i)
+		{
+			mesh.add(add_dot(mat * mat_cursor, {1, 0, 0, 1}));
+		}
+
+		if(r->selected)
+		{
+			mesh.add(add_dot(mat * mat_select, {1, 1, 0, 1}));
 		}
 	}
 	
 	rmesh.add(mesh, mat);
-}
-
-void Core::render()
-{
 }
 

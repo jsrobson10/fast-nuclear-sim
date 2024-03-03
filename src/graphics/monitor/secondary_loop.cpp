@@ -17,22 +17,9 @@ using namespace Sim::Graphics::Monitor;
 using namespace Sim::Util::Streams;
 
 
-SecondaryLoop::SecondaryLoop(const Model& model, Mesh& rmesh)
+SecondaryLoop::SecondaryLoop(const Model& model)
 {
 	mat = Locations::monitors[5];
-
-	std::stringstream ss;
-	Sim::Graphics::Mesh mesh;
-
-	ss << "Cooling Tower\n\n";
-	ss << "Heat\nSteam\nPressure\nLevel\n\n";
-	ss << "Secondary Pump\n\n";
-	ss << "Power\nSpeed\nFlow\n\n";
-	ss << "Freight Pump\n\n";
-	ss << "Power\nSpeed\nFlow\n\n";
-
-	mesh.load_text(ss.str().c_str(), 0.04);
-	rmesh.add(mesh, mat);
 
 	g_switch_2 = model.load("visual_pump_switch_2");
 	g_switch_3 = model.load("visual_pump_switch_3");
@@ -41,6 +28,9 @@ SecondaryLoop::SecondaryLoop(const Model& model, Mesh& rmesh)
 	m_joystick_turbine_inlet = model.load("click_inlet_joystick");
 	m_switch_2 = model.load("click_pump_switch_2");
 	m_switch_3 = model.load("click_pump_switch_3");
+
+	g_switch_2.set_transform_id();
+	g_switch_3.set_transform_id();
 }
 
 void SecondaryLoop::update(double dt)
@@ -51,6 +41,24 @@ void SecondaryLoop::update(double dt)
 		sys.loop.secondary_pump.powered = !sys.loop.secondary_pump.powered;
 	if(m_switch_3.check_focus())
 		sys.freight_pump.powered = !sys.freight_pump.powered;
+}
+
+void SecondaryLoop::remesh_static(Mesh& rmesh)
+{
+	std::stringstream ss;
+	Mesh mesh;
+
+	ss << "Cooling Tower\n\n";
+	ss << "Heat\nSteam\nPressure\nLevel\n\n";
+	ss << "Secondary Pump\n\n";
+	ss << "Power\nSpeed\nFlow\n\n";
+	ss << "Freight Pump\n\n";
+	ss << "Power\nSpeed\nFlow\n\n";
+
+	mesh.load_text(ss.str().c_str(), 0.04);
+	rmesh.add(mesh, mat);
+	rmesh.add(g_switch_2);
+	rmesh.add(g_switch_3);
 }
 
 void SecondaryLoop::remesh_slow(Mesh& rmesh)
@@ -77,19 +85,14 @@ void SecondaryLoop::remesh_slow(Mesh& rmesh)
 	rmesh.add(mesh, glm::translate(mat, glm::vec3(0.5, 0, 0)));
 }
 
-void SecondaryLoop::remesh_fast(Mesh& rmesh)
+void SecondaryLoop::get_static_transforms(std::vector<glm::mat4>& transforms)
 {
 	System& sys = *System::active;
 
 	float off2 = sys.loop.secondary_pump.powered ? 0.07 : 0;
 	float off3 = sys.freight_pump.powered ? 0.07 : 0;
 
-	rmesh.add(g_switch_2, glm::translate(glm::mat4(1), glm::vec3(0, off2, 0)));
-	rmesh.add(g_switch_3, glm::translate(glm::mat4(1), glm::vec3(0, off3, 0)));
+	transforms.push_back(glm::translate(glm::mat4(1), glm::vec3(0, off2, 0)));
+	transforms.push_back(glm::translate(glm::mat4(1), glm::vec3(0, off3, 0)));
 }
-
-void SecondaryLoop::render()
-{
-}
-
 

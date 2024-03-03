@@ -13,6 +13,7 @@ extern glm::mat4 projection_matrix;
 
 bool should_close();
 void create();
+void remesh();
 void update(double dt);
 void render();
 void render_scene();
