@@ -66,9 +66,6 @@ void Turbine::remesh_static(Mesh& rmesh)
 	mesh.load_text(ss.str().c_str(), 0.04);
 	rmesh.add(mesh, mat);
 	
-	mesh.load_text("Synchroscope", 0.04);
-	rmesh.add(mesh, glm::translate(mat, glm::vec3(0, 0.6, 0)));
-
 	rmesh.add(g_synchroscope_dial);
 	rmesh.add(g_switch_breaker);
 }
@@ -94,7 +91,7 @@ void Turbine::remesh_slow(Mesh& rmesh)
 	Util::Streams::show_units( ss, sys.loop.generator.get_energy_generated() ) << "W\n";
 
 	mesh.load_text(ss.str().c_str(), 0.04);
-	rmesh.add(mesh, glm::translate(mat, glm::vec3(0.4, 0.7, 0)));
+	rmesh.add(mesh, glm::translate(mat, glm::vec3(0.4, 0.75, 0)));
 
 	ss = std::stringstream();
 
@@ -102,11 +99,6 @@ void Turbine::remesh_slow(Mesh& rmesh)
 	ss << show( sys.grid.frequency ) << " Hz\n";
 
 	mesh.load_text(ss.str().c_str(), 0.04);
-	rmesh.add(mesh, glm::translate(mat, glm::vec3(0.7, 0.7, 0)));
-}
-
-void Turbine::remesh_fast(Mesh& rmesh)
-{
-	System& sys = *System::active;
+	rmesh.add(mesh, glm::translate(mat, glm::vec3(0.7, 0.75, 0)));
 }
 
