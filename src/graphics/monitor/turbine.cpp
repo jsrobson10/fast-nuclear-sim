@@ -28,12 +28,6 @@ Turbine::Turbine(const Model& model)
 
 	g_switch_breaker = model.load("visual_breaker_switch");
 	m_switch_breaker = model.load("click_breaker_switch");
-
-	g_dial_phase.set_transform_id();
-	g_dial_voltage.set_transform_id();
-	g_dial_power.set_transform_id();
-	g_dial_frequency.set_transform_id();
-	g_switch_breaker.set_transform_id();
 }
 
 void Turbine::update(double dt)
@@ -55,22 +49,12 @@ void Turbine::get_static_transforms(std::vector<glm::mat4>& transforms)
 
 	if(rpm > 3570 && rpm < 3630)
 	{
-		mat_phase = glm::translate(mat_phase, glm::vec3(6.35, 3.949, 1.35));
 		mat_phase = glm::rotate(mat_phase, float(sys.loop.generator.get_phase_diff()), glm::vec3(0, 1, 0));
-		mat_phase = glm::translate(mat_phase, glm::vec3(-6.35, -3.949, -1.35));
 	}
 
-	mat_voltage = glm::translate(mat_voltage, glm::vec3(6.95, 3.949, 1.95));
 	mat_voltage = glm::rotate(mat_voltage, float(Util::Math::map(sys.loop.generator.get_voltage(), 0, 24e3, 0, M_PI)), glm::vec3(0, 1, 0));
-	mat_voltage = glm::translate(mat_voltage, glm::vec3(-6.95, -3.949, -1.95));
-
-	mat_power = glm::translate(mat_power, glm::vec3(6.35, 3.949, 1.95));
 	mat_power = glm::rotate(mat_power, float(Util::Math::map(sys.loop.generator.get_power(), 0, 600e6, 0, M_PI)), glm::vec3(0, 1, 0));
-	mat_power = glm::translate(mat_power, glm::vec3(-6.35, -3.949, -1.95));
-
-	mat_frequency = glm::translate(mat_frequency, glm::vec3(6.95, 3.949, 1.35));
 	mat_frequency = glm::rotate(mat_frequency, float(Util::Math::map(sys.loop.generator.get_frequency(), 0, 120, 0, M_PI)), glm::vec3(0, 1, 0));
-	mat_frequency = glm::translate(mat_frequency, glm::vec3(-6.95, -3.949, -1.35));
 
 	transforms.push_back(mat_phase);
 	transforms.push_back(mat_voltage);
@@ -91,7 +75,7 @@ void Turbine::remesh_static(Mesh& rmesh)
 	ss << "Heat\nPressure\nSpeed\n\n";
 
 	mesh.load_text(ss.str().c_str(), 0.04);
-	rmesh.add(mesh, mat);
+	rmesh.add(mesh, mat, true);
 	
 	rmesh.add(g_dial_phase);
 	rmesh.add(g_dial_voltage);

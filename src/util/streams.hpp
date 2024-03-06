@@ -37,3 +37,17 @@ std::ostream& operator<<(std::ostream& o, const glm::vec<N, T>& v)
 	return o;
 }
 
+template <int N, int M, typename T>
+std::ostream& operator<<(std::ostream& o, const glm::mat<N, M, T>& m)
+{
+	o << "{\n";
+
+	for(int i = 0; i < N - 1; i++)
+	{
+		o << " " << m[i] << ",\n";
+	}
+
+	o << " " << m[N - 1] << "}";
+	return o;
+}
+

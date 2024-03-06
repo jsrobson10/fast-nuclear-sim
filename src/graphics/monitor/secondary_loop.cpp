@@ -28,9 +28,6 @@ SecondaryLoop::SecondaryLoop(const Model& model)
 	m_joystick_turbine_inlet = model.load("click_inlet_joystick");
 	m_switch_2 = model.load("click_pump_switch_2");
 	m_switch_3 = model.load("click_pump_switch_3");
-
-	g_switch_2.set_transform_id();
-	g_switch_3.set_transform_id();
 }
 
 void SecondaryLoop::update(double dt)
@@ -56,7 +53,7 @@ void SecondaryLoop::remesh_static(Mesh& rmesh)
 	ss << "Power\nSpeed\nFlow\n\n";
 
 	mesh.load_text(ss.str().c_str(), 0.04);
-	rmesh.add(mesh, mat);
+	rmesh.add(mesh, mat, true);
 	rmesh.add(g_switch_2);
 	rmesh.add(g_switch_3);
 }

@@ -8,7 +8,7 @@ namespace Sim::Graphics::Equipment
 
 class Reactor : public MeshGen
 {
-	Mesh g_control_rod;
+	Mesh g_control_rod_lift, g_control_rod_base;
 
 public:
 

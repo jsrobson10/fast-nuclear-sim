@@ -11,9 +11,8 @@ using namespace Sim::Graphics::Equipment;
 
 Reactor::Reactor(const Model& model)
 {
-	g_control_rod = model.load("visual_control_rod_lift");
-	g_control_rod.set_transform_id();
-	g_control_rod.add(model.load("visual_control_rod_base"));
+	g_control_rod_lift = model.load("visual_control_rod_lift");
+	g_control_rod_base = model.load("visual_control_rod_base");
 }
 
 void Reactor::remesh_static(Mesh& rmesh)
@@ -39,7 +38,15 @@ void Reactor::remesh_static(Mesh& rmesh)
 
 		if(r->get_colour()[3] != 0)
 		{
-			rmesh.add(g_control_rod, glm::translate(glm::mat4(1), glm::vec3(ox, oy, 0)));
+			Mesh m1, m2;
+			m1.add(g_control_rod_base, glm::translate(glm::mat4(1), glm::vec3(ox, oy, 0)));
+			m2.add(g_control_rod_lift, glm::translate(glm::mat4(1), glm::vec3(ox, oy, 0)));
+			m1.bake_transforms();
+			m2.bake_transforms();
+			m2.set_blank_transform();
+
+			rmesh.add(m1);
+			rmesh.add(m2);
 		}
 	}
 }

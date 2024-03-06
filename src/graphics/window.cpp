@@ -44,13 +44,13 @@ static bool win_should_close = false;
 static unsigned int ssbo_lights;
 static unsigned int ssbo_shadow_maps;
 static unsigned int ssbo_transforms[SSBO_TRANSFORMS_LEN];
-static double secs_wait_at = 0;
-static double secs_wait_now = 0;
+static unsigned int wait_at = 0;
 
 static int gm_dynamic_slow_at = 0;
 static int ssbo_transforms_at = 0;
 
 static Mesh g_scene;
+static std::vector<glm::mat4> g_scene_transforms;
 
 static GLMesh gm_scene;
 static GLMesh gm_transparent;
@@ -89,8 +89,9 @@ void remesh_static()
 		equipment->remesh_static(mesh);
 	}
 
-	gm_scene.bind();
-	gm_scene.set(mesh, GL_STATIC_DRAW);
+	gm_scene.bind(false);
+	gm_scene.set(mesh, GL_STATIC_DRAW, false);
+	g_scene_transforms = std::move(mesh.transforms);
 
 	std::cout << "Remeshed static\n";
 }
@@ -171,10 +172,12 @@ void Window::create()
 
 	Model model("../assets", "scene.glb");
 	m_transparent = model.load("visual_water");
+	m_transparent.bake_transforms();
 
 	g_scene.add(model.load("cr"));
 	g_scene.add(model.load("cb"));
 	g_scene.add(model.load("hw"));
+	g_scene.bake_transforms();
 	
 	Camera::init(model);
 
@@ -263,6 +266,8 @@ void update_slow()
 		equipment->remesh_slow(mesh);
 	}
 
+	mesh.bake_transforms();
+
 	gm_dynamic_slow[gm_dynamic_slow_at].bind();
 	gm_dynamic_slow[gm_dynamic_slow_at].set(mesh, GL_DYNAMIC_DRAW);
 	gm_dynamic_slow_at = (gm_dynamic_slow_at + 1) % 2;
@@ -273,7 +278,6 @@ void update_slow()
 void Window::reload()
 {
 	remesh_static();
-	render_shadow_map();
 }
 
 void Window::update(double dt)
@@ -294,34 +298,40 @@ void Window::update(double dt)
 		equipment->update(dt);
 		equipment->get_static_transforms(transforms);
 	}
+
+	for(int i = 0; i < transforms.size(); i++)
+	{
+		transforms[i] = g_scene_transforms[i] * transforms[i];
+	}
+
+	if(transforms.size() != g_scene_transforms.size())
+	{
+		std::cerr << "Transforms size mismatch! " << transforms.size() << " != " << g_scene_transforms.size() << "\n";
+		close();
+	}
 	
 	UI::update(dt);
 
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, ssbo_transforms[ssbo_transforms_at]);
-	ssbo_transforms_at = (ssbo_transforms_at + 1) % SSBO_TRANSFORMS_LEN;
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_transforms[ssbo_transforms_at]);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, transforms.size() * sizeof(transforms[0]), &transforms[0], GL_DYNAMIC_DRAW);
+	ssbo_transforms_at = (ssbo_transforms_at + 1) % SSBO_TRANSFORMS_LEN;
 
-	secs_wait_now += dt;
-	if(secs_wait_now > secs_wait_at + 1.0/30.0)
+	if(wait_at++ % 4 == 0)
 	{
-		secs_wait_at += 1.0/30.0;
 		update_slow();
 	}
 }
 
 void Window::render_scene()
 {
-	gm_scene.bind();
-	gm_scene.uniform();
+	gm_scene.bind(false);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, ssbo_transforms[ssbo_transforms_at]);
 	gm_scene.render();
 
 	gm_dynamic_slow[gm_dynamic_slow_at].bind();
-	gm_dynamic_slow[gm_dynamic_slow_at].uniform();
 	gm_dynamic_slow[gm_dynamic_slow_at].render();
 	
 	gm_transparent.bind();
-	gm_transparent.uniform();
 	gm_transparent.render();
 
 	Focus::render();
@@ -329,6 +339,8 @@ void Window::render_scene()
 
 void Window::render()
 {
+	render_shadow_map();
+
 	glm::vec<2, int> size = Resize::get_size();
 	glm::vec3 camera_pos = Camera::get_pos();
 	glm::mat4 mat_camera = Camera::get_matrix();

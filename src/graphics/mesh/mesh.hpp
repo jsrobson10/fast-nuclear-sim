@@ -19,18 +19,16 @@ struct Mesh
 {
 	std::vector<Arrays::Vertex> vertices;
 	std::vector<unsigned int> indices;
-	float max_transform_id = -1;
+	std::vector<glm::mat4> transforms;
 
 	Mesh();
 
-	void set_transform_id();
-	void set_texture_id(unsigned int id);
-	void set_vertices(const Arrays::Vertex* data, size_t size);
-	void set_indices(const unsigned int* data, size_t size);
-	void load_text(const char* text, double size);
-	void load_text(const char* text, double size, glm::vec2 align);
-	void add(const Mesh& o, glm::mat4 mat);
-	void add(const Mesh& o);
+	Mesh& bake_transforms();
+	Mesh& set_blank_transform();
+	Mesh& set_texture_id(unsigned int id);
+	Mesh& load_text(const char* text, double size);
+	Mesh& load_text(const char* text, double size, glm::vec2 align);
+	Mesh& add(const Mesh& o, glm::mat4 mat = glm::mat4(1), bool bake = false);
 
 	Mesh to_lines() const;
 	bool check_focus() const;

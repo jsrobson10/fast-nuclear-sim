@@ -23,6 +23,7 @@ struct ProcState
 	std::string base;
 	std::vector<Arrays::Vertex> vertices;
 	std::vector<unsigned int> indices;
+	std::vector<glm::mat4> transforms;
 	std::unordered_map<const aiTexture*, unsigned int> handles;
 };
 
@@ -51,7 +52,7 @@ static unsigned int proc_texture(const ProcState& state, aiMaterial* mat, const 
 	return Texture::load(state.base + "/" + filename);
 }
 
-static void proc_mesh(ProcState& state, glm::mat4 mat, aiMesh* mesh, const aiScene* scene)
+static void proc_mesh(ProcState& state, aiMesh* mesh, const aiScene* scene)
 {
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 	aiString name;
@@ -114,7 +115,6 @@ static void proc_mesh(ProcState& state, glm::mat4 mat, aiMesh* mesh, const aiSce
 
 	unsigned int handle = proc_texture(state, material, scene, aiTextureType_BASE_COLOR, 0);
 	unsigned int offset = state.offset;
-	glm::mat3 mat3(mat);
 
 	if(!handle)
 	{
@@ -131,7 +131,8 @@ static void proc_mesh(ProcState& state, glm::mat4 mat, aiMesh* mesh, const aiSce
 		Arrays::Vertex vertex;
 		
 		auto [x, y, z] = mesh->mVertices[i];
-		vertex.pos = glm::vec4(x, y, z, 1) * mat;
+		vertex.pos = glm::vec3(x, y, z);
+		vertex.transform_id = state.transforms.size();
 		vertex.material = matv;
 		vertex.texid = handle;
 		vertex.colour = cb;
@@ -139,7 +140,7 @@ static void proc_mesh(ProcState& state, glm::mat4 mat, aiMesh* mesh, const aiSce
 		if(mesh->HasNormals())
 		{
 			auto [x, y, z] = mesh->mNormals[i];
-			vertex.normal = glm::vec3(x, y, z) * mat3;
+			vertex.normal = glm::vec3(x, y, z);
 		}
 		
 		/*if(mesh->HasTangentsAndBitangents())
@@ -207,7 +208,12 @@ static void proc_node(ProcState& state, glm::mat4 mat, aiNode* node, const aiSce
 		for(size_t i = 0; i < node->mNumMeshes; i++)
 		{
 			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-			proc_mesh(state, mat, mesh, scene);
+			proc_mesh(state, mesh, scene);
+		}
+
+		if(node->mNumMeshes > 0)
+		{
+			state.transforms.push_back(glm::transpose(mat));
 		}
 	}
 
@@ -296,6 +302,7 @@ Mesh Model::load(const char* name, glm::mat4 mat) const
 
 	mesh.vertices = std::move(state.vertices);
 	mesh.indices = std::move(state.indices);
+	mesh.transforms = std::move(state.transforms);
 
 	return mesh;
 }

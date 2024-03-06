@@ -13,9 +13,9 @@ namespace Sim::Graphics
 
 struct GLMesh
 {
-	unsigned int vao = 0, vbo = 0, ebo = 0, size = 0;
-
-	glm::mat4 model_matrix {1.0f};
+	unsigned int vao = 0, vbo = 0, ebo = 0, ssbo = 0;
+	int ssbo_size = 0;
+	int size = 0;
 
 	constexpr GLMesh() { }
 
@@ -23,9 +23,8 @@ struct GLMesh
 	GLMesh(const GLMesh& o) = delete;
 	~GLMesh();
 
-	void bind();
-	void uniform();
-	void set(const Mesh& m, int mode);
+	void bind(bool bind_ssbo = true);
+	void set(const Mesh& m, int mode, bool send_ssbo = true);
 	void render(int type);
 	void render();
 };

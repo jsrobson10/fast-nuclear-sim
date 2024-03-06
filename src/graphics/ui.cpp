@@ -30,16 +30,15 @@ void UI::init()
 	Mesh m;
 
 	unsigned int handle = Texture::handle_white;
-	const unsigned int indices[] = {0, 1, 3, 0, 3, 2};
-	const Arrays::Vertex vertices[] = {
-		{.texid=handle, .texpos={0, 0}, .pos={-1, -1, 0, 1}, .normal={0, 0, -1}, .colour={1, 1, 1, 1}, .material={0, 0, 1}},
-		{.texid=handle, .texpos={0, 1}, .pos={-1,  1, 0, 1}, .normal={0, 0, -1}, .colour={1, 1, 1, 1}, .material={0, 0, 1}},
-		{.texid=handle, .texpos={1, 0}, .pos={ 1, -1, 0, 1}, .normal={0, 0, -1}, .colour={1, 1, 1, 1}, .material={0, 0, 1}},
-		{.texid=handle, .texpos={1, 1}, .pos={ 1,  1, 0, 1}, .normal={0, 0, -1}, .colour={1, 1, 1, 1}, .material={0, 0, 1}},
+	m.indices = {0, 1, 3, 0, 3, 2};
+	m.vertices = {
+		{.texid=handle, .texpos={0, 0}, .pos={-1, -1, 0}, .normal={0, 0, -1}, .colour={1, 1, 1, 1}, .material={0, 0, 1}},
+		{.texid=handle, .texpos={0, 1}, .pos={-1,  1, 0}, .normal={0, 0, -1}, .colour={1, 1, 1, 1}, .material={0, 0, 1}},
+		{.texid=handle, .texpos={1, 0}, .pos={ 1, -1, 0}, .normal={0, 0, -1}, .colour={1, 1, 1, 1}, .material={0, 0, 1}},
+		{.texid=handle, .texpos={1, 1}, .pos={ 1,  1, 0}, .normal={0, 0, -1}, .colour={1, 1, 1, 1}, .material={0, 0, 1}},
 	};
 
-	m.set_indices(indices, 6);
-	m.set_vertices(vertices, 4);
+	m.bake_transforms();
 
 	gm_ui.bind();
 	gm_ui.set(m, GL_STATIC_DRAW);
@@ -73,13 +72,9 @@ void UI::render()
 	glUniformMatrix4fv(Shader::MAIN["camera"], 1, false, &mat_camera[0][0]);
 
 	gm_ui.bind();
-	gm_ui.uniform();
 	gm_ui.render();
 	
 	gm_dynamic_slow[gm_dynamic_slow_at].bind();
-	gm_dynamic_slow[gm_dynamic_slow_at].uniform();
 	gm_dynamic_slow[gm_dynamic_slow_at].render();
-
-	w_clock.render();
 }
 

@@ -62,10 +62,6 @@ PrimaryLoop::PrimaryLoop(const Model& model)
 	m_switch_pump = model.load("click_pump_switch_1");
 	m_switch_bypass = model.load("click_bypass_switch");
 	m_switch_inlet = model.load("click_inlet_switch");
-
-	g_switch_pump.set_transform_id();
-	g_switch_bypass.set_transform_id();
-	g_switch_inlet.set_transform_id();
 }
 
 void PrimaryLoop::remesh_static(Mesh& rmesh)
@@ -86,7 +82,7 @@ void PrimaryLoop::remesh_static(Mesh& rmesh)
 	ss << "Level\n";
 
 	mesh.load_text(ss.str().c_str(), 0.04);
-	rmesh.add(mesh, mat);
+	rmesh.add(mesh, mat, true);
 
 	rmesh.add(g_switch_pump);
 	rmesh.add(g_switch_bypass);

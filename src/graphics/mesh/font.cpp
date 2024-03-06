@@ -101,7 +101,7 @@ void Font::init()
 	FT_Done_FreeType(ft);
 }
 
-void Mesh::load_text(const char* text, double size)
+Mesh& Mesh::load_text(const char* text, double size)
 {
 	std::vector<Arrays::Vertex> vertices;
 	std::vector<unsigned int> indices;
@@ -113,7 +113,7 @@ void Mesh::load_text(const char* text, double size)
 	{
 		this->vertices.clear();
 		this->indices.clear();
-		return;
+		return *this;
 	}
 
 	for(unsigned int i = 0; text[i] != '\0'; i++)
@@ -144,10 +144,10 @@ void Mesh::load_text(const char* text, double size)
 		float ex = sx + ch.size.x * size;
 		float ey = sy + ch.size.y * size;
 
-		vertices.push_back(Arrays::Vertex{.texid=ch.handle, .texpos={0, 0}, .pos={sx, sy, 0, 1}, .normal={0, 0, -1}, .material={0, 0, 1}});
-		vertices.push_back(Arrays::Vertex{.texid=ch.handle, .texpos={0, 1}, .pos={sx, ey, 0, 1}, .normal={0, 0, -1}, .material={0, 0, 1}});
-		vertices.push_back(Arrays::Vertex{.texid=ch.handle, .texpos={1, 0}, .pos={ex, sy, 0, 1}, .normal={0, 0, -1}, .material={0, 0, 1}});
-		vertices.push_back(Arrays::Vertex{.texid=ch.handle, .texpos={1, 1}, .pos={ex, ey, 0, 1}, .normal={0, 0, -1}, .material={0, 0, 1}});
+		vertices.push_back(Arrays::Vertex{.texid=ch.handle, .texpos={0, 0}, .pos={sx, sy, 0}, .normal={0, 0, -1}, .material={0, 0, 1}});
+		vertices.push_back(Arrays::Vertex{.texid=ch.handle, .texpos={0, 1}, .pos={sx, ey, 0}, .normal={0, 0, -1}, .material={0, 0, 1}});
+		vertices.push_back(Arrays::Vertex{.texid=ch.handle, .texpos={1, 0}, .pos={ex, sy, 0}, .normal={0, 0, -1}, .material={0, 0, 1}});
+		vertices.push_back(Arrays::Vertex{.texid=ch.handle, .texpos={1, 1}, .pos={ex, ey, 0}, .normal={0, 0, -1}, .material={0, 0, 1}});
 		indices.insert(indices.end(), &index[0], &index[6]);
 
 		at += 4;
@@ -156,9 +156,12 @@ void Mesh::load_text(const char* text, double size)
 
 	this->vertices = std::move(vertices);
 	this->indices = std::move(indices);
+	this->transforms.clear();
+
+	return *this;
 }
 
-void Mesh::load_text(const char* text, double size, glm::vec2 align)
+Mesh& Mesh::load_text(const char* text, double size, glm::vec2 align)
 {
 	glm::vec2 max;
 	
@@ -184,5 +187,7 @@ void Mesh::load_text(const char* text, double size, glm::vec2 align)
 		v.pos.x -= align.x;
 		v.pos.y -= align.y;
 	}
+
+	return *this;
 }
 

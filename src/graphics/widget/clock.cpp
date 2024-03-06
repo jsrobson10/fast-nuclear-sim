@@ -15,6 +15,7 @@
 #include "../mesh/arrays.hpp"
 #include "../resize.hpp"
 #include "../../system.hpp"
+#include "../../util/streams.hpp"
 
 using namespace Sim::Graphics::Widget;
 
@@ -42,9 +43,5 @@ void Clock::remesh_slow(Mesh& rmesh)
 
 	m.load_text(ss.str().c_str(), 20);
 	rmesh.add(m, glm::translate(glm::mat4(1), glm::vec3(-wsize + glm::vec2(2, 2), 0)));
-}
-
-void Clock::render()
-{
 }
 

@@ -15,79 +15,122 @@ Mesh::Mesh()
 
 }
 
-void Mesh::set_transform_id()
-{
-	for(unsigned int i = 0; i < vertices.size(); i++)
-	{
-		vertices[i].transform_id = 0;
-	}
-
-	max_transform_id = 0;
-}
-
-void Mesh::set_texture_id(unsigned int id)
+Mesh& Mesh::set_texture_id(unsigned int id)
 {
 	for(unsigned int i = 0; i < vertices.size(); i++)
 	{
 		vertices[i].texid = id;
 	}
+
+	return *this;
 }
 
-void Mesh::add(const Mesh& o, glm::mat4 mat)
+Mesh& Mesh::set_blank_transform()
 {
-	unsigned int off = vertices.size();
-	float t_off = max_transform_id + 1;
+	transforms = {glm::mat4(1)};
+
+	for(unsigned int i = 0; i < vertices.size(); i++)
+	{
+		vertices[i].transform_id = 0;
+	}
+
+	return *this;
+}
+
+Mesh& Mesh::add(const Mesh& o, glm::mat4 mat, bool bake)
+{
+	int off = vertices.size();
+	
+	indices.reserve(indices.size() + o.indices.size());
+	vertices.reserve(vertices.size() + o.vertices.size());
+
+	if(bake)
+	{
+		for(int i = 0; i < o.vertices.size(); i++)
+		{
+			Arrays::Vertex v = o.vertices[i];
+			int t_id = (int)v.transform_id;
+			glm::mat4 t_mat = t_id >= 0 ? transforms[t_id] : glm::mat4(1);
+			t_mat = mat * t_mat;
+			
+			v.pos = t_mat * glm::vec4(v.pos, 1);
+			v.normal = glm::normalize(glm::mat3(t_mat) * v.normal);
+			v.transform_id = -1;
+			vertices.push_back(v);
+		}
+
+		for(int i = 0; i < o.indices.size(); i++)
+		{
+			indices.push_back(o.indices[i] + off);
+		}
+
+		return *this;
+	}
 
 	glm::mat3 mat3(mat);
-	vertices.reserve(vertices.size() + o.vertices.size());
-	indices.reserve(indices.size() + o.indices.size());
+	float t_off = transforms.size();
+	float t_new = -1;
 
-	for(unsigned int i = 0; i < o.vertices.size(); i++)
+	if(mat != glm::mat4(1))
+	{
+		t_new = transforms.size() + o.transforms.size();
+	}
+
+	transforms.reserve(transforms.size() + o.transforms.size() + (t_new >= 0 ? 1 : 0));
+
+	for(int i = 0; i < o.vertices.size(); i++)
 	{
 		Arrays::Vertex v = o.vertices[i];
-		v.normal = mat3 * v.normal;
-		v.pos = mat * v.pos;
-
+		
 		if(v.transform_id >= 0)
 		{
 			v.transform_id += t_off;
-			max_transform_id = std::max(max_transform_id, v.transform_id);
 		}
 
+		else
+		{
+			v.transform_id = t_new;
+		}
+		
 		vertices.push_back(v);
 	}
 
-	for(unsigned int i = 0; i < o.indices.size(); i++)
+	for(int i = 0; i < o.transforms.size(); i++)
+	{
+		transforms.push_back(o.transforms[i] * mat);
+	}
+
+	for(int i = 0; i < o.indices.size(); i++)
 	{
 		indices.push_back(o.indices[i] + off);
 	}
-}
 
-void Mesh::add(const Mesh& o)
-{
-	add(o, glm::mat4(1));
-}
-
-void Mesh::set_vertices(const Arrays::Vertex* data, size_t size)
-{
-	vertices.clear();
-	vertices.reserve(size);
-
-	for(unsigned int i = 0; i < size; i++)
+	if(t_new >= 0)
 	{
-		vertices.push_back(data[i]);
+		transforms.push_back(mat);
 	}
+
+	return *this;
 }
 
-void Mesh::set_indices(const unsigned int* data, size_t size)
+Mesh& Mesh::bake_transforms()
 {
-	indices.clear();
-	indices.reserve(size);
-
-	for(unsigned int i = 0; i < size; i++)
+	for(unsigned int i = 0; i < vertices.size(); i++)
 	{
-		indices.push_back(data[i]);
+		int id = (int)vertices[i].transform_id;
+
+		if(id >= 0)
+		{
+			glm::mat4 transform = transforms[id];
+			vertices[i].pos = glm::vec3(transform * glm::vec4(vertices[i].pos, 1));
+			vertices[i].normal = glm::normalize(glm::mat3(transform) * vertices[i].normal);
+			vertices[i].transform_id = -1;
+		}
 	}
+
+	transforms.clear();
+
+	return *this;
 }
 
 typedef glm::vec<3, double> vec3;
@@ -158,11 +201,21 @@ bool Mesh::check_intersect(vec3 pos, vec3 path) const
 	
 	for(unsigned int i = 0; i < indices.size(); i += 3)
 	{
-		vec3 v[3] = {
-			vec3(this->vertices[indices[i]].pos),
-			vec3(this->vertices[indices[i + 1]].pos),
-			vec3(this->vertices[indices[i + 2]].pos)
+		Arrays::Vertex verts[3] = {
+			vertices[indices[i]],
+			vertices[indices[i + 1]],
+			vertices[indices[i + 2]]
 		};
+
+		vec3 v[3];
+
+		for(int j = 0; j < 3; j++)
+		{
+			int t_id = (int)verts[j].transform_id;
+			glm::mat4 t_mat = t_id >= 0 ? transforms[t_id] : glm::mat4(1);
+
+			v[j] = vec3(t_mat * glm::vec4(verts[j].pos, 1));
+		}
 		
 		vec3 ipoint;
 		vec3 normal = glm::normalize(glm::cross(v[1] - v[0], v[2] - v[0]));
@@ -226,11 +279,21 @@ vec3 Mesh::calc_intersect(vec3 pos, vec3 path) const
 
 		for(unsigned int i = 0; i < indices.size(); i += 3)
 		{
-			vec3 v[3] = {
-				vec3(this->vertices[indices[i]].pos),
-				vec3(this->vertices[indices[i + 1]].pos),
-				vec3(this->vertices[indices[i + 2]].pos)
+			Arrays::Vertex verts[3] = {
+				vertices[indices[i]],
+				vertices[indices[i + 1]],
+				vertices[indices[i + 2]]
 			};
+
+			vec3 v[3];
+
+			for(int j = 0; j < 3; j++)
+			{
+				int t_id = (int)verts[j].transform_id;
+				glm::mat4 t_mat = t_id >= 0 ? transforms[t_id] : glm::mat4(1);
+
+				v[j] = vec3(t_mat * glm::vec4(verts[j].pos, 1));
+			}
 			
 			if(calc_intercept_vert(v, pos, path, path_n, l))
 			{
@@ -264,5 +327,4 @@ Mesh Mesh::to_lines() const
 
 	return m;
 }
-
 

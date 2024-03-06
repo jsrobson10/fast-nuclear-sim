@@ -38,7 +38,7 @@ void Vessel::remesh_static(Mesh& rmesh)
 	ss << "Control Rods\nMin\nMax\nSpeed\n";
 
 	mesh.load_text(ss.str().c_str(), 0.04);
-	rmesh.add(mesh, mat);
+	rmesh.add(mesh, mat, true);
 }
 
 void Vessel::remesh_slow(Mesh& rmesh)

@@ -137,22 +137,21 @@ void Core::remesh_static(Mesh& rmesh)
 {
 	Mesh mesh;
 	mesh.load_text("Reactor Core", 0.04);
-	rmesh.add(mesh, mat);
+	rmesh.add(mesh, mat, true);
 }
 
 static Mesh add_dot(glm::mat4 model_mat, glm::vec4 colour)
 {
-	unsigned int indices[] = {0, 1, 3, 0, 3, 2};
-	Arrays::Vertex vertices[] = {
-		{.texid=Texture::handle_white, .texpos={0, 0}, .pos=model_mat * glm::vec4(-0.75, -0.75, 0, 1), .normal={0, 0, -1}, .colour=colour, .material={0, 0, 1}}, 
-		{.texid=Texture::handle_white, .texpos={0, 1}, .pos=model_mat * glm::vec4(-0.75,  0.75, 0, 1), .normal={0, 0, -1}, .colour=colour, .material={0, 0, 1}}, 
-		{.texid=Texture::handle_white, .texpos={1, 0}, .pos=model_mat * glm::vec4( 0.75, -0.75, 0, 1), .normal={0, 0, -1}, .colour=colour, .material={0, 0, 1}}, 
-		{.texid=Texture::handle_white, .texpos={1, 1}, .pos=model_mat * glm::vec4( 0.75,  0.75, 0, 1), .normal={0, 0, -1}, .colour=colour, .material={0, 0, 1}}, 
+	Mesh mesh;
+
+	mesh.indices = {0, 1, 3, 0, 3, 2};
+	mesh.vertices = {
+		{.texid=Texture::handle_white, .texpos={0, 0}, .pos=glm::vec3(model_mat * glm::vec4(-0.75, -0.75, 0, 1)), .normal={0, 0, -1}, .colour=colour, .material={0, 0, 1}}, 
+		{.texid=Texture::handle_white, .texpos={0, 1}, .pos=glm::vec3(model_mat * glm::vec4(-0.75,  0.75, 0, 1)), .normal={0, 0, -1}, .colour=colour, .material={0, 0, 1}}, 
+		{.texid=Texture::handle_white, .texpos={1, 0}, .pos=glm::vec3(model_mat * glm::vec4( 0.75, -0.75, 0, 1)), .normal={0, 0, -1}, .colour=colour, .material={0, 0, 1}}, 
+		{.texid=Texture::handle_white, .texpos={1, 1}, .pos=glm::vec3(model_mat * glm::vec4( 0.75,  0.75, 0, 1)), .normal={0, 0, -1}, .colour=colour, .material={0, 0, 1}}, 
 	};
 
-	Mesh mesh;
-	mesh.set_indices(indices, 6);
-	mesh.set_vertices(vertices, 4);
 	return mesh;
 }
 

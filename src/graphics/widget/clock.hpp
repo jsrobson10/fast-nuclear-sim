@@ -12,7 +12,6 @@ struct Clock
 	
 	void update(double dt);
 	void remesh_slow(Mesh& rmesh);
-	void render();
 };
 
 };
