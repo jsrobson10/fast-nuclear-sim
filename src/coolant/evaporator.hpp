@@ -8,13 +8,11 @@ namespace Sim::Coolant
 
 class Evaporator : public FluidHolder
 {
-	const double height;
-	const double diameter;
-
 	double steam_output = 0;
 	
 public:
 
+	Evaporator(Fluid type, double volume, double mass, double level);
 	Evaporator(Fluid type, double height, double diameter, double mass, double level);
 	Evaporator(const Json::Value& node);
 	

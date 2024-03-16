@@ -8,6 +8,7 @@
 #include "reactor/reactor.hpp"
 #include "electric/grid.hpp"
 #include "coolant/loop.hpp"
+#include "coolant/pool.hpp"
 
 namespace Sim
 {
@@ -20,6 +21,7 @@ struct System
 	Reactor::Reactor reactor;
 	Reactor::Coolant::Vessel vessel;
 	Coolant::Evaporator evaporator;
+	Coolant::Pool pool;
 	Coolant::Pump freight_pump;
 	Coolant::Sink sink;
 	Coolant::Loop loop;

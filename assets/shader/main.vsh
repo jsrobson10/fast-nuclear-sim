@@ -24,6 +24,7 @@ out VS_OUT {
 	vec3 pos;
 	vec2 tex_pos;
 	vec3 material;
+	float ambient;
 } vout;
 
 out flat sampler2D frag_tex;
@@ -33,6 +34,11 @@ mat4 load_model_mat(int index)
 	return index < 0 ? mat4(1.f) : transforms[index];
 }
 
+float Map(float v, float i_min, float i_max, float o_min, float o_max)
+{
+	return o_min + (o_max - o_min) * (v - i_min) / (i_max - i_min);
+}
+
 void main()
 {
 	vec4 pos = vec4(aPos, 1.f);
@@ -40,7 +46,8 @@ void main()
 	mat4 mv = camera * model;
 	mat4 mvp = projection * mv;
 
-	vout.normal = mat3(model) * aNormal;
+	vout.normal = normalize(mat3(model) * aNormal);
+	vout.ambient = Map(dot(vout.normal, vec3(0.f, 0.f, 1.f)), -1.f, 1.f, 0.2f, 0.25f);
 	vout.pos = (model * pos).xyz;
 	vout.colour = aColour;
 	vout.tex_pos = aTexPos;

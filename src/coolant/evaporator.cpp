@@ -14,18 +14,20 @@ constexpr static double calc_cylinder(double h, double d)
 	return M_PI * r * r * h * 1000;
 }
 
-Evaporator::Evaporator(Fluid type, double height, double diameter, double mass, double level) :
-		height(height),
-		diameter(diameter),
-		FluidHolder(type, calc_cylinder(height, diameter), mass)
+Evaporator::Evaporator(Fluid type, double volume, double mass, double level)
+	: FluidHolder(type, volume, mass)
 {
 	this->level = level;
 }
 
-Evaporator::Evaporator(const Json::Value& node) :
-		height(node["height"].asDouble()),
-		diameter(node["diameter"].asDouble()),
-		FluidHolder(node)
+Evaporator::Evaporator(Fluid type, double height, double diameter, double mass, double level)
+	: FluidHolder(type, calc_cylinder(height, diameter), mass)
+{
+	this->level = level;
+}
+
+Evaporator::Evaporator(const Json::Value& node)
+	: FluidHolder(node)
 {
 	steam_output = node["steam_output"].asDouble();
 }
@@ -70,8 +72,6 @@ Evaporator::operator Json::Value() const
 {
 	Json::Value node(FluidHolder::operator::Json::Value());
 
-	node["height"] = height;
-	node["diameter"] = diameter;
 	node["steam_output"] = steam_output;
 	
 	return node;

@@ -31,6 +31,8 @@
 #include "mesh/gllight.hpp"
 #include "mesh/meshgen.hpp"
 #include "equipment/reactor.hpp"
+#include "equipment/generator.hpp"
+#include "equipment/pool.hpp"
 #include "../system.hpp"
 #include "../util/streams.hpp"
 #include "ui.hpp"
@@ -53,7 +55,6 @@ static Mesh g_scene;
 static std::vector<glm::mat4> g_scene_transforms;
 
 static GLMesh gm_scene;
-static GLMesh gm_transparent;
 static GLMesh gm_dynamic_slow[2];
 
 static std::vector<GLLight> lights;
@@ -171,8 +172,6 @@ void Window::create()
 	Mesh m_transparent;
 
 	Model model("../assets", "scene.glb");
-	m_transparent = model.load("visual_water");
-	m_transparent.bake_transforms();
 
 	g_scene.add(model.load("cr"));
 	g_scene.add(model.load("cb"));
@@ -195,11 +194,10 @@ void Window::create()
 	monitors.push_back(std::make_unique<Monitor::SecondaryLoop>(model));
 	monitors.push_back(std::make_unique<Monitor::Turbine>(model));
 	equipment.push_back(std::make_unique<Equipment::Reactor>(model));
+	equipment.push_back(std::make_unique<Equipment::Generator>(model));
+	equipment.push_back(std::make_unique<Equipment::Pool>(model));
 
 	remesh_static();
-
-	gm_transparent.bind();
-	gm_transparent.set(m_transparent, GL_STATIC_DRAW);
 
 	glfwShowWindow(win);
 
@@ -313,7 +311,7 @@ void Window::update(double dt)
 	UI::update(dt);
 
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_transforms[ssbo_transforms_at]);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, transforms.size() * sizeof(transforms[0]), &transforms[0], GL_DYNAMIC_DRAW);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, transforms.size() * sizeof(transforms[0]), &transforms[0], GL_STREAM_DRAW);
 	ssbo_transforms_at = (ssbo_transforms_at + 1) % SSBO_TRANSFORMS_LEN;
 
 	if(wait_at++ % 4 == 0)
@@ -331,9 +329,6 @@ void Window::render_scene()
 	gm_dynamic_slow[gm_dynamic_slow_at].bind();
 	gm_dynamic_slow[gm_dynamic_slow_at].render();
 	
-	gm_transparent.bind();
-	gm_transparent.render();
-
 	Focus::render();
 }
 

@@ -41,6 +41,7 @@ System::System() :
 		vessel(Coolant::WATER, 8, 10, 6e6, 5e5, 10),
 		reactor(Reactor::Builder(19, 19, 0.4, 4, Reactor::Fuel::FuelRod(0.5), &vessel, CORE_LAYOUT)),
 		evaporator(Coolant::WATER, 2, 30, 0, 1000),
+		pool(Coolant::WATER, {16, 32, 11.3}, 16, 1e5, 0),
 		sink(Coolant::WATER, 11, 0, 0),
 		grid(),
 		freight_pump(&sink, &evaporator, 1e5, 1, 1e4, 0.1, 10, Coolant::Pump::mode_t::DST, 1e6),
@@ -55,6 +56,7 @@ System::System(const Json::Value& node) :
 		reactor(node["reactor"], &vessel),
 		grid(node["grid"]),
 		evaporator(node["evaporator"]),
+		pool(node["pool"]),
 		sink(evaporator.fluid, 11, 0, 0),
 		freight_pump(node["pump"]["freight"], &sink, &evaporator),
 		loop(node, &vessel, &evaporator, &grid)
@@ -82,6 +84,7 @@ System::operator Json::Value() const
 	node["grid"] = grid;
 	node["vessel"] = vessel;
 	node["evaporator"] = evaporator;
+	node["pool"] = pool;
 	node["pump"]["freight"] = freight_pump;
 	node["reactor"] = reactor;
 	node["clock"] = clock;

@@ -10,6 +10,7 @@ in VS_OUT {
 	vec3 pos;
 	vec2 tex_pos;
 	vec3 material;
+	float ambient;
 } vin;
 
 struct Light
@@ -36,6 +37,17 @@ uniform vec3 camera_pos;
 uniform float far_plane;
 uniform bool shadows_enabled;
 uniform int lights_count;
+
+float Map(float v, float i_min, float i_max, float o_min, float o_max)
+{
+	return o_min + (o_max - o_min) * (v - i_min) / (i_max - i_min);
+}
+
+float Ramp(float v, float i_min, float i_max, float o_min, float o_max)
+{
+	float t = clamp(v, i_min, i_max);
+	return Map(t, i_min, i_max, o_min, o_max);
+}
 
 vec3 FresnelSchlick(float cosTheta, vec3 F0)
 {
@@ -113,15 +125,28 @@ void main()
 	vec3 F0 = vec3(0.04f);
 	F0 = mix(F0, albedo_lin, metalness);
 
-	vec3 Lo = vec3(0.0f);
+	vec3 Lo = vec3(0.f);
 	for(int i = 0; i < lights_count; i++)
 	{
 		Light l = lights[i];
 
+		float light_m;
 		vec3 L = normalize(l.pos.xyz - vin.pos);
-		vec3 H = normalize(V + L);
-
 		float d = length(vin.pos - l.pos.xyz);
+
+		if(shadows_enabled)
+		{
+			float max_d = texture(shadow_maps[i], -L).r * far_plane;
+			light_m = Ramp(d - max_d, 0.f, 2.5e-2f, 1.f, 0.f);
+			if(light_m <= 0.f) continue;
+		}
+
+		else
+		{
+			light_m = 1.f;
+		}
+
+		vec3 H = normalize(V + L);
 		float atten = 1.f / (d*d);
 		vec3 radiance = l.colour.rgb * atten;
 
@@ -138,28 +163,13 @@ void main()
 		float denominator = 4.f * max(dot(N, V), 0.f) * max(dot(N, L), 0.f) + 1e-4f;
 		vec3 specular = numerator / denominator;
 		
-		float light_m;
-		float spec_m;
-
-		if(shadows_enabled)
-		{
-			float max_d = texture(shadow_maps[i], -L).r * far_plane + 1e-2f;
-			spec_m = max_d > d ? 1.f : 0.f;
-			light_m = spec_m * 0.25f + 0.75f;
-		}
-
-		else
-		{
-			light_m = 1.f;
-			spec_m = 1.f;
-		}
 
 		// add to outgoing radiance Lo
 		float NdotL = max(dot(N, L), 0.f);
-		Lo += (kD * albedo_lin / PI + specular * spec_m) * radiance * NdotL * light_m;
+		Lo += (kD * albedo_lin / PI + specular) * radiance * NdotL * light_m;
 	}
 	
-	vec3 ambient = vec3(0.03f) * albedo_lin * brightness;
+	vec3 ambient = vec3(vin.ambient) * albedo_lin * brightness;
 	vec3 light = LinRGB_To_sRGB(ambient + Lo);
 
 	light = mix(light, albedo.rgb, luminance);
