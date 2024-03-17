@@ -45,6 +45,8 @@ struct Mesh
 		ss << header << item;
 		load_text(ss.str().c_str(), size);
 	}
+
+	friend std::ostream& operator<<(std::ostream& os, const Mesh& m);
 };
 
 };

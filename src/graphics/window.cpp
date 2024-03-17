@@ -94,7 +94,7 @@ void remesh_static()
 	gm_scene.set(mesh, GL_STATIC_DRAW, false);
 	g_scene_transforms = std::move(mesh.transforms);
 
-	std::cout << "Remeshed static\n";
+	std::cout << "Total triangles: " << mesh.indices.size() / 3 << "\n";
 }
 
 void render_shadow_map()
@@ -177,6 +177,8 @@ void Window::create()
 	g_scene.add(model.load("cb"));
 	g_scene.add(model.load("hw"));
 	g_scene.bake_transforms();
+
+	std::cout << "Static scene triangles: " << g_scene.indices.size() / 3 << "\n";
 	
 	Camera::init(model);
 

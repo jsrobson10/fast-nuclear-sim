@@ -2,6 +2,7 @@
 #pragma once
 
 #include <glm/matrix.hpp>
+#include <ostream>
 
 namespace Sim::Graphics::Arrays
 {
@@ -17,6 +18,8 @@ struct Vertex
 	float transform_id = -1;
 
 	constexpr bool operator==(const Vertex&) const = default;
+
+	friend std::ostream& operator<<(std::ostream& os, const Vertex& v);
 
 } __attribute__((packed));
 

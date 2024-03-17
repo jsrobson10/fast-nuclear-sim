@@ -5,6 +5,7 @@
 #include "../camera.hpp"
 #include "../input/focus.hpp"
 #include "../../util/math.hpp"
+#include "../../util/streams.hpp"
 
 #include <iostream>
 
@@ -326,5 +327,35 @@ Mesh Mesh::to_lines() const
 	}
 
 	return m;
+}
+
+std::ostream& Sim::Graphics::operator<<(std::ostream& os, const Mesh& m)
+{
+	os << "Mesh(\n";
+	os << "  Vertices(\n";
+
+	for(int i = 0; i < m.vertices.size(); i++)
+	{
+		os << "    " << m.vertices[i] << "\n";
+	}
+
+	os << "  )\n";
+
+	for(int i = 0; i < m.indices.size(); i += 3)
+	{
+		os << "    " << m.indices[i] << " " << m.indices[i + 1] << " " << m.indices[i + 2] << "\n";
+	}
+
+	os << "  Transforms(\n";
+
+	for(int i = 0; i < m.transforms.size(); i++)
+	{
+		os << "    " << m.transforms[i] << "\n";
+	}
+
+	os << "  )\n";
+	os << ")\n";
+
+	return os;
 }
 

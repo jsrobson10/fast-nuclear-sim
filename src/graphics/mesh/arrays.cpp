@@ -5,6 +5,7 @@
 #include <assimp/Importer.hpp>
 
 #include "../shader.hpp"
+#include "../../util/streams.hpp"
 #include "arrays.hpp"
 #include "font.hpp"
 
@@ -39,5 +40,19 @@ void Arrays::vertex_attrib_pointers()
 
 	glVertexAttribPointer(6, 1, GL_FLOAT, false, sizeof(v), ptr_diff(&v.transform_id, &v));
 	glEnableVertexAttribArray(6);
+}
+
+std::ostream& Arrays::operator<<(std::ostream& os, const Vertex& v)
+{
+	os << "Vertex{";
+	os << "texid=" << v.texid << ", ";
+	os << "texpos=" << v.texpos << ", ";
+	os << "pos=" << v.pos << ", ";
+	os << "normal=" << v.normal << ", ";
+	os << "colour=" << v.colour << ", ";
+	os << "material=" << v.material << ", ";
+	os << "transform_id=" << v.transform_id;
+	os << "}";
+	return os;
 }
 
