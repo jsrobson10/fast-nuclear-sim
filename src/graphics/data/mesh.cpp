@@ -9,7 +9,7 @@
 
 #include <iostream>
 
-using namespace Sim::Graphics;
+using namespace Sim::Graphics::Data;
 
 Mesh::Mesh()
 {
@@ -178,15 +178,28 @@ bool ray_intersects_triangle(vec3 ray_origin,
 
 bool Mesh::check_focus(double len) const
 {
+	if(!Focus::is_triggered())
+	{
+		return false;
+	}
+
 	auto near = Focus::get_trigger_near();
 	auto far = Focus::get_trigger_far();
 	
-	return Focus::is_triggered() && check_intersect(near, glm::normalize(far - near) * len);
+	return check_intersect(near, glm::normalize(far - near) * len);
 }
 
-bool Mesh::check_focus() const
+bool Mesh::check_focus_hold(double len)
 {
-	return check_focus(2.5);
+	if(!Focus::is_triggered() && (!focus || Focus::is_triggered_release()))
+	{
+		return focus = false;
+	}
+
+	auto near = Focus::get_trigger_near();
+	auto far = Focus::get_trigger_far();
+	
+	return focus = check_intersect(near, glm::normalize(far - near) * len);
 }
 
 bool Mesh::check_intersect(vec3 pos, vec3 path) const
@@ -329,7 +342,7 @@ Mesh Mesh::to_lines() const
 	return m;
 }
 
-std::ostream& Sim::Graphics::operator<<(std::ostream& os, const Mesh& m)
+std::ostream& Sim::Graphics::Data::operator<<(std::ostream& os, const Mesh& m)
 {
 	os << "Mesh(\n";
 	os << "  Vertices(\n";

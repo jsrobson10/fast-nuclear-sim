@@ -1,20 +1,20 @@
 
 #pragma once
 
-#include "../mesh/meshgen.hpp"
+#include "../data/meshgen.hpp"
 
 namespace Sim::Graphics::Equipment
 {
 
-class Generator : public MeshGen
+class Generator : public Data::MeshGen
 {
-	Mesh g_rotor;
+	Data::Mesh g_rotor;
 
 public:
 
-	Generator(const Model& model);
-	virtual void get_static_transforms(std::vector<glm::mat4>& transforms);
-	virtual void remesh_static(Mesh& rmesh);
+	Generator(const Data::Model& model);
+	void get_static_transforms(std::vector<glm::mat4>& transforms) override;
+	void remesh_static(Data::Mesh& rmesh) override;
 };
 
 };

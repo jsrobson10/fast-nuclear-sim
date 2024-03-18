@@ -4,7 +4,7 @@
 #include <glm/matrix.hpp>
 #include <ostream>
 
-namespace Sim::Graphics::Arrays
+namespace Sim::Graphics::Data::Arrays
 {
 
 struct Vertex

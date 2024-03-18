@@ -3,7 +3,6 @@
 #include <GLFW/glfw3.h>
 
 #include "secondary_loop.hpp"
-#include "../locations.hpp"
 #include "../../system.hpp"
 #include "../../coolant/valve.hpp"
 #include "../input/focus.hpp"
@@ -14,12 +13,12 @@
 
 using namespace Sim::Graphics;
 using namespace Sim::Graphics::Monitor;
+using namespace Sim::Graphics::Data;
 using namespace Sim::Util::Streams;
-
 
 SecondaryLoop::SecondaryLoop(const Model& model)
 {
-	mat = Locations::monitors[5];
+	mat = model.load_matrix("translation_monitor_6");
 
 	g_switch_2 = model.load("visual_pump_switch_2");
 	g_switch_3 = model.load("visual_pump_switch_3");
@@ -43,7 +42,7 @@ void SecondaryLoop::update(double dt)
 void SecondaryLoop::remesh_static(Mesh& rmesh)
 {
 	std::stringstream ss;
-	Mesh mesh;
+	Data::Mesh mesh;
 
 	ss << "Cooling Tower\n\n";
 	ss << "Heat\nSteam\nPressure\nLevel\n\n";
@@ -61,7 +60,7 @@ void SecondaryLoop::remesh_static(Mesh& rmesh)
 void SecondaryLoop::remesh_slow(Mesh& rmesh)
 {
 	std::stringstream ss;
-	Sim::Graphics::Mesh mesh;
+	Sim::Graphics::Data::Mesh mesh;
 	System& sys = *System::active;
 
 	ss << "\n\n";

@@ -3,6 +3,7 @@
 
 #include "mesh.hpp"
 #include "light.hpp"
+#include "camera.hpp"
 
 #include <string>
 #include <vector>
@@ -14,7 +15,7 @@
 #include <assimp/material.h>
 #include <assimp/postprocess.h>
 
-namespace Sim::Graphics
+namespace Sim::Graphics::Data
 {
 
 class Model
@@ -26,6 +27,7 @@ class Model
 public:
 
 	std::vector<uint64_t> textures;
+	std::vector<Camera> cameras;
 	std::vector<Light> lights;
 
 	Model(std::string base, std::string filename);
@@ -35,7 +37,7 @@ public:
 	Mesh load_root(glm::mat4 mat) const;
 	Mesh load(const char* name) const;
 	Mesh load(const char* name, glm::mat4 mat) const;
-	glm::mat4 get_matrix(const char* name) const;
+	glm::mat4 load_matrix(const char* name) const;
 };
 
 };

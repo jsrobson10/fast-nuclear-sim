@@ -1,9 +1,9 @@
 
 #pragma once
 
-#include "../mesh/model.hpp"
+#include "model.hpp"
 
-namespace Sim::Graphics
+namespace Sim::Graphics::Data
 {
 
 class MeshGen

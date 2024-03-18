@@ -5,7 +5,6 @@
 #include "vessel.hpp"
 #include "../../reactor/rod.hpp"
 #include "../../reactor/control/boron_rod.hpp"
-#include "../locations.hpp"
 #include "../../system.hpp"
 #include "../../util/streams.hpp"
 
@@ -13,17 +12,18 @@
 #include <sstream>
 
 using namespace Sim::Graphics::Monitor;
+using namespace Sim::Graphics::Data;
 using namespace Sim::Util::Streams;
 
 Vessel::Vessel(const Model& model)
 {
-	mat = Locations::monitors[1];
+	mat = model.load_matrix("translation_monitor_2");
 }
 
 void Vessel::remesh_static(Mesh& rmesh)
 {
 	std::stringstream ss;
-	Sim::Graphics::Mesh mesh;
+	Sim::Graphics::Data::Mesh mesh;
 
 	ss << "Reactor Vessel\n\n";
 	ss << "Heat\n";
@@ -44,7 +44,7 @@ void Vessel::remesh_static(Mesh& rmesh)
 void Vessel::remesh_slow(Mesh& rmesh)
 {
 	std::stringstream ss;
-	Sim::Graphics::Mesh mesh;
+	Sim::Graphics::Data::Mesh mesh;
 	Sim::System& sys = *System::active;
 
 	double temp_min, temp_max;

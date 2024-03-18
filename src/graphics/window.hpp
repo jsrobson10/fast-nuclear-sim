@@ -17,6 +17,7 @@ void reload();
 void update(double dt);
 void render();
 void render_scene();
+void render_player();
 void destroy();
 void close();
 

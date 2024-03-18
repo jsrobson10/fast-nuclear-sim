@@ -33,7 +33,7 @@ void Generator::update(double dt)
 	double energy_input = turbine->extract_energy();
 	double energy_friction = get_rpm() / 60 * dt * friction;
 	double work = Util::Math::j_to_ms2(energy_input - energy_friction, mass);
-	phase = std::fmod(phase + Util::Math::map( get_rpm(), 0, 3600, 0, 120 * M_PI ) * dt, 2 * M_PI);
+	phase = std::fmod(phase + Util::Math::map( get_rpm(), 0, 3600, 0, 120 * M_PI ) * dt, 4 * M_PI);
 
 	// do energy transfer stuff here
 	if(breaker_closed)

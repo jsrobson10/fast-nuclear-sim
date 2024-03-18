@@ -13,7 +13,7 @@
 #include "arrays.hpp"
 #include "font.hpp"
 
-using namespace Sim::Graphics;
+using namespace Sim::Graphics::Data;
 
 struct Character
 {

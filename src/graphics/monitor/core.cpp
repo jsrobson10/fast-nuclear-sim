@@ -3,10 +3,9 @@
 #include <GLFW/glfw3.h>
 
 #include "core.hpp"
-#include "../locations.hpp"
 #include "../input/focus.hpp"
-#include "../mesh/arrays.hpp"
-#include "../mesh/texture.hpp"
+#include "../data/arrays.hpp"
+#include "../data/texture.hpp"
 #include "../../system.hpp"
 #include "../../util/streams.hpp"
 
@@ -18,6 +17,7 @@
 using namespace Sim;
 using namespace Sim::Graphics;
 using namespace Sim::Graphics::Monitor;
+using namespace Sim::Graphics::Data;
 using namespace Sim::Util::Streams;
 
 static void set_all(bool state)
@@ -118,16 +118,16 @@ struct CoreJoystick : public Focus::FocusType
 
 Core::Core(const Model& model)
 {
-	mat = Locations::monitors[2];
-	m_buttons[0] = model.load("click_numpad_1");
-	m_buttons[1] = model.load("click_numpad_2");
-	m_buttons[2] = model.load("click_numpad_3");
-	m_buttons[3] = model.load("click_numpad_4");
-	m_buttons[4] = model.load("click_numpad_5");
-	m_buttons[5] = model.load("click_numpad_6");
-	m_buttons[6] = model.load("click_numpad_7");
-	m_buttons[7] = model.load("click_numpad_8");
-	m_buttons[8] = model.load("click_numpad_9");
+	mat = model.load_matrix("translation_monitor_3");
+	m_buttons[0] = model.load("click_reactor_numpad_1");
+	m_buttons[1] = model.load("click_reactor_numpad_2");
+	m_buttons[2] = model.load("click_reactor_numpad_3");
+	m_buttons[3] = model.load("click_reactor_numpad_4");
+	m_buttons[4] = model.load("click_reactor_numpad_5");
+	m_buttons[5] = model.load("click_reactor_numpad_6");
+	m_buttons[6] = model.load("click_reactor_numpad_7");
+	m_buttons[7] = model.load("click_reactor_numpad_8");
+	m_buttons[8] = model.load("click_reactor_numpad_9");
 	m_joystick = model.load("click_reactor_joystick");
 	m_monitor = model.load("translation_monitor_3");
 	m_scram = model.load("click_scram");
@@ -135,14 +135,14 @@ Core::Core(const Model& model)
 
 void Core::remesh_static(Mesh& rmesh)
 {
-	Mesh mesh;
+	Data::Mesh mesh;
 	mesh.load_text("Reactor Core", 0.04);
 	rmesh.add(mesh, mat, true);
 }
 
-static Mesh add_dot(glm::mat4 model_mat, glm::vec4 colour)
+static Data::Mesh add_dot(glm::mat4 model_mat, glm::vec4 colour)
 {
-	Mesh mesh;
+	Data::Mesh mesh;
 
 	mesh.indices = {0, 1, 3, 0, 3, 2};
 	mesh.vertices = {
@@ -186,7 +186,7 @@ void Core::update(double dt)
 void Core::remesh_slow(Mesh& rmesh)
 {
 	Sim::System& sys = *System::active;
-	Sim::Graphics::Mesh mesh;
+	Sim::Graphics::Data::Mesh mesh;
 	
 	double step = sys.reactor.cell_width / sys.vessel.diameter * 0.8;
 	double sx = 0.5 - (sys.reactor.width - 1) * step / 2.0;

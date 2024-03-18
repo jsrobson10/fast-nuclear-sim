@@ -3,7 +3,7 @@
 #include <GLFW/glfw3.h>
 
 #include "camera.hpp"
-#include "mesh/mesh.hpp"
+#include "data/mesh.hpp"
 #include "input/keyboard.hpp"
 #include "../util/math.hpp"
 
@@ -19,7 +19,7 @@ static bool on_ground = false;
 static double yaw = 0, pitch = 0;
 static glm::vec<3, double> pos(0, 0, 2);
 static glm::vec<3, double> velocity(0);
-static Mesh collision_scene;
+static Data::Mesh collision_scene;
 static glm::mat4 camera_mat;
 
 Json::Value Camera::serialize()
@@ -79,7 +79,12 @@ glm::vec<3, double> Camera::get_pos()
 	return pos;
 }
 
-void Camera::init(const Model& model)
+glm::vec<3, double> Camera::get_pos_base()
+{
+	return pos - glm::vec<3, double>(0, 0, 1.5);
+}
+
+void Camera::init(const Data::Model& model)
 {
 	collision_scene = model.load("collision");
 }

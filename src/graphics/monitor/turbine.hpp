@@ -1,31 +1,31 @@
 
 #pragma once
 
-#include "../mesh/model.hpp"
-#include "../mesh/glmesh.hpp"
-#include "../mesh/meshgen.hpp"
+#include "../data/model.hpp"
+#include "../data/glmesh.hpp"
+#include "../data/meshgen.hpp"
 
 namespace Sim::Graphics::Monitor
 {
 
-class Turbine : public MeshGen
+class Turbine : public Data::MeshGen
 {
 	glm::mat4 mat;
 
-	Mesh g_dial_phase;
-	Mesh g_dial_voltage;
-	Mesh g_dial_power;
-	Mesh g_dial_frequency;
-	Mesh g_switch_breaker;
-	Mesh m_switch_breaker;
+	Data::Mesh g_dial_phase;
+	Data::Mesh g_dial_voltage;
+	Data::Mesh g_dial_power;
+	Data::Mesh g_dial_frequency;
+	Data::Mesh g_switch_breaker;
+	Data::Mesh m_switch_breaker;
 
 public:
 
-	Turbine(const Model& model);
-	virtual void update(double dt);
-	virtual void get_static_transforms(std::vector<glm::mat4>& transforms);
-	virtual void remesh_static(Mesh& rmesh);
-	virtual void remesh_slow(Mesh& rmesh);
+	Turbine(const Data::Model& model);
+	void update(double dt) override;
+	void get_static_transforms(std::vector<glm::mat4>& transforms) override;
+	void remesh_static(Data::Mesh& rmesh) override;
+	void remesh_slow(Data::Mesh& rmesh) override;
 };
 
 };

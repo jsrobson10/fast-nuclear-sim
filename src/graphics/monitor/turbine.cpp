@@ -3,7 +3,6 @@
 #include <GLFW/glfw3.h>
 
 #include "turbine.hpp"
-#include "../locations.hpp"
 #include "../../system.hpp"
 #include "../../coolant/valve.hpp"
 #include "../input/focus.hpp"
@@ -15,11 +14,12 @@
 
 using namespace Sim::Graphics;
 using namespace Sim::Graphics::Monitor;
+using namespace Sim::Graphics::Data;
 using namespace Sim::Util::Streams;
 
 Turbine::Turbine(const Model& model)
 {
-	mat = Locations::monitors[4];
+	mat = model.load_matrix("translation_monitor_5");
 
 	g_dial_phase = model.load("visual_dial_phase");
 	g_dial_voltage = model.load("visual_dial_voltage");
@@ -69,7 +69,7 @@ void Turbine::get_static_transforms(std::vector<glm::mat4>& transforms)
 void Turbine::remesh_static(Mesh& rmesh)
 {
 	std::stringstream ss;
-	Sim::Graphics::Mesh mesh;
+	Sim::Graphics::Data::Mesh mesh;
 
 	ss << "Turbine\n\n";
 	ss << "Heat\nPressure\nSpeed\n\n";
@@ -87,7 +87,7 @@ void Turbine::remesh_static(Mesh& rmesh)
 void Turbine::remesh_slow(Mesh& rmesh)
 {
 	std::stringstream ss;
-	Sim::Graphics::Mesh mesh;
+	Sim::Graphics::Data::Mesh mesh;
 	System& sys = *System::active;
 
 	ss << "\n\n";

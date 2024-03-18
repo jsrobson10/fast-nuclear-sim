@@ -12,7 +12,7 @@
 #include "arrays.hpp"
 #include "light.hpp"
 
-namespace Sim::Graphics
+namespace Sim::Graphics::Data
 {
 
 struct Mesh
@@ -20,6 +20,7 @@ struct Mesh
 	std::vector<Arrays::Vertex> vertices;
 	std::vector<unsigned int> indices;
 	std::vector<glm::mat4> transforms;
+	bool focus = false;
 
 	Mesh();
 
@@ -31,8 +32,8 @@ struct Mesh
 	Mesh& add(const Mesh& o, glm::mat4 mat = glm::mat4(1), bool bake = false);
 
 	Mesh to_lines() const;
-	bool check_focus() const;
-	bool check_focus(double len) const;
+	bool check_focus(double len = 2.5) const;
+	bool check_focus_hold(double len = 2.5);
 	bool check_intersect(glm::vec<3, double> pos, glm::vec<3, double> path) const;
 	glm::vec<3, double> calc_intersect(glm::vec<3, double> pos, glm::vec<3, double> path) const;
 

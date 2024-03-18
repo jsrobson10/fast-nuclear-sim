@@ -1,34 +1,34 @@
 
 #pragma once
 
-#include "../mesh/model.hpp"
-#include "../mesh/meshgen.hpp"
+#include "../data/model.hpp"
+#include "../data/meshgen.hpp"
 
 namespace Sim::Graphics::Monitor
 {
 
-class PrimaryLoop : public MeshGen
+class PrimaryLoop : public Data::MeshGen
 {
 	glm::mat4 mat;
 
-	Mesh m_joystick_turbine_bypass;
-	Mesh m_joystick_turbine_inlet;
+	Data::Mesh m_joystick_turbine_bypass;
+	Data::Mesh m_joystick_turbine_inlet;
 
-	Mesh g_switch_pump;
-	Mesh g_switch_bypass;
-	Mesh g_switch_inlet;
+	Data::Mesh g_switch_pump;
+	Data::Mesh g_switch_bypass;
+	Data::Mesh g_switch_inlet;
 	
-	Mesh m_switch_pump;
-	Mesh m_switch_bypass;
-	Mesh m_switch_inlet;
+	Data::Mesh m_switch_pump;
+	Data::Mesh m_switch_bypass;
+	Data::Mesh m_switch_inlet;
 	
 public:
 
-	PrimaryLoop(const Model& model);
-	virtual void update(double dt);
-	virtual void get_static_transforms(std::vector<glm::mat4>& transforms);
-	virtual void remesh_static(Mesh& rmesh);
-	virtual void remesh_slow(Mesh& rmesh);
+	PrimaryLoop(const Data::Model& model);
+	void update(double dt) override;
+	void get_static_transforms(std::vector<glm::mat4>& transforms) override;
+	void remesh_static(Data::Mesh& rmesh) override;
+	void remesh_slow(Data::Mesh& rmesh) override;
 };
 
 };

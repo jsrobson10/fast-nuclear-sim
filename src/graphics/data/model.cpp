@@ -14,7 +14,7 @@
 #include "model.hpp"
 #include "../../util/streams.hpp"
 
-using namespace Sim::Graphics;
+using namespace Sim::Graphics::Data;
 
 struct ProcState
 {
@@ -176,10 +176,10 @@ static void proc_mesh(ProcState& state, aiMesh* mesh, const aiScene* scene)
 glm::mat4 convert_mat(aiMatrix4x4 m)
 {
 	return {
-		m.a1, m.a2, m.a3, m.a4,
-		m.b1, m.b2, m.b3, m.b4,
-		m.c1, m.c2, m.c3, m.c4,
-		m.d1, m.d2, m.d3, m.d4
+		m.a1, m.b1, m.c1, m.d1,
+		m.a2, m.b2, m.c2, m.d2,
+		m.a3, m.b3, m.c3, m.d3,
+		m.a4, m.b4, m.c4, m.d4
 	};
 }
 
@@ -213,7 +213,7 @@ static void proc_node(ProcState& state, glm::mat4 mat, aiNode* node, const aiSce
 
 		if(node->mNumMeshes > 0)
 		{
-			state.transforms.push_back(glm::transpose(mat));
+			state.transforms.push_back(mat);
 		}
 	}
 
@@ -258,7 +258,7 @@ glm::mat4 get_transforms(const aiNode* node)
 	return mat;
 }
 
-glm::mat4 Model::get_matrix(const char* name) const
+glm::mat4 Model::load_matrix(const char* name) const
 {
 	return get_transforms(scene->mRootNode->FindNode(name));
 }
@@ -280,17 +280,33 @@ Model::Model(std::string base, std::string filename) : base(base)
 	for(int i = 0; i < scene->mNumLights; i++)
 	{
 		aiLight* light = scene->mLights[i];
-		glm::mat4 mat = get_matrix(light->mName.C_Str());
+		glm::mat4 mat = load_matrix(light->mName.C_Str());
 
 		auto [x, y, z] = light->mPosition;
 		auto [r, g, b] = light->mColorDiffuse;
 
-		glm::vec4 pos = glm::vec4(x, y, z, 1) * mat;
+		glm::vec4 pos = mat * glm::vec4(x, y, z, 1);
 
 		lights.push_back({
 			glm::vec3(pos),
 			{r, g, b},
 		});
+	}
+
+	for(int i = 0; i < scene->mNumCameras; i++)
+	{
+		aiCamera* camera = scene->mCameras[i];
+		glm::mat4 mat = load_matrix(camera->mName.C_Str());
+
+		auto [x, y, z] = camera->mPosition;
+		auto [dx, dy, dz] = camera->mLookAt;
+		auto [ux, uy, uz] = camera->mUp;
+
+		glm::vec4 pos = mat * glm::vec4(x, y, z, 1);
+		glm::vec3 look = glm::normalize(glm::mat3(mat) * glm::vec3(dx, dy, dz));
+		glm::vec3 up = glm::normalize(glm::mat3(mat) * glm::vec3(ux, uy, uz));
+
+		cameras.push_back({.pos=glm::vec3(pos), .look=look, .up=up, .fov=camera->mHorizontalFOV});
 	}
 }
 

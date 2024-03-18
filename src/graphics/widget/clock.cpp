@@ -10,14 +10,15 @@
 #include <sstream>
 #include <cmath>
 
-#include "../mesh/arrays.hpp"
-#include "../mesh/font.hpp"
-#include "../mesh/arrays.hpp"
+#include "../data/arrays.hpp"
+#include "../data/font.hpp"
+#include "../data/arrays.hpp"
 #include "../resize.hpp"
 #include "../../system.hpp"
 #include "../../util/streams.hpp"
 
 using namespace Sim::Graphics::Widget;
+using namespace Sim::Graphics::Data;
 
 void Clock::update(double dt)
 {

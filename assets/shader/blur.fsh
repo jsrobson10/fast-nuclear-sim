@@ -1,26 +1,26 @@
 
 #version 460 core
 
-uniform int samples;
 uniform sampler2D tex;
+uniform vec2 direction;
+uniform int samples;
 
-in vec2 texPos;
-
+in vec2 FragPos;
 out vec4 FragColour;
 
 void main()
 {
-	vec2 texel_size = 1.f / vec2(textureSize(tex, 0));
-	float samples_n = pow(samples * 2 + 1, 2);
-	vec4 colour;
-	
-	for(int x = -samples; x <= samples; x++)
-	for(int y = -samples; y <= samples; y++)
+	int radius = (samples - 1) / 2;
+	ivec2 size = textureSize(tex, 0);
+	vec2 step = direction / size;
+	vec4 sum = vec4(0.f);
+
+	for(int i = -radius; i <= radius; i++)
 	{
-		vec2 off = texel_size * vec2(x, y);
-		colour += texture2D(tex, texPos + off);
+		vec2 offset = vec2(i) * step;
+		sum += texture(tex, FragPos + offset);
 	}
 
-	FragColour = vec4((colour / samples_n).rgb, 1);
+	FragColour = sum / float(samples);
 }
 

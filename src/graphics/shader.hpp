@@ -1,10 +1,13 @@
 
 #pragma once
 
+#include <GL/glew.h>
+
 #include <unordered_map>
 
 namespace Sim::Graphics
 {
+
 
 class Shader
 {
@@ -14,9 +17,18 @@ class Shader
 	std::unordered_map<const char*, unsigned int> uniform_block_indices;
 	
 public:
+
+	struct Source
+	{
+		unsigned int id;
+
+		Source(const char* path, GLenum type);
+		Source(const Source& o) = delete;
+		Source(Source&& o);
+		~Source();
+	};
 	
 	static Shader MAIN;
-	static Shader BLUR;
 	static Shader LIGHT;
 
 	static Shader* ACTIVE;
@@ -26,8 +38,7 @@ public:
 	Shader(Shader&& o);
 	~Shader();
 
-	void load(const char* path, const char* file_vsh, const char* file_gsh, const char* file_fsh);
-	void load(const char* path, const char* file_vsh, const char* file_fsh);
+	void load(const Source* sources, int count);
 	void block_binding(const char* name, unsigned int index);
 	void use();
 

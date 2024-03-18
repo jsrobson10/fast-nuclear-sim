@@ -8,7 +8,7 @@
 
 #include <glm/matrix.hpp>
 
-namespace Sim::Graphics
+namespace Sim::Graphics::Data
 {
 
 struct GLMesh
@@ -23,8 +23,9 @@ struct GLMesh
 	GLMesh(const GLMesh& o) = delete;
 	~GLMesh();
 
-	void bind(bool bind_ssbo = true);
-	void set(const Mesh& m, int mode, bool send_ssbo = true);
+	void bind();
+	void bind_ssbo();
+	void set(const Mesh& m, int mode);
 	void render(int type);
 	void render();
 };

@@ -24,6 +24,7 @@ struct FocusType
 bool is_focused();
 void clear_focus();
 bool is_triggered();
+bool is_triggered_release();
 bool is_mouse_locked();
 void clear_mouse_locked();
 glm::vec<3, double> get_trigger_near();

@@ -8,7 +8,7 @@
 
 #include "texture.hpp"
 
-using namespace Sim::Graphics;
+using namespace Sim::Graphics::Data;
 
 static std::unordered_map<std::string, unsigned int> loaded; 
 unsigned int Texture::handle_white;

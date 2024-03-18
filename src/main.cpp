@@ -10,7 +10,6 @@
 #include "coolant/valve.hpp"
 #include "coolant/pump.hpp"
 
-#include "graphics/mesh/mesh.hpp"
 #include "graphics/input/focus.hpp"
 
 #include "graphics/window.hpp"

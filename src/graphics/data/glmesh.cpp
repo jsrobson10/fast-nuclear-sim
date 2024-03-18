@@ -8,7 +8,7 @@
 #include "../camera.hpp"
 #include "../../util/streams.hpp"
 
-using namespace Sim::Graphics;
+using namespace Sim::Graphics::Data;
 
 constexpr static void init(GLMesh* m)
 {
@@ -52,20 +52,25 @@ GLMesh::~GLMesh()
 	if(vao) glDeleteVertexArrays(1, &vao);
 }
 
-void GLMesh::bind(bool bind_ssbo)
+void GLMesh::bind()
 {
 	init(this);
 
 	glBindVertexArray(vao);
-
-	if(ssbo_size > 0 && bind_ssbo)
-	{
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, ssbo);
-	}
 }
 
-void GLMesh::set(const Mesh& m, int mode, bool send_ssbo)
+void GLMesh::bind_ssbo()
+{
+	if(!ssbo)
+	{
+		glGenBuffers(1, &ssbo);
+	}
+
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, ssbo);
+}
+
+void GLMesh::set(const Mesh& m, int mode)
 {
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
@@ -74,17 +79,6 @@ void GLMesh::set(const Mesh& m, int mode, bool send_ssbo)
 
 	this->size = m.indices.size();
 	this->ssbo_size = m.transforms.size();
-
-	if(ssbo_size > 0 && send_ssbo)
-	{
-		if(ssbo == 0)
-		{
-			glGenBuffers(1, &ssbo);
-		}
-
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
-		glBufferData(GL_SHADER_STORAGE_BUFFER, m.transforms.size() * sizeof(m.transforms[0]), &m.transforms[0], mode);
-	}
 }
 
 void GLMesh::render()

@@ -3,7 +3,7 @@
 
 #include "light.hpp"
 
-namespace Sim::Graphics
+namespace Sim::Graphics::Data
 {
 
 struct GLLight
@@ -22,6 +22,7 @@ struct GLLight
 	static void init();
 
 	void render();
+	void render_player();
 };
 
 };

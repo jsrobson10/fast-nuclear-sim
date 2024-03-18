@@ -5,6 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <format>
 
 #include "shader.hpp"
 #include "window.hpp"
@@ -12,25 +13,19 @@
 using namespace Sim::Graphics;
 
 Shader Shader::MAIN;
-Shader Shader::BLUR;
 Shader Shader::LIGHT;
 Shader* Shader::ACTIVE;
-
-static int load_shader(const char* src, int type)
-{
-	int id = glCreateShader(type);
-
-	glShaderSource(id, 1, &src, nullptr);
-	glCompileShader(id);
-
-	return id;
-}
 
 static std::string read_shader(const char* path)
 {
 	std::stringstream ss;
 	std::ifstream file(path, std::ios::binary);
 	char buff[1024];
+
+	if(!file.is_open())
+	{
+		throw std::runtime_error(std::format("Shader Read Error: {0}", path));
+	}
 
 	while(!file.eof())
 	{
@@ -45,6 +40,37 @@ static std::string read_shader(const char* base, const char* file)
 {
 	std::string path = std::string(base) + "/" + std::string(file);
 	return read_shader(path.c_str());
+}
+
+Shader::Source::Source(const char* path, GLenum type)
+{
+	int success;
+	std::string src = read_shader(path);
+	const char* c_src = src.c_str();
+
+	id = glCreateShader(type);
+	glShaderSource(id, 1, &c_src, nullptr);
+	glCompileShader(id);
+	glGetShaderiv(id, GL_COMPILE_STATUS, &success);
+
+	if(!success)
+	{
+		char infoLog[512];
+		glGetShaderInfoLog(id, 512, NULL, infoLog);
+		std::string entry = std::format("Shader Compile Error ({0}): {1}", path, infoLog);
+		throw std::runtime_error(entry);
+	}
+}
+
+Shader::Source::Source(Source&& o)
+{
+	id = o.id;
+	o.id = 0;
+}
+
+Shader::Source::~Source()
+{
+	if(id) glDeleteShader(id);
 }
 
 Shader::Shader()
@@ -66,30 +92,15 @@ Shader::~Shader()
 	}
 }
 
-void Shader::load(const char* path, const char* file_vsh, const char* file_fsh)
+void Shader::load(const Source* sources, int count)
 {
-	load(path, file_vsh, nullptr, file_fsh);
-}
-
-void Shader::load(const char* path, const char* file_vsh, const char* file_gsh, const char* file_fsh)
-{
-	std::string shader_vsh = file_vsh ? read_shader(path, file_vsh) : "";
-	std::string shader_gsh = file_gsh ? read_shader(path, file_gsh) : "";
-	std::string shader_fsh = file_fsh ? read_shader(path, file_fsh) : "";
-
 	int success;
-	int vsh_id = file_vsh ? load_shader(shader_vsh.c_str(), GL_VERTEX_SHADER) : 0;
-	int gsh_id = file_gsh ? load_shader(shader_gsh.c_str(), GL_GEOMETRY_SHADER) : 0;
-	int fsh_id = file_fsh ? load_shader(shader_fsh.c_str(), GL_FRAGMENT_SHADER) : 0;
-	
 	prog_id = glCreateProgram();
 
-	if(file_vsh)
-		glAttachShader(prog_id, vsh_id);
-	if(file_gsh)
-		glAttachShader(prog_id, gsh_id);
-	if(file_fsh)
-		glAttachShader(prog_id, fsh_id);
+	for(int i = 0; i < count; i++)
+	{
+		glAttachShader(prog_id, sources[i].id);
+	}
 
 	glLinkProgram(prog_id);
 	glGetProgramiv(prog_id, GL_LINK_STATUS, &success);
@@ -98,21 +109,9 @@ void Shader::load(const char* path, const char* file_vsh, const char* file_gsh, 
 	{
 		char infoLog[512];
 		glGetProgramInfoLog(prog_id, 512, NULL, infoLog);
-		std::cout << "Shader Link Error (" << path << "," << file_vsh << "," << file_fsh << "): " << infoLog << std::endl;
-		Window::close();
-		return;
+		std::string entry = std::format("Shader Link Error: {0}", infoLog);
+		throw std::runtime_error(entry);
 	}
-
-	glUseProgram(prog_id);
-
-	if(file_vsh)
-		glDeleteShader(vsh_id);
-	if(file_gsh)
-		glDeleteShader(gsh_id);
-	if(file_fsh)
-		glDeleteShader(fsh_id);
-
-	ACTIVE = this;
 }
 
 void Shader::use()

@@ -1,21 +1,21 @@
 
 #pragma once
 
-#include "../mesh/model.hpp"
-#include "../mesh/meshgen.hpp"
+#include "../data/model.hpp"
+#include "../data/meshgen.hpp"
 
 namespace Sim::Graphics::Monitor
 {
 
-class Vessel : public MeshGen
+class Vessel : public Data::MeshGen
 {
 	glm::mat4 mat;
 	
 public:
 
-	Vessel(const Model& model);
-	virtual void remesh_static(Mesh& rmesh);
-	virtual void remesh_slow(Mesh& rmesh);
+	Vessel(const Data::Model& model);
+	void remesh_static(Data::Mesh& rmesh) override;
+	void remesh_slow(Data::Mesh& rmesh) override;
 };
 
 };

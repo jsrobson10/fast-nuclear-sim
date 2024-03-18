@@ -122,23 +122,26 @@ void main()
 	vec3 N = normalize(vin.normal);
 	vec3 V = normalize(camera_pos - vin.pos.xyz);
 
-	vec3 F0 = vec3(0.04f);
-	F0 = mix(F0, albedo_lin, metalness);
-
+	vec3 F0 = mix(vec3(0.04f), albedo_lin, metalness);
+	vec3 ambient = vec3(vin.ambient) * albedo_lin * brightness;
 	vec3 Lo = vec3(0.f);
+
 	for(int i = 0; i < lights_count; i++)
 	{
 		Light l = lights[i];
-
-		float light_m;
-		vec3 L = normalize(l.pos.xyz - vin.pos);
 		float d = length(vin.pos - l.pos.xyz);
+		vec3 L = (l.pos.xyz - vin.pos) / d;
+		float light_m;
 
 		if(shadows_enabled)
 		{
 			float max_d = texture(shadow_maps[i], -L).r * far_plane;
 			light_m = Ramp(d - max_d, 0.f, 2.5e-2f, 1.f, 0.f);
-			if(light_m <= 0.f) continue;
+		
+			if(light_m <= 0.f)
+			{
+				continue;
+			}
 		}
 
 		else
@@ -162,14 +165,12 @@ void main()
 		vec3 numerator = NDF * G * F;
 		float denominator = 4.f * max(dot(N, V), 0.f) * max(dot(N, L), 0.f) + 1e-4f;
 		vec3 specular = numerator / denominator;
-		
 
 		// add to outgoing radiance Lo
 		float NdotL = max(dot(N, L), 0.f);
 		Lo += (kD * albedo_lin / PI + specular) * radiance * NdotL * light_m;
 	}
 	
-	vec3 ambient = vec3(vin.ambient) * albedo_lin * brightness;
 	vec3 light = LinRGB_To_sRGB(ambient + Lo);
 
 	light = mix(light, albedo.rgb, luminance);

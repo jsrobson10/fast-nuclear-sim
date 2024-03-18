@@ -5,6 +5,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 using namespace Sim::Graphics::Equipment;
+using namespace Sim::Graphics::Data;
 
 Generator::Generator(const Model& model)
 {
@@ -19,7 +20,7 @@ void Generator::remesh_static(Mesh& rmesh)
 void Generator::get_static_transforms(std::vector<glm::mat4>& transforms)
 {
 	Sim::System& sys = *Sim::System::active;
-	glm::mat4 rot = glm::rotate(glm::mat4(1), (float)sys.loop.generator.get_phase(), glm::vec3(0, 0, 1));
+	glm::mat4 rot = glm::rotate(glm::mat4(1), (float)sys.loop.generator.get_phase() * 0.5f, glm::vec3(0, 0, 1));
 	transforms.push_back(rot);
 }
 

@@ -3,7 +3,7 @@
 
 #include <glm/matrix.hpp>
 
-namespace Sim::Graphics
+namespace Sim::Graphics::Data
 {
 
 struct Light

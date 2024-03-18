@@ -7,6 +7,7 @@
 
 using namespace Sim::Graphics;
 using namespace Sim::Graphics::Resize;
+using namespace Sim::Graphics::Window;
 
 static bool is_fullscreen = false;
 

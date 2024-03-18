@@ -9,7 +9,7 @@
 #include "arrays.hpp"
 #include "font.hpp"
 
-using namespace Sim::Graphics;
+using namespace Sim::Graphics::Data;
 
 static void* ptr_diff(void* a, void* b)
 {

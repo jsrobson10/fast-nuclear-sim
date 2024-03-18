@@ -3,7 +3,6 @@
 #include <GLFW/glfw3.h>
 
 #include "primary_loop.hpp"
-#include "../locations.hpp"
 #include "../../system.hpp"
 #include "../../coolant/valve.hpp"
 #include "../input/focus.hpp"
@@ -14,6 +13,7 @@
 
 using namespace Sim::Graphics;
 using namespace Sim::Graphics::Monitor;
+using namespace Sim::Graphics::Data;
 using namespace Sim::Util::Streams;
 
 struct ValveJoystick : public Focus::FocusType
@@ -51,7 +51,7 @@ struct ValveJoystick : public Focus::FocusType
 
 PrimaryLoop::PrimaryLoop(const Model& model)
 {
-	mat = Locations::monitors[3];
+	mat = model.load_matrix("translation_monitor_4");
 	
 	g_switch_pump = model.load("visual_pump_switch_1");
 	g_switch_bypass = model.load("visual_bypass_switch");
@@ -67,7 +67,7 @@ PrimaryLoop::PrimaryLoop(const Model& model)
 void PrimaryLoop::remesh_static(Mesh& rmesh)
 {
 	std::stringstream ss;
-	Mesh mesh;
+	Data::Mesh mesh;
 
 	ss << "Turbine Bypass Valve\n\n";
 	ss << "Opened\nFlow\nSetpoint\n\n";
@@ -108,7 +108,7 @@ void PrimaryLoop::update(double dt)
 void PrimaryLoop::remesh_slow(Mesh& rmesh)
 {
 	std::stringstream ss;
-	Sim::Graphics::Mesh mesh;
+	Sim::Graphics::Data::Mesh mesh;
 	System& sys = *System::active;
 
 	ss << "\n\n";

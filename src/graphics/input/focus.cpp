@@ -24,6 +24,7 @@ static std::unique_ptr<Focus::FocusType> state = nullptr;
 static bool mouse_visible = false;
 static bool mouse_locked = false;
 static bool triggered = false;
+static bool triggered_release = false;
 
 void Focus::on_keypress(int key, int sc, int action, int mods)
 {
@@ -53,8 +54,10 @@ void Focus::on_mouse_button(int button, int action, int mods)
 		state->on_mouse_button(button, action, mods);
 	}
 
-	if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+	if(button == GLFW_MOUSE_BUTTON_LEFT && (action == GLFW_RELEASE || action == GLFW_PRESS))
 	{
+		bool t = false;
+
 		if(is_mouse_locked() && mouse_visible)
 		{
 			double mx, my;
@@ -66,14 +69,21 @@ void Focus::on_mouse_button(int button, int action, int mods)
 
 			trigger_near = glm::unProject(glm::vec3(mouse, -1), Camera::get_matrix(), Window::projection_matrix, viewport);
 			trigger_far = glm::unProject(glm::vec3(mouse, 1), Camera::get_matrix(), Window::projection_matrix, viewport);
-			triggered = true;
+			t = true;
 		}
 
 		else if(!mouse_visible)
 		{
 			trigger_near = Camera::get_pos();
 			trigger_far = trigger_near + Camera::get_normal();
-			triggered = true;
+			t = true;
+		}
+
+		if(t)
+		{
+			t = (action == GLFW_PRESS);
+			triggered_release = !t;
+			triggered = t;
 		}
 	}
 }
@@ -107,6 +117,7 @@ glm::vec<3, double> Focus::get_trigger_far()
 void Focus::update(double dt)
 {
 	triggered = false;
+	triggered_release = false;
 
 	bool c = is_mouse_locked();
 
@@ -192,5 +203,10 @@ void Focus::set(std::unique_ptr<FocusType> f)
 bool Focus::is_triggered()
 {
 	return triggered;
+}
+
+bool Focus::is_triggered_release()
+{
+	return triggered_release;
 }
 

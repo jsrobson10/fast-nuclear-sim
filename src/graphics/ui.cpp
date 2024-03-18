@@ -6,11 +6,11 @@
 
 #include <glm/ext/matrix_transform.hpp>
 
-#include "mesh/mesh.hpp"
-#include "mesh/glmesh.hpp"
-#include "mesh/arrays.hpp"
-#include "mesh/font.hpp"
-#include "mesh/texture.hpp"
+#include "data/mesh.hpp"
+#include "data/glmesh.hpp"
+#include "data/arrays.hpp"
+#include "data/font.hpp"
+#include "data/texture.hpp"
 #include "resize.hpp"
 #include "shader.hpp"
 
@@ -18,18 +18,17 @@
 
 using namespace Sim::Graphics;
 
-static GLMesh gm_ui;
-static GLMesh gm_dynamic_slow[2];
-
+static Data::GLMesh gm_ui;
+static Data::GLMesh gm_dynamic_slow[2];
 static Widget::Clock w_clock;
 
 static int gm_dynamic_slow_at = 0;
 
 void UI::init()
 {
-	Mesh m;
+	Data::Mesh m;
 
-	unsigned int handle = Texture::handle_white;
+	unsigned int handle = Data::Texture::handle_white;
 	m.indices = {0, 1, 3, 0, 3, 2};
 	m.vertices = {
 		{.texid=handle, .texpos={0, 0}, .pos={-1, -1, 0}, .normal={0, 0, -1}, .colour={1, 1, 1, 1}, .material={0, 0, 1}},
@@ -51,9 +50,11 @@ void UI::update(double dt)
 
 void UI::update_slow()
 {
-	Mesh mesh;
+	Data::Mesh mesh;
 
 	w_clock.remesh_slow(mesh);
+
+	mesh.bake_transforms();
 
 	gm_dynamic_slow[gm_dynamic_slow_at].bind();
 	gm_dynamic_slow[gm_dynamic_slow_at].set(mesh, GL_DYNAMIC_DRAW);

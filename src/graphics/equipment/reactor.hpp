@@ -1,20 +1,20 @@
 
 #pragma once
 
-#include "../mesh/meshgen.hpp"
+#include "../data/meshgen.hpp"
 
 namespace Sim::Graphics::Equipment
 {
 
-class Reactor : public MeshGen
+class Reactor : public Data::MeshGen
 {
-	Mesh g_control_rod_lift, g_control_rod_base;
+	Data::Mesh g_control_rod_lift, g_control_rod_base;
 
 public:
 
-	Reactor(const Model& model);
-	virtual void get_static_transforms(std::vector<glm::mat4>& transforms);
-	virtual void remesh_static(Mesh& rmesh);
+	Reactor(const Data::Model& model);
+	void get_static_transforms(std::vector<glm::mat4>& transforms) override;
+	void remesh_static(Data::Mesh& rmesh) override;
 };
 
 };

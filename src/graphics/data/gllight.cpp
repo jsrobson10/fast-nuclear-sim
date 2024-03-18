@@ -10,7 +10,7 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 
-using namespace Sim::Graphics;
+using namespace Sim::Graphics::Data;
 
 static glm::mat4 shadow_mats[6];
 
@@ -64,10 +64,18 @@ void GLLight::render()
 	glm::mat4 camera_mat = glm::translate(glm::mat4(1), -light.pos);
 	glUniformMatrix4fv(Shader::LIGHT["camera"], 1, false, &camera_mat[0][0]);
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	glViewport(0, 0, size, size);
 	Window::render_scene();
+}
+
+void GLLight::render_player()
+{
+	glm::mat4 camera_mat = glm::translate(glm::mat4(1), -light.pos);
+	glUniformMatrix4fv(Shader::LIGHT["camera"], 1, false, &camera_mat[0][0]);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	glViewport(0, 0, size, size);
+	Window::render_player();
 }
 
 void GLLight::init()

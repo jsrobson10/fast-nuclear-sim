@@ -3,7 +3,7 @@
 
 #include <string>
 
-namespace Sim::Graphics::Texture
+namespace Sim::Graphics::Data::Texture
 {
 
 extern unsigned int handle_white;
