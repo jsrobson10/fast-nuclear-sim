@@ -28,8 +28,9 @@
 #include "monitor/cctv.hpp"
 #include "data/texture.hpp"
 #include "data/model.hpp"
-#include "data/gllight.hpp"
+#include "data/gllights.hpp"
 #include "data/meshgen.hpp"
+#include "data/material.hpp"
 #include "equipment/reactor.hpp"
 #include "equipment/generator.hpp"
 #include "equipment/pool.hpp"
@@ -37,6 +38,7 @@
 #include "../util/streams.hpp"
 #include "ui.hpp"
 
+using namespace Sim;
 using namespace Sim::Graphics;
 using namespace Sim::Graphics::Data;
 
@@ -44,8 +46,6 @@ constexpr int SSBO_TRANSFORMS_LEN = 2;
 
 static GLFWwindow* win;
 static bool win_should_close = false;
-static unsigned int ssbo_lights;
-static unsigned int ssbo_shadow_maps;
 static unsigned int ssbo_transforms[SSBO_TRANSFORMS_LEN];
 static unsigned int wait_at = 0;
 
@@ -59,7 +59,7 @@ static GLMesh gm_scene;
 static GLMesh gm_player;
 static GLMesh gm_dynamic_slow[2];
 
-static std::vector<GLLight> lights;
+static std::unique_ptr<GLLights> lights;
 static std::vector<MeshGen*> monitors;
 static std::vector<MeshGen*> equipment;
 
@@ -99,10 +99,6 @@ void remesh_static()
 	g_scene_transforms = std::move(mesh.transforms);
 
 	std::cout << "Total triangle count: " << mesh.indices.size() / 3 << "\n";
-}
-
-void render_shadow_map()
-{
 }
 
 void Window::create()
@@ -195,12 +191,6 @@ void Window::create()
 
 	Camera::init(model);
 
-	// send all the light data
-	glGenBuffers(1, &ssbo_lights);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_lights);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, model.lights.size() * sizeof(model.lights[0]), &model.lights[0], GL_STATIC_DRAW);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, ssbo_lights);
-
 	glUniform1i(Shader::MAIN["lights_count"], model.lights.size());
 
 	monitors.push_back(new Monitor::Core(model));
@@ -221,28 +211,14 @@ void Window::create()
 	// setup lighting and prerender shadows
 	Shader::LIGHT.use();
 	glUniform1f(Shader::LIGHT["far_plane"], 100.0f);
-	GLLight::init();
+	GLLights::init();
 	
-	std::vector<unsigned long> light_handles;
-	
-	for(int i = 0; i < model.lights.size(); i++)
-	{
-		GLLight light(model.lights[i]);
-		light.render();
-
-		light_handles.push_back(light.handle);
-		lights.push_back(std::move(light));
-	}
+	lights = std::make_unique<GLLights>(std::move(model.lights));
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, lights->ssbo);
 
 	Shader::MAIN.use();
 	glUniform1f(Shader::MAIN["far_plane"], 100.0f);
 	glUniform1i(Shader::MAIN["shadows_enabled"], 1);
-	
-	// send all the light shadow map handles
-	glGenBuffers(1, &ssbo_shadow_maps);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_shadow_maps);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, light_handles.size() * sizeof(light_handles[0]), &light_handles[0], GL_STATIC_DRAW);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, ssbo_shadow_maps);
 
 	// setup the transforms ssbos and their initial values
 	
@@ -344,31 +320,38 @@ void Window::render_player()
 	gm_player.render();
 }
 
+void Window::bind_scene_ssbo()
+{
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, ssbo_transforms[ssbo_transforms_at]);
+}
+
 void Window::render_scene()
 {
 	gm_scene.bind();
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, ssbo_transforms[ssbo_transforms_at]);
 	gm_scene.render();
-
-	gm_dynamic_slow[gm_dynamic_slow_at].bind();
-	gm_dynamic_slow[gm_dynamic_slow_at].render();
 	
 	Focus::render();
 }
 
+void Window::render_dynamic()
+{
+	gm_dynamic_slow[gm_dynamic_slow_at].bind();
+	gm_dynamic_slow[gm_dynamic_slow_at].render();
+}
+
 void Window::render()
 {
-	Shader::LIGHT.use();
-	for(auto& light : lights)
-	{
-		light.render();
-	}
+	glFrontFace(GL_CCW);
 
 	glm::vec<2, int> size = Resize::get_size();
 	glm::vec3 camera_pos = Camera::get_pos();
 	glm::mat4 mat_camera = Camera::get_matrix();
 
 	Shader::MAIN.use();
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, lights->texid);
+	glUniform1i(Shader::MAIN["shadow_maps"], 0);
 	
 	glm::vec3 brightness = glm::vec3(System::active->grid.get_light_intensity());
 	glm::mat4 mat_projection = glm::perspective(glm::radians(90.0f), Resize::get_aspect(), 0.01f, 100.f);
@@ -392,20 +375,23 @@ void Window::render()
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	glViewport(0, 0, size.x, size.y);
 
-	glFrontFace(GL_CCW);
-
+	bind_scene_ssbo();
 	render_scene();
+	render_dynamic();
 	monitor_cctv->render_screen();
 
 	brightness = glm::vec3(1);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glUniform3fv(Shader::MAIN["brightness"], 1, &brightness[0]);
-	glClear(GL_DEPTH_BUFFER_BIT);
 
 	UI::render();
 	Focus::render_ui();
 
 	glfwSwapBuffers(win);
+	
+	Shader::LIGHT.use();
+	glFrontFace(GL_CW);
+	lights->render();
 }
 
 bool Window::should_close()

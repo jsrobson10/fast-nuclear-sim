@@ -11,13 +11,14 @@
 
 #include "mesh.hpp"
 #include "arrays.hpp"
+#include "material.hpp"
 #include "font.hpp"
 
 using namespace Sim::Graphics::Data;
 
 struct Character
 {
-	unsigned long handle;
+	uint32_t handle;
 	float advance;
 	glm::vec2 size;
 	glm::vec2 bearing;
@@ -94,7 +95,6 @@ void Font::init()
 
 		c.handle = glGetTextureHandleARB(texids[i]);
 		glMakeTextureHandleResidentARB(c.handle);
-
 		chars[i] = c;
 	}
 
@@ -144,10 +144,10 @@ Mesh& Mesh::load_text(const char* text, double size)
 		float ex = sx + ch.size.x * size;
 		float ey = sy + ch.size.y * size;
 
-		vertices.push_back(Arrays::Vertex{.texid=ch.handle, .texpos={0, 0}, .pos={sx, sy, 0}, .normal={0, 0, -1}, .material={0, 0, 1}});
-		vertices.push_back(Arrays::Vertex{.texid=ch.handle, .texpos={0, 1}, .pos={sx, ey, 0}, .normal={0, 0, -1}, .material={0, 0, 1}});
-		vertices.push_back(Arrays::Vertex{.texid=ch.handle, .texpos={1, 0}, .pos={ex, sy, 0}, .normal={0, 0, -1}, .material={0, 0, 1}});
-		vertices.push_back(Arrays::Vertex{.texid=ch.handle, .texpos={1, 1}, .pos={ex, ey, 0}, .normal={0, 0, -1}, .material={0, 0, 1}});
+		vertices.push_back(Arrays::Vertex{.texpos={0, 0}, .pos={sx, sy, 0}, .tex_diffuse=ch.handle, .material={0, 0, 1}});
+		vertices.push_back(Arrays::Vertex{.texpos={0, 1}, .pos={sx, ey, 0}, .tex_diffuse=ch.handle, .material={0, 0, 1}});
+		vertices.push_back(Arrays::Vertex{.texpos={1, 0}, .pos={ex, sy, 0}, .tex_diffuse=ch.handle, .material={0, 0, 1}});
+		vertices.push_back(Arrays::Vertex{.texpos={1, 1}, .pos={ex, ey, 0}, .tex_diffuse=ch.handle, .material={0, 0, 1}});
 		indices.insert(indices.end(), &index[0], &index[6]);
 
 		at += 4;

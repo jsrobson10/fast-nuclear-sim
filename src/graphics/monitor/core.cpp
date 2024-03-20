@@ -146,10 +146,10 @@ static Data::Mesh add_dot(glm::mat4 model_mat, glm::vec4 colour)
 
 	mesh.indices = {0, 1, 3, 0, 3, 2};
 	mesh.vertices = {
-		{.texid=Texture::handle_white, .texpos={0, 0}, .pos=glm::vec3(model_mat * glm::vec4(-0.75, -0.75, 0, 1)), .normal={0, 0, -1}, .colour=colour, .material={0, 0, 1}}, 
-		{.texid=Texture::handle_white, .texpos={0, 1}, .pos=glm::vec3(model_mat * glm::vec4(-0.75,  0.75, 0, 1)), .normal={0, 0, -1}, .colour=colour, .material={0, 0, 1}}, 
-		{.texid=Texture::handle_white, .texpos={1, 0}, .pos=glm::vec3(model_mat * glm::vec4( 0.75, -0.75, 0, 1)), .normal={0, 0, -1}, .colour=colour, .material={0, 0, 1}}, 
-		{.texid=Texture::handle_white, .texpos={1, 1}, .pos=glm::vec3(model_mat * glm::vec4( 0.75,  0.75, 0, 1)), .normal={0, 0, -1}, .colour=colour, .material={0, 0, 1}}, 
+		{.texpos={0, 0}, .pos=glm::vec3(model_mat * glm::vec4(-0.75, -0.75, 0, 1)), .colour=colour, .material={0, 0, 1}}, 
+		{.texpos={0, 1}, .pos=glm::vec3(model_mat * glm::vec4(-0.75,  0.75, 0, 1)), .colour=colour, .material={0, 0, 1}}, 
+		{.texpos={1, 0}, .pos=glm::vec3(model_mat * glm::vec4( 0.75, -0.75, 0, 1)), .colour=colour, .material={0, 0, 1}}, 
+		{.texpos={1, 1}, .pos=glm::vec3(model_mat * glm::vec4( 0.75,  0.75, 0, 1)), .colour=colour, .material={0, 0, 1}}, 
 	};
 
 	return mesh;

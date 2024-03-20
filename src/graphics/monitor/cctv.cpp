@@ -12,6 +12,7 @@
 #include "../window.hpp"
 #include "../camera.hpp"
 #include "../input/focus.hpp"
+#include "../data/texture.hpp"
 #include "../../system.hpp"
 #include "../../util/math.hpp"
 #include "../../util/streams.hpp"
@@ -150,10 +151,10 @@ CCTV::CCTV(Model& model)
 	glMakeTextureHandleResidentARB(handle);
 
 	m_screen.vertices = {
-		{.texid=handle, .texpos={0, 1}, .pos={0, 0, 0}, .normal={0, 0, 1}, .material={0, 0, 1}, .transform_id=0},
-		{.texid=handle, .texpos={0, 0}, .pos={0, 1, 0}, .normal={0, 0, 1}, .material={0, 0, 1}, .transform_id=0},
-		{.texid=handle, .texpos={1, 1}, .pos={1, 0, 0}, .normal={0, 0, 1}, .material={0, 0, 1}, .transform_id=0},
-		{.texid=handle, .texpos={1, 0}, .pos={1, 1, 0}, .normal={0, 0, 1}, .material={0, 0, 1}, .transform_id=0},
+		{.texpos={0, 1}, .pos={0, 0, 0}, .transform_id=0, .tex_diffuse=handle, .material={0, 0, 1}},
+		{.texpos={0, 0}, .pos={0, 1, 0}, .transform_id=0, .tex_diffuse=handle, .material={0, 0, 1}},
+		{.texpos={1, 1}, .pos={1, 0, 0}, .transform_id=0, .tex_diffuse=handle, .material={0, 0, 1}},
+		{.texpos={1, 0}, .pos={1, 1, 0}, .transform_id=0, .tex_diffuse=handle, .material={0, 0, 1}},
 	};
 	m_screen.indices = {0, 1, 3, 0, 3, 2};
 	m_screen.transforms = {model.load_matrix("translation_monitor_1")};
@@ -250,7 +251,9 @@ void CCTV::render_view()
 	glUniformMatrix4fv(Shader::MAIN["camera"], 1, false, &view[0][0]);
 	glUniform3fv(Shader::MAIN["camera_pos"], 1, &active.pos[0]);
 
+	Window::bind_scene_ssbo();
 	Window::render_scene();
+	Window::render_dynamic();
 	Window::render_player();
 }
 

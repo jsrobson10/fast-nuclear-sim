@@ -4,6 +4,7 @@
 #include "mesh.hpp"
 #include "light.hpp"
 #include "camera.hpp"
+#include "material.hpp"
 
 #include <string>
 #include <vector>
@@ -26,7 +27,8 @@ class Model
 
 public:
 
-	std::vector<uint64_t> textures;
+	std::vector<uint32_t> textures;
+	std::vector<Material> materials;
 	std::vector<Camera> cameras;
 	std::vector<Light> lights;
 

@@ -5,12 +5,11 @@
 const float PI = 3.141592f;
 
 in VS_OUT {
-	vec3 normal;
-	vec4 colour;
+	mat3 tbn;
 	vec3 pos;
 	vec2 tex_pos;
-	vec3 material;
-	float ambient;
+	flat vec4 colour;
+	flat vec3 material;
 } vin;
 
 struct Light
@@ -19,17 +18,14 @@ struct Light
 	vec4 colour;
 };
 
-layout(std140, binding = 1) readonly buffer LightBuffer
+layout(std140, binding = 2) readonly buffer LightBuffer
 {
 	Light lights[];
 };
 
-layout(std430, binding = 2) readonly buffer ShadowMapBuffer
-{
-	samplerCube shadow_maps[];
-};
+in flat sampler2D frag_tex_diffuse;
+in flat sampler2D frag_tex_normal;
 
-in flat sampler2D frag_tex;
 out vec4 frag_colour;
 
 uniform vec3 brightness;
@@ -37,6 +33,8 @@ uniform vec3 camera_pos;
 uniform float far_plane;
 uniform bool shadows_enabled;
 uniform int lights_count;
+
+uniform samplerCubeArrayShadow shadow_maps;
 
 float Map(float v, float i_min, float i_max, float o_min, float o_max)
 {
@@ -109,21 +107,22 @@ vec3 sRGB_To_LinRGB(vec3 c)
 
 void main()
 {
-	vec4 albedo = texture2D(frag_tex, vin.tex_pos);
+	vec4 albedo = texture2D(frag_tex_diffuse, vin.tex_pos);
 	if(albedo.a == 0.f) discard;
 
+	vec3 tangent = texture2D(frag_tex_normal, vin.tex_pos).rgb * 2.f - 1.f;
 	vec3 albedo_lin = sRGB_To_LinRGB(albedo.rgb) * vin.colour.rgb;
 	albedo *= vin.colour;
-	
+
 	float roughness = vin.material[0];
 	float metalness = vin.material[1];
 	float luminance = min(vin.material[2], 1.f);
 
-	vec3 N = normalize(vin.normal);
+	vec3 N = normalize(vin.tbn * tangent);
 	vec3 V = normalize(camera_pos - vin.pos.xyz);
 
 	vec3 F0 = mix(vec3(0.04f), albedo_lin, metalness);
-	vec3 ambient = vec3(vin.ambient) * albedo_lin * brightness;
+	vec3 ambient = vec3(Map(dot(N, vec3(0.f, 0.f, 1.f)), -1.f, 1.f, 0.2f, 0.25f)) * albedo_lin * brightness;
 	vec3 Lo = vec3(0.f);
 
 	for(int i = 0; i < lights_count; i++)
@@ -135,8 +134,12 @@ void main()
 
 		if(shadows_enabled)
 		{
-			float max_d = texture(shadow_maps[i], -L).r * far_plane;
-			light_m = Ramp(d - max_d, 0.f, 2.5e-2f, 1.f, 0.f);
+			if(dot(vin.tbn[2], L) < 0.f)
+			{
+				continue;
+			}
+
+			light_m = texture(shadow_maps, vec4(-L, i), d / far_plane);
 		
 			if(light_m <= 0.f)
 			{

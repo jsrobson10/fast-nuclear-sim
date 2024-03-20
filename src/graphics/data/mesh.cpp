@@ -16,11 +16,21 @@ Mesh::Mesh()
 
 }
 
-Mesh& Mesh::set_texture_id(unsigned int id)
+Mesh& Mesh::set_diffuse_id(unsigned int id)
 {
 	for(unsigned int i = 0; i < vertices.size(); i++)
 	{
-		vertices[i].texid = id;
+		vertices[i].tex_diffuse = id;
+	}
+
+	return *this;
+}
+
+Mesh& Mesh::set_normal_id(unsigned int id)
+{
+	for(unsigned int i = 0; i < vertices.size(); i++)
+	{
+		vertices[i].tex_normal = id;
 	}
 
 	return *this;
@@ -50,12 +60,12 @@ Mesh& Mesh::add(const Mesh& o, glm::mat4 mat, bool bake)
 		for(int i = 0; i < o.vertices.size(); i++)
 		{
 			Arrays::Vertex v = o.vertices[i];
-			int t_id = (int)v.transform_id;
+			int t_id = v.transform_id;
 			glm::mat4 t_mat = t_id >= 0 ? transforms[t_id] : glm::mat4(1);
 			t_mat = mat * t_mat;
 			
 			v.pos = t_mat * glm::vec4(v.pos, 1);
-			v.normal = glm::normalize(glm::mat3(t_mat) * v.normal);
+			v.tbn = glm::mat3(t_mat) * v.tbn;
 			v.transform_id = -1;
 			vertices.push_back(v);
 		}
@@ -69,8 +79,8 @@ Mesh& Mesh::add(const Mesh& o, glm::mat4 mat, bool bake)
 	}
 
 	glm::mat3 mat3(mat);
-	float t_off = transforms.size();
-	float t_new = -1;
+	int t_off = transforms.size();
+	int t_new = -1;
 
 	if(mat != glm::mat4(1))
 	{
@@ -118,13 +128,13 @@ Mesh& Mesh::bake_transforms()
 {
 	for(unsigned int i = 0; i < vertices.size(); i++)
 	{
-		int id = (int)vertices[i].transform_id;
+		int id = vertices[i].transform_id;
 
 		if(id >= 0)
 		{
 			glm::mat4 transform = transforms[id];
 			vertices[i].pos = glm::vec3(transform * glm::vec4(vertices[i].pos, 1));
-			vertices[i].normal = glm::normalize(glm::mat3(transform) * vertices[i].normal);
+			vertices[i].tbn = glm::mat3(transform) * vertices[i].tbn;
 			vertices[i].transform_id = -1;
 		}
 	}
@@ -225,7 +235,7 @@ bool Mesh::check_intersect(vec3 pos, vec3 path) const
 
 		for(int j = 0; j < 3; j++)
 		{
-			int t_id = (int)verts[j].transform_id;
+			int t_id = verts[j].transform_id;
 			glm::mat4 t_mat = t_id >= 0 ? transforms[t_id] : glm::mat4(1);
 
 			v[j] = vec3(t_mat * glm::vec4(verts[j].pos, 1));
@@ -303,7 +313,7 @@ vec3 Mesh::calc_intersect(vec3 pos, vec3 path) const
 
 			for(int j = 0; j < 3; j++)
 			{
-				int t_id = (int)verts[j].transform_id;
+				int t_id = verts[j].transform_id;
 				glm::mat4 t_mat = t_id >= 0 ? transforms[t_id] : glm::mat4(1);
 
 				v[j] = vec3(t_mat * glm::vec4(verts[j].pos, 1));

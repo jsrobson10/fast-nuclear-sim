@@ -25,7 +25,6 @@ class CCTV : public Data::MeshGen
 	const int width;
 	const int height;
 
-
 public:
 	
 	std::vector<Data::Camera> cameras;

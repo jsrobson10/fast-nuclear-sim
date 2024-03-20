@@ -1,19 +1,21 @@
 
 #version 460 core
 
-layout (location = 2) in vec3 aPos;
-layout (location = 4) in vec4 aColour;
-layout (location = 5) in vec3 aMaterial;
-layout (location = 6) in float aTransformIndex;
+#define MAX_LIGHTS 6
+
+layout (location = 1) in vec3 aPos;
+layout (location = 2) in vec4 aColour;
+layout (location = 6) in int aTransformIndex;
 
 layout (binding = 3) readonly buffer TransformBuffer
 {
 	mat4 transforms[];
 };
 
-uniform mat4 camera;
-
 out flat int should_ignore;
+
+uniform vec3 light_pos;
+uniform int light_pass;
 
 mat4 load_model_mat(int index)
 {
@@ -23,10 +25,9 @@ mat4 load_model_mat(int index)
 void main()
 {
 	vec4 pos = vec4(aPos, 1.f);
-	mat4 model = load_model_mat(int(aTransformIndex));
-	mat4 mv = camera * model;
+	mat4 model = load_model_mat(aTransformIndex);
 
-	gl_Position = mv * pos;
-	should_ignore = int(aMaterial[2] > 0.f || aColour.a < 1.f);
+	gl_Position = model * pos - vec4(light_pos, 0.f);
+	should_ignore = int(aColour.a < 1.f);
 }
 

@@ -6,6 +6,7 @@
 
 #include <unordered_map>
 #include <iostream>
+#include <sstream>
 #include <vector>
 
 #include "mesh.hpp"
@@ -24,106 +25,17 @@ struct ProcState
 	std::vector<Arrays::Vertex> vertices;
 	std::vector<unsigned int> indices;
 	std::vector<glm::mat4> transforms;
-	std::unordered_map<const aiTexture*, unsigned int> handles;
+	const std::vector<Material>& materials;
 };
-
-static unsigned int proc_texture(const ProcState& state, aiMaterial* mat, const aiScene* scene, aiTextureType type, int index)
-{
-	aiString str;
-	mat->GetTexture(type, index, &str);
-
-	if(str.C_Str()[0] == '\0')
-	{
-		return 0;
-	}
-	
-	const aiTexture* tex = scene->GetEmbeddedTexture(str.C_Str());
-
-	if(tex != nullptr)
-	{
-		unsigned int handle = state.handles.find(tex)->second;
-		std::cout << "Using preloaded texture: " << tex->mFilename.C_Str() << "\n";
-		return handle;
-	}
-
-	std::string filename(str.C_Str());
-	std::replace(filename.begin(), filename.end(), '\\', '/');
-
-	return Texture::load(state.base + "/" + filename);
-}
 
 static void proc_mesh(ProcState& state, aiMesh* mesh, const aiScene* scene)
 {
-	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-	aiString name;
-
-	material->Get(AI_MATKEY_NAME, name);
-/*
-	std::cout << "Material " << name.C_Str() << " has " << material->mNumProperties << " properties\n";
-
-	for(int i = 0; i < material->mNumProperties; i++)
-	{
-		aiMaterialProperty* prop = material->mProperties[i];
-
-		std::cout << "  " << prop->mKey.C_Str() << ": type=" << prop->mType << " index=" << prop->mIndex << " length=" << prop->mDataLength;
-
-		if(prop->mType == 1)
-		{
-			float* v = (float*)prop->mData;
-
-			std::cout << " value=";
-
-			switch(prop->mDataLength)
-			{
-			case 4:
-				std::cout << v[0];
-				break;
-			case 8:
-				std::cout << "{" << v[0] << ", " << v[1] << "}";
-				break;
-			case 12:
-				std::cout << "{" << v[0] << ", " << v[1] << ", " << v[2] << "}";
-				break;
-			case 16:
-				std::cout << "{" << v[0] << ", " << v[1] << ", " << v[2] << ", " << v[3] << "}";
-				break;
-			default:
-				std::cout << "unknown";
-			}
-		}
-		
-		std::cout << "\n";
-	}*/
-
-	glm::vec3 matv(0);
-	aiColor4D ai_cb;
-	aiColor4D ai_em;
-
-	material->Get(AI_MATKEY_ROUGHNESS_FACTOR, matv[0]);
-	material->Get(AI_MATKEY_METALLIC_FACTOR, matv[1]);
-	material->Get(AI_MATKEY_EMISSIVE_INTENSITY, matv[2]);
-	material->Get(AI_MATKEY_COLOR_EMISSIVE, ai_em);
-	material->Get(AI_MATKEY_BASE_COLOR, ai_cb);
-
-	glm::vec4 cb = {ai_cb[0], ai_cb[1], ai_cb[2], ai_cb[3]};
-	glm::vec4 em = {ai_em[0], ai_em[1], ai_em[2], ai_em[3]};
-
-	if(em.x > 0 || em.y > 0 || em.z > 0)
-	{
-		cb = em;
-	}
-
-	unsigned int handle = proc_texture(state, material, scene, aiTextureType_BASE_COLOR, 0);
+	Material mat = state.materials[mesh->mMaterialIndex];
 	unsigned int offset = state.offset;
-
-	if(!handle)
+	
+	if(!mesh->HasNormals())
 	{
-		handle = proc_texture(state, material, scene, aiTextureType_DIFFUSE, 0);
-	}
-
-	if(!handle)
-	{
-		handle = Texture::handle_white;
+		throw std::runtime_error("Mesh has no normals");
 	}
 	
 	for(unsigned int i = 0; i < mesh->mNumVertices; i++)
@@ -131,30 +43,41 @@ static void proc_mesh(ProcState& state, aiMesh* mesh, const aiScene* scene)
 		Arrays::Vertex vertex;
 		
 		auto [x, y, z] = mesh->mVertices[i];
-		vertex.pos = glm::vec3(x, y, z);
 		vertex.transform_id = state.transforms.size();
-		vertex.material = matv;
-		vertex.texid = handle;
-		vertex.colour = cb;
-
-		if(mesh->HasNormals())
-		{
-			auto [x, y, z] = mesh->mNormals[i];
-			vertex.normal = glm::vec3(x, y, z);
-		}
+		vertex.pos = glm::vec3(x, y, z);
+		vertex.colour = mat.colour;
+		vertex.tex_diffuse = mat.diffuse;
+		vertex.tex_normal = mat.normal;
+		vertex.material = {mat.roughness, mat.metalness, mat.luminance};
 		
-		/*if(mesh->HasTangentsAndBitangents())
-		{
-			auto [x1, y1, z1] = mesh->mTangents[i];
-			auto [x2, y2, z2] = mesh->mBitangents[i];
-			vertex.tangent = {x1, y1, z1};
-			vertex.bitangent = {x2, y2, z2};
-		}*/
-
 		if(mesh->mTextureCoords[0])
 		{
 			auto [x, y, z] = mesh->mTextureCoords[0][i];
 			vertex.texpos = {x, y};
+		}
+		
+		if(mesh->HasTangentsAndBitangents())
+		{
+			auto [x1, y1, z1] = mesh->mTangents[i];
+			auto [x2, y2, z2] = mesh->mBitangents[i];
+			auto [x3, y3, z3] = mesh->mNormals[i];
+
+			vertex.tbn = {
+				{x1, y1, z1},
+				{x2, y2, z2},
+				{x3, y3, z3},
+			};
+		}
+
+		else
+		{
+			auto [x, y, z] = mesh->mNormals[i];
+
+			glm::vec3 normal = {x, y, z};
+			glm::vec3 tangent = glm::normalize(glm::cross(normal, {-y, z, x}));
+			glm::vec3 bitangent = glm::normalize(glm::cross(normal, tangent));
+
+			vertex.tbn = {tangent, bitangent, normal};
 		}
 
 		state.vertices.push_back(vertex);
@@ -223,7 +146,7 @@ static void proc_node(ProcState& state, glm::mat4 mat, aiNode* node, const aiSce
 	}
 }
 
-static unsigned int proc_embedded_texture(aiTexture* tex)
+static uint64_t proc_embedded_texture(aiTexture* tex)
 {
 	std::cout << "Loading embedded data: " << tex->mFilename.C_Str() << "\n";
 	
@@ -263,17 +186,40 @@ glm::mat4 Model::load_matrix(const char* name) const
 	return get_transforms(scene->mRootNode->FindNode(name));
 }
 
+static uint32_t proc_texture(
+		const std::string& path_base,
+		aiMaterial* mat,
+		const aiScene* scene,
+		aiTextureType type,
+		int index,
+		uint64_t handle_fail=0)
+{
+	aiString str;
+	mat->GetTexture(type, index, &str);
+
+	if(str.C_Str()[0] == '\0')
+	{
+		return handle_fail;
+	}
+	
+	std::string filename(str.C_Str());
+	std::replace(filename.begin(), filename.end(), '\\', '/');
+
+	return Texture::load(path_base + "/" + filename);
+}
+
 Model::Model(std::string base, std::string filename) : base(base)
 {
 	std::string path = base + "/" + filename;
-	scene = importer.ReadFile(path.c_str(), aiProcess_Triangulate | aiProcess_FlipUVs);
+	scene = importer.ReadFile(path.c_str(), aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 
 	textures.reserve(scene->mNumTextures);
+	materials.reserve(scene->mNumMaterials);
 
 	for(int i = 0; i < scene->mNumTextures; i++)
 	{
 		aiTexture* tex = scene->mTextures[i];
-		unsigned int handle = proc_embedded_texture(tex);
+		uint64_t handle = proc_embedded_texture(tex);
 		textures.push_back(handle);
 	}
 	
@@ -308,12 +254,54 @@ Model::Model(std::string base, std::string filename) : base(base)
 
 		cameras.push_back({.pos=glm::vec3(pos), .look=look, .up=up, .fov=camera->mHorizontalFOV});
 	}
+
+	for(int i = 0; i < scene->mNumMaterials; i++)
+	{
+		aiMaterial* ai_mat = scene->mMaterials[i];
+
+		glm::vec3 matv(0);
+		aiColor4D ai_cb;
+		aiColor4D ai_em;
+	
+		ai_mat->Get(AI_MATKEY_COLOR_EMISSIVE, ai_em);
+		ai_mat->Get(AI_MATKEY_BASE_COLOR, ai_cb);
+
+		glm::vec4 cb = {ai_cb[0], ai_cb[1], ai_cb[2], ai_cb[3]};
+		glm::vec4 em = {ai_em[0], ai_em[1], ai_em[2], ai_em[3]};
+
+		if(em.x > 0 || em.y > 0 || em.z > 0)
+		{
+			cb = em;
+		}
+
+		ai_mat->Get(AI_MATKEY_ROUGHNESS_FACTOR, matv[0]);
+		ai_mat->Get(AI_MATKEY_METALLIC_FACTOR, matv[1]);
+		ai_mat->Get(AI_MATKEY_EMISSIVE_INTENSITY, matv[2]);
+
+		uint32_t handle_diffuse = proc_texture(base, ai_mat, scene, aiTextureType_BASE_COLOR, 0, Texture::handle_white);
+		uint32_t handle_normal = proc_texture(base, ai_mat, scene, aiTextureType_NORMALS, 0, Texture::handle_normal);
+
+		Material mat = {
+			.diffuse = handle_diffuse,
+			.normal = handle_normal,
+			.colour = cb,
+			.roughness = matv[0],
+			.metalness = matv[1],
+			.luminance = matv[2],
+		};
+
+		materials.push_back(mat);
+	}
 }
 
 Mesh Model::load(const char* name, glm::mat4 mat) const
 {
 	Mesh mesh;
-	ProcState state {.base = base};
+	ProcState state {
+		.base = base,
+		.materials = materials,
+	};
+
 	proc_node(state, mat, scene->mRootNode, scene, name);
 
 	mesh.vertices = std::move(state.vertices);

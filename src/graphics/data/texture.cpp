@@ -10,23 +10,28 @@
 
 using namespace Sim::Graphics::Data;
 
-static std::unordered_map<std::string, unsigned int> loaded; 
-unsigned int Texture::handle_white;
+static std::unordered_map<std::string, uint64_t> loaded;
+uint64_t Texture::handle_white;
+uint64_t Texture::handle_normal;
 
 void Texture::init()
 {
-	unsigned char pixels[] = {255, 255, 255, 255};
-	handle_white = load_mem(pixels, 1, 1, 4);
+	unsigned char pixels_white[] = {255, 255, 255};
+	unsigned char pixels_normal[] = {128, 128, 255};
+	handle_white = load_mem(pixels_white, 1, 1, 3);
+	handle_normal = load_mem(pixels_normal, 1, 1, 3);
 }
 
-unsigned int Texture::load_mem(const unsigned char* data, int width, int height, int channels)
+uint64_t Texture::load_mem(const void* data, int width, int height, int channels)
 {
 	if(!data)
 	{
 		return 0;
 	}
 
-	GLenum format, format_in;
+	GLenum format;
+	GLenum format_in;
+
 	switch(channels)
 	{
 	case 1:
@@ -45,8 +50,10 @@ unsigned int Texture::load_mem(const unsigned char* data, int width, int height,
 		format = GL_RGBA;
 		format_in = GL_RGBA8;
 		break;
+	default:
+		throw std::runtime_error("Invalid number of channels: " + std::to_string(channels));
 	}
-	
+
 	unsigned int texid;
 
 	glCreateTextures(GL_TEXTURE_2D, 1, &texid);
@@ -59,21 +66,21 @@ unsigned int Texture::load_mem(const unsigned char* data, int width, int height,
 	glTextureParameteri(texid, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glGenerateTextureMipmap(texid);
 
-	unsigned int handle = glGetTextureHandleARB(texid);
+	uint64_t handle = glGetTextureHandleARB(texid);
 	glMakeTextureHandleResidentARB(handle);
 	return handle;
 }
 
-unsigned int Texture::load_mem(const unsigned char* filedata, size_t len)
+uint64_t Texture::load_mem(const unsigned char* filedata, size_t len)
 {
 	int width, height, channels;
 	unsigned char* data = stbi_load_from_memory(filedata, len, &width, &height, &channels, 0);
-	unsigned int handle = load_mem(data, width, height, channels);
+	uint64_t handle = load_mem(data, width, height, channels);
 	stbi_image_free(data);
 	return handle;
 }
 
-unsigned int Texture::load(std::string path)
+uint64_t Texture::load(std::string path)
 {
 	const auto it = loaded.find(path);
 
@@ -84,7 +91,7 @@ unsigned int Texture::load(std::string path)
 
 	int width, height, channels;
 	unsigned char* data = stbi_load(path.c_str(), &width, &height, &channels, 0);
-	unsigned int handle = load_mem(data, width, height, channels);
+	uint64_t handle = load_mem(data, width, height, channels);
 	stbi_image_free(data);
 
 	if(handle == 0)

@@ -26,7 +26,8 @@ struct Mesh
 
 	Mesh& bake_transforms();
 	Mesh& set_blank_transform();
-	Mesh& set_texture_id(unsigned int id);
+	Mesh& set_normal_id(unsigned int id);
+	Mesh& set_diffuse_id(unsigned int id);
 	Mesh& load_text(const char* text, double size);
 	Mesh& load_text(const char* text, double size, glm::vec2 align);
 	Mesh& add(const Mesh& o, glm::mat4 mat = glm::mat4(1), bool bake = false);

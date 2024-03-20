@@ -10,12 +10,14 @@
 namespace Sim::Reactor
 {
 
+struct Reactor;
+
 class Rod
 {
 public:
 	
 	bool selected = false;
-	void* reactor = nullptr;
+	Reactor* reactor = nullptr;
 	static const int VAL_N = 3;
 	
 	enum val_t
