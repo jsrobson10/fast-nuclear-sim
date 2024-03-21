@@ -22,7 +22,6 @@ class CCTV : public Data::MeshGen
 	unsigned int fbo;
 	unsigned int texture;
 	unsigned int rbo_depth;
-	unsigned int handle;
 
 	const int width;
 	const int height;

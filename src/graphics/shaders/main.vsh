@@ -31,8 +31,11 @@ out flat uint frag_tex_normal;
 
 #endif
 
-uniform mat4 camera;
-uniform mat4 projection;
+layout (binding = 6) readonly buffer StateBuffer
+{
+	mat4 camera;
+	mat4 projection;
+};
 
 layout (std430, binding = 3) readonly buffer TransformBuffer
 {

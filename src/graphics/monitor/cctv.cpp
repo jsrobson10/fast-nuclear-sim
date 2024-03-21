@@ -17,6 +17,7 @@
 #include "../../system.hpp"
 #include "../../util/math.hpp"
 #include "../../util/streams.hpp"
+#include "../statebuffer.hpp"
 
 #define HEIGHT 512
 
@@ -148,15 +149,12 @@ CCTV::CCTV(Model& model)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
 
-	handle = glGetTextureHandleARB(texture);
-	glMakeTextureHandleResidentARB(handle);
-
 	mat = model.load_matrix("translation_monitor_1");
 	m_screen.vertices = {
-		{.texpos={0, 1}, .pos={0, 0, 0}, .transform_id=0, .tex_diffuse=handle, .material={0, 0, 1}},
-		{.texpos={0, 0}, .pos={0, 1, 0}, .transform_id=0, .tex_diffuse=handle, .material={0, 0, 1}},
-		{.texpos={1, 1}, .pos={1, 0, 0}, .transform_id=0, .tex_diffuse=handle, .material={0, 0, 1}},
-		{.texpos={1, 0}, .pos={1, 1, 0}, .transform_id=0, .tex_diffuse=handle, .material={0, 0, 1}},
+		{.texpos={0, 1}, .pos={0, 0, 0}, .transform_id=0, .material={0, 0, 1}},
+		{.texpos={0, 0}, .pos={0, 1, 0}, .transform_id=0, .material={0, 0, 1}},
+		{.texpos={1, 1}, .pos={1, 0, 0}, .transform_id=0, .material={0, 0, 1}},
+		{.texpos={1, 0}, .pos={1, 1, 0}, .transform_id=0, .material={0, 0, 1}},
 	};
 	m_screen.indices = {0, 1, 3, 0, 3, 2};
 	m_screen.transforms = {mat};
@@ -164,6 +162,10 @@ CCTV::CCTV(Model& model)
 
 	gm_screen.bind();
 	gm_screen.set(m_screen, GL_STATIC_DRAW);
+
+	Shader::CCTV.use();
+	glUniform1i(Shader::CCTV["screen"], 0);
+	Shader::MAIN.use();
 }
 
 CCTV::~CCTV()
@@ -185,12 +187,10 @@ CCTV::CCTV(CCTV&& o)
 	fbo = o.fbo;
 	texture = o.texture;
 	rbo_depth = o.rbo_depth;
-	handle = o.handle;
 
 	o.fbo = 0;
 	o.texture = 0;
 	o.rbo_depth = 0;
-	o.handle = 0;
 }
 
 void CCTV::rotate(double dt, float pitch, float yaw)
@@ -286,9 +286,8 @@ void CCTV::render_view()
 	glViewport(0, 0, width, height);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glFrontFace(GL_CCW);
-	
-	glUniformMatrix4fv(Shader::MAIN["projection"], 1, false, &proj[0][0]);
-	glUniformMatrix4fv(Shader::MAIN["camera"], 1, false, &view[0][0]);
+
+	StateBuffer::set({view, proj});
 	glUniform3fv(Shader::MAIN["camera_pos"], 1, &active.pos[0]);
 
 	Window::bind_scene_ssbo();
@@ -302,12 +301,14 @@ void CCTV::render_screen()
 	if(!powered)
 		return;
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	Shader::CCTV.use();
+	glBindTexture(GL_TEXTURE_2D, texture);
 	glBlendFunc(GL_SRC_COLOR, GL_ONE);
 
 	gm_screen.bind();
 	gm_screen.render();
 	
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	Shader::MAIN.use();
 }
 

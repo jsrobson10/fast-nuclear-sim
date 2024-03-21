@@ -101,13 +101,12 @@ Mesh Font::load_text(const std::string& text, float size) const
 	unsigned int at = 0;
 	float t0 = 0;
 	float t1 = 1;
-/*
+
 	if(!Shader::USE_BINDLESS_TEXTURES)
 	{
 		t0 += texel_size / 2;
 		t1 -= texel_size / 2;
-	}*/
-
+	}
 
 	for(unsigned int i = 0; i < text.size(); i++)
 	{

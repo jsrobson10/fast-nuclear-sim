@@ -15,3 +15,8 @@ const char* ShaderSource::MAIN_VSH =
 const char* ShaderSource::MAIN_FSH =
 #include "shaders/main.fsh"
 
+const char* ShaderSource::CCTV_VSH =
+#include "shaders/cctv.vsh"
+const char* ShaderSource::CCTV_FSH =
+#include "shaders/cctv.fsh"
+

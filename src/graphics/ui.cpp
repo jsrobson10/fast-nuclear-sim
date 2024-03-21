@@ -11,6 +11,7 @@
 #include "data/arrays.hpp"
 #include "data/font.hpp"
 #include "data/texture.hpp"
+#include "statebuffer.hpp"
 #include "resize.hpp"
 #include "shader.hpp"
 
@@ -63,9 +64,8 @@ void UI::render()
 	
 	glm::mat4 mat_projection = glm::mat4(1);
 	glm::mat4 mat_camera = glm::scale(glm::mat4(1), glm::vec3(1.0f / wsize * glm::vec2(1, -1), -1));
-	glUniformMatrix4fv(Shader::MAIN["projection"], 1, false, &mat_projection[0][0]);
-	glUniformMatrix4fv(Shader::MAIN["camera"], 1, false, &mat_camera[0][0]);
-	
+	StateBuffer::set({mat_camera, mat_projection});
+
 	gm_dynamic_slow[gm_dynamic_slow_at].bind();
 	gm_dynamic_slow[gm_dynamic_slow_at].render();
 }

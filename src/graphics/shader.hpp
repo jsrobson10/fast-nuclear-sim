@@ -31,6 +31,7 @@ public:
 	
 	static Shader MAIN;
 	static Shader LIGHT;
+	static Shader CCTV;
 
 	static Shader* ACTIVE;
 

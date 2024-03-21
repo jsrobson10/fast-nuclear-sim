@@ -15,6 +15,8 @@ using namespace Sim::Graphics;
 
 Shader Shader::MAIN;
 Shader Shader::LIGHT;
+Shader Shader::CCTV;
+
 Shader* Shader::ACTIVE;
 
 bool Shader::USE_BINDLESS_TEXTURES = false;
@@ -39,8 +41,14 @@ void Shader::init()
 		{ShaderSource::LIGHT_FSH, "light.fsh", GL_FRAGMENT_SHADER}
 	};
 
+	Shader::Source sources_cctv[] = {
+		{ShaderSource::CCTV_VSH, "cctv.vsh", GL_VERTEX_SHADER},
+		{ShaderSource::CCTV_FSH, "cctv.fsh", GL_FRAGMENT_SHADER}
+	};
+
 	Shader::MAIN.load(sources_main, "main", 2);
 	Shader::LIGHT.load(sources_light, "light", 3);
+	Shader::CCTV.load(sources_cctv, "cctv", 2);
 }
 
 std::string apply_shader_compiler_flags(const char* source)
@@ -131,8 +139,11 @@ void Shader::load(const Source* sources, const char* name, int count)
 
 void Shader::use()
 {
-	glUseProgram(prog_id);
-	ACTIVE = this;
+	if(ACTIVE != this)
+	{
+		glUseProgram(prog_id);
+		ACTIVE = this;
+	}
 }
 
 void Shader::block_binding(const char* name, unsigned int binding)

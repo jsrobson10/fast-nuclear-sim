@@ -36,6 +36,7 @@
 #include "equipment/pool.hpp"
 #include "../system.hpp"
 #include "../util/streams.hpp"
+#include "statebuffer.hpp"
 #include "ui.hpp"
 
 using namespace Sim;
@@ -137,7 +138,7 @@ void Window::create()
 
 	else
 	{
-		std::cout << "Warning: Bindless textures are not supported. Using texture atlas instead.\n";
+		std::cout << "Info: Bindless textures are not supported. Using texture atlas instead.\n";
 	}
 
 	glEnable(GL_MULTISAMPLE);
@@ -229,6 +230,8 @@ void Window::create()
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_transforms[i]);
 		glBufferData(GL_SHADER_STORAGE_BUFFER, transforms.size() * sizeof(transforms[0]), &transforms[0], GL_DYNAMIC_DRAW);
 	}
+
+	StateBuffer::init();
 }
 
 void update_slow()
@@ -354,9 +357,8 @@ void Window::render()
 	
 	monitor_cctv->render_view();
 
-	glUniformMatrix4fv(Shader::MAIN["camera"], 1, false, &mat_camera[0][0]);
+	StateBuffer::set({mat_camera, mat_projection});
 	glUniform3fv(Shader::MAIN["camera_pos"], 1, &camera_pos[0]);
-	glUniformMatrix4fv(Shader::MAIN["projection"], 1, false, &mat_projection[0][0]);
 	projection_matrix = mat_projection;
 	
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
