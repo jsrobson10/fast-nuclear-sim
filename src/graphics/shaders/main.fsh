@@ -1,6 +1,8 @@
+R"GLSL(
 
-#version 460 core
+#ifdef USE_BINDLESS_TEXTURES
 #extension GL_ARB_bindless_texture : require
+#endif
 
 const float PI = 3.141592f;
 
@@ -23,8 +25,39 @@ layout(std140, binding = 2) readonly buffer LightBuffer
 	Light lights[];
 };
 
+#ifdef USE_BINDLESS_TEXTURES
+
 in flat sampler2D frag_tex_diffuse;
 in flat sampler2D frag_tex_normal;
+
+#define ReadTexture(tex, uv) texture(tex, uv)
+
+#else
+
+in flat uint frag_tex_diffuse;
+in flat uint frag_tex_normal;
+
+uniform sampler2D tex_atlas;
+
+struct AtlasPart
+{
+	vec2 uv_min;
+	vec2 uv_max;
+};
+
+layout(std140, binding = 5) readonly buffer AtlasBuffer
+{
+	AtlasPart atlas[];
+};
+
+vec4 ReadTexture(uint tex, vec2 uv)
+{
+	AtlasPart a = atlas[tex];
+	uv = mod(uv, 1.f) * (a.uv_max - a.uv_min) + a.uv_min;
+	return texture(tex_atlas, uv);
+}
+
+#endif
 
 out vec4 frag_colour;
 
@@ -107,10 +140,10 @@ vec3 sRGB_To_LinRGB(vec3 c)
 
 void main()
 {
-	vec4 albedo = texture2D(frag_tex_diffuse, vin.tex_pos);
+	vec4 albedo = ReadTexture(frag_tex_diffuse, vin.tex_pos);
 	if(albedo.a == 0.f) discard;
 
-	vec3 tangent = texture2D(frag_tex_normal, vin.tex_pos).rgb * 2.f - 1.f;
+	vec3 tangent = ReadTexture(frag_tex_normal, vin.tex_pos).rgb * 2.f - 1.f;
 	vec3 albedo_lin = sRGB_To_LinRGB(albedo.rgb) * vin.colour.rgb;
 	albedo *= vin.colour;
 
@@ -180,3 +213,4 @@ void main()
 	frag_colour = vec4(light, albedo.a);
 }
 
+)GLSL";

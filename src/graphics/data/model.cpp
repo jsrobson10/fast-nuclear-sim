@@ -252,7 +252,13 @@ Model::Model(std::string base, std::string filename) : base(base)
 		glm::vec3 look = glm::normalize(glm::mat3(mat) * glm::vec3(dx, dy, dz));
 		glm::vec3 up = glm::normalize(glm::mat3(mat) * glm::vec3(ux, uy, uz));
 
-		cameras.push_back({.pos=glm::vec3(pos), .look=look, .up=up, .fov=camera->mHorizontalFOV});
+		cameras.push_back(Camera {
+			.name={camera->mName.C_Str()},
+			.pos=glm::vec3(pos),
+			.look=look,
+			.up=up,
+			.fov=camera->mHorizontalFOV
+		});
 	}
 
 	for(int i = 0; i < scene->mNumMaterials; i++)

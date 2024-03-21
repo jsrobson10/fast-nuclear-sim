@@ -4,6 +4,7 @@
 #include <GL/glew.h>
 
 #include <unordered_map>
+#include <string>
 
 namespace Sim::Graphics
 {
@@ -22,7 +23,7 @@ public:
 	{
 		unsigned int id;
 
-		Source(const char* path, GLenum type);
+		Source(const char* data, const char* name, GLenum type);
 		Source(const Source& o) = delete;
 		Source(Source&& o);
 		~Source();
@@ -33,12 +34,17 @@ public:
 
 	static Shader* ACTIVE;
 
+	static bool USE_BINDLESS_TEXTURES;
+
 	Shader();
 	Shader(const Shader& o) = delete;
 	Shader(Shader&& o);
 	~Shader();
 
-	void load(const Source* sources, int count);
+	static void add_define(const std::string& flag);
+	static void init();
+
+	void load(const Source* sources, const char* name, int count);
 	void block_binding(const char* name, unsigned int index);
 	void use();
 

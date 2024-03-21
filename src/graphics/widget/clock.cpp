@@ -27,7 +27,6 @@ void Clock::update(double dt)
 
 void Clock::remesh_slow(Mesh& rmesh)
 {
-	Mesh m;
 	double at = System::active->clock;
 	glm::vec2 wsize(Resize::get_size() / 2);
 	std::stringstream ss;
@@ -42,7 +41,7 @@ void Clock::remesh_slow(Mesh& rmesh)
 	ss << std::setfill('0') << std::setw(2) << t_s << "\n";
 	ss << "Day: " << std::floor(at / (3600 * 24)) << "\n";
 
-	m.load_text(ss.str().c_str(), 20);
+	Mesh m = Fonts::BASE.load_text(ss.str(), 20);
 	rmesh.add(m, glm::translate(glm::mat4(1), glm::vec3(-wsize + glm::vec2(2, 2), 0)));
 }
 

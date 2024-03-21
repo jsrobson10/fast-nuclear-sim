@@ -8,6 +8,7 @@
 #include "../data/texture.hpp"
 #include "../../system.hpp"
 #include "../../util/streams.hpp"
+#include "../data/font.hpp"
 
 #include <glm/ext/matrix_transform.hpp>
 
@@ -66,7 +67,7 @@ struct CoreMonitor : public Focus::FocusType
 			sys.reactor.move_cursor(-1);
 			break;
 		case GLFW_KEY_KP_5:
-			sys.reactor.toggle_selected();
+			sys.reactor.move_cursor(sys.reactor.height);
 			break;
 		case GLFW_KEY_KP_6:
 			sys.reactor.move_cursor(1);
@@ -75,7 +76,7 @@ struct CoreMonitor : public Focus::FocusType
 			sys.reactor.reset_rod_speed();
 			break;
 		case GLFW_KEY_KP_2:
-			sys.reactor.move_cursor(sys.reactor.height);
+			sys.reactor.toggle_selected();
 			break;
 		default:
 			return;
@@ -135,9 +136,7 @@ Core::Core(const Model& model)
 
 void Core::remesh_static(Mesh& rmesh)
 {
-	Data::Mesh mesh;
-	mesh.load_text("Reactor Core", 0.04);
-	rmesh.add(mesh, mat, true);
+	rmesh.add(Data::Fonts::BASE.load_text("Reactor Core", 0.04), mat, true);
 }
 
 static Data::Mesh add_dot(glm::mat4 model_mat, glm::vec4 colour)
@@ -174,13 +173,13 @@ void Core::update(double dt)
 	if(m_buttons[3].check_focus())
 		sys.reactor.move_cursor(-1);
 	if(m_buttons[4].check_focus())
-		sys.reactor.toggle_selected();
+		sys.reactor.move_cursor(sys.reactor.height);
 	if(m_buttons[5].check_focus())
 		sys.reactor.move_cursor(1);
 	if(m_buttons[6].check_focus())
 		sys.reactor.reset_rod_speed();
 	if(m_buttons[7].check_focus())
-		sys.reactor.move_cursor(sys.reactor.height);
+		sys.reactor.toggle_selected();
 }
 
 void Core::remesh_slow(Mesh& rmesh)

@@ -7,6 +7,7 @@
 #include "../../coolant/valve.hpp"
 #include "../input/focus.hpp"
 #include "../../util/streams.hpp"
+#include "../data/font.hpp"
 
 #include <glm/ext/matrix_transform.hpp>
 #include <iostream>
@@ -42,7 +43,6 @@ void SecondaryLoop::update(double dt)
 void SecondaryLoop::remesh_static(Mesh& rmesh)
 {
 	std::stringstream ss;
-	Data::Mesh mesh;
 
 	ss << "Cooling Tower\n\n";
 	ss << "Heat\nSteam\nPressure\nLevel\n\n";
@@ -51,8 +51,7 @@ void SecondaryLoop::remesh_static(Mesh& rmesh)
 	ss << "Freight Pump\n\n";
 	ss << "Power\nSpeed\nFlow\n\n";
 
-	mesh.load_text(ss.str().c_str(), 0.04);
-	rmesh.add(mesh, mat, true);
+	rmesh.add(Data::Fonts::BASE.load_text(ss.str(), 0.04), mat, true);
 	rmesh.add(g_switch_2);
 	rmesh.add(g_switch_3);
 }
@@ -60,7 +59,6 @@ void SecondaryLoop::remesh_static(Mesh& rmesh)
 void SecondaryLoop::remesh_slow(Mesh& rmesh)
 {
 	std::stringstream ss;
-	Sim::Graphics::Data::Mesh mesh;
 	System& sys = *System::active;
 
 	ss << "\n\n";
@@ -77,7 +75,7 @@ void SecondaryLoop::remesh_slow(Mesh& rmesh)
 	ss << show( sys.freight_pump.get_rpm() ) << " r/min\n";
 	show_units( ss, sys.freight_pump.get_flow_mass() ) << "g/s\n";
 
-	mesh.load_text(ss.str().c_str(), 0.04);
+	Mesh mesh = Data::Fonts::BASE.load_text(ss.str().c_str(), 0.04);
 	rmesh.add(mesh, glm::translate(mat, glm::vec3(0.5, 0, 0)));
 }
 

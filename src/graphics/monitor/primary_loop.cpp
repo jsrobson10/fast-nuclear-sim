@@ -7,6 +7,7 @@
 #include "../../coolant/valve.hpp"
 #include "../input/focus.hpp"
 #include "../../util/streams.hpp"
+#include "../data/font.hpp"
 
 #include <glm/ext/matrix_transform.hpp>
 #include <iostream>
@@ -67,7 +68,6 @@ PrimaryLoop::PrimaryLoop(const Model& model)
 void PrimaryLoop::remesh_static(Mesh& rmesh)
 {
 	std::stringstream ss;
-	Data::Mesh mesh;
 
 	ss << "Turbine Bypass Valve\n\n";
 	ss << "Opened\nFlow\nSetpoint\n\n";
@@ -81,8 +81,7 @@ void PrimaryLoop::remesh_static(Mesh& rmesh)
 	ss << "Pressure\n";
 	ss << "Level\n";
 
-	mesh.load_text(ss.str().c_str(), 0.04);
-	rmesh.add(mesh, mat, true);
+	rmesh.add(Data::Fonts::BASE.load_text(ss.str(), 0.04), mat, true);
 
 	rmesh.add(g_switch_pump);
 	rmesh.add(g_switch_bypass);
@@ -108,7 +107,6 @@ void PrimaryLoop::update(double dt)
 void PrimaryLoop::remesh_slow(Mesh& rmesh)
 {
 	std::stringstream ss;
-	Sim::Graphics::Data::Mesh mesh;
 	System& sys = *System::active;
 
 	ss << "\n\n";
@@ -149,7 +147,7 @@ void PrimaryLoop::remesh_slow(Mesh& rmesh)
 	show_units( ss, sys.loop.condenser.get_pressure() ) << "Pa\n";
 	ss << show( sys.loop.condenser.get_level() / 1000 ) << " / " << show( sys.loop.condenser.get_volume() / 1000 ) << " kL\n";
 
-	mesh.load_text(ss.str().c_str(), 0.04);
+	Mesh mesh = Data::Fonts::BASE.load_text(ss.str(), 0.04);
 	rmesh.add(mesh, glm::translate(mat, glm::vec3(0.5, 0, 0)));
 }
 

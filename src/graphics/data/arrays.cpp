@@ -38,18 +38,19 @@ void Arrays::vertex_attrib_pointers()
 
 	glVertexAttribPointer(5, 3, GL_FLOAT, true, sizeof(v), ptr_diff(&v.tbn[2], &v));
 	glEnableVertexAttribArray(5);
-
-	glVertexAttribIPointer(6, 1, GL_INT, sizeof(v), ptr_diff(&v.transform_id, &v));
+	
+	glVertexAttribPointer(6, 3, GL_FLOAT, false, sizeof(v), ptr_diff(&v.material, &v));
 	glEnableVertexAttribArray(6);
 
-	glVertexAttribIPointer(7, 1, GL_UNSIGNED_INT, sizeof(v), ptr_diff(&v.tex_diffuse, &v));
+	glVertexAttribIPointer(7, 1, GL_INT, sizeof(v), ptr_diff(&v.transform_id, &v));
 	glEnableVertexAttribArray(7);
 
-	glVertexAttribIPointer(8, 1, GL_UNSIGNED_INT, sizeof(v), ptr_diff(&v.tex_normal, &v));
+	glVertexAttribIPointer(8, 1, GL_UNSIGNED_INT, sizeof(v), ptr_diff(&v.tex_diffuse, &v));
 	glEnableVertexAttribArray(8);
 
-	glVertexAttribPointer(9, 3, GL_FLOAT, false, sizeof(v), ptr_diff(&v.material, &v));
+	glVertexAttribIPointer(9, 1, GL_UNSIGNED_INT, sizeof(v), ptr_diff(&v.tex_normal, &v));
 	glEnableVertexAttribArray(9);
+
 }
 
 std::ostream& Arrays::operator<<(std::ostream& os, const Vertex& v)

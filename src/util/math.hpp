@@ -48,5 +48,11 @@ constexpr A mod(A a, auto b)
 	return v;
 }
 
+template <typename A>
+constexpr A ramp(A v, auto imin, auto imax, auto omin, auto omax)
+{
+	return clamp(map(v, imin, imax, omin, omax), omin, omax);
+}
+
 };
 

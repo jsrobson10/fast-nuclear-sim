@@ -28,8 +28,6 @@ struct Mesh
 	Mesh& set_blank_transform();
 	Mesh& set_normal_id(unsigned int id);
 	Mesh& set_diffuse_id(unsigned int id);
-	Mesh& load_text(const char* text, double size);
-	Mesh& load_text(const char* text, double size, glm::vec2 align);
 	Mesh& add(const Mesh& o, glm::mat4 mat = glm::mat4(1), bool bake = false);
 
 	Mesh to_lines() const;
@@ -39,14 +37,6 @@ struct Mesh
 	glm::vec<3, double> calc_intersect(glm::vec<3, double> pos, glm::vec<3, double> path) const;
 
 	bool operator==(const Mesh&) const = default;
-
-	template <class T>
-	void load_text(const char* header, T& item, double size)
-	{
-		std::stringstream ss;
-		ss << header << item;
-		load_text(ss.str().c_str(), size);
-	}
 
 	friend std::ostream& operator<<(std::ostream& os, const Mesh& m);
 };

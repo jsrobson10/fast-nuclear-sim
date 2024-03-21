@@ -13,6 +13,7 @@
 #include "../camera.hpp"
 #include "../input/focus.hpp"
 #include "../data/texture.hpp"
+#include "../data/font.hpp"
 #include "../../system.hpp"
 #include "../../util/math.hpp"
 #include "../../util/streams.hpp"
@@ -49,7 +50,7 @@ public:
 		if(zoom)
 		{
 			Data::Camera& active = parent->cameras[parent->camera_at];
-			active.zoom = Util::Math::clamp(1.f / (1.f / active.zoom - zoom * dt * 0.5f), 1.f, 4.f);
+			active.zoom = Util::Math::clamp(active.zoom - zoom * dt * 0.5f, 0.25, 1);
 		}
 	}
 
@@ -63,7 +64,7 @@ public:
 				parent->camera_at = (parent->camera_at + parent->cameras.size() - 1) % parent->cameras.size();
 				break;
 			case GLFW_KEY_KP_2:
-				rot_pitch -= 1;
+				parent->powered = !parent->powered;
 				break;
 			case GLFW_KEY_KP_3:
 				parent->camera_at = (parent->camera_at + 1) % parent->cameras.size();
@@ -72,7 +73,7 @@ public:
 				rot_yaw += 1;
 				break;
 			case GLFW_KEY_KP_5:
-				parent->powered = !parent->powered;
+				rot_pitch -= 1;
 				break;
 			case GLFW_KEY_KP_6:
 				rot_yaw -= 1;
@@ -93,11 +94,11 @@ public:
 		{
 			switch(key)
 			{
-			case GLFW_KEY_KP_2:
-				rot_pitch += 1;
-				break;
 			case GLFW_KEY_KP_4:
 				rot_yaw -= 1;
+				break;
+			case GLFW_KEY_KP_5:
+				rot_pitch += 1;
 				break;
 			case GLFW_KEY_KP_6:
 				rot_yaw += 1;
@@ -150,6 +151,7 @@ CCTV::CCTV(Model& model)
 	handle = glGetTextureHandleARB(texture);
 	glMakeTextureHandleResidentARB(handle);
 
+	mat = model.load_matrix("translation_monitor_1");
 	m_screen.vertices = {
 		{.texpos={0, 1}, .pos={0, 0, 0}, .transform_id=0, .tex_diffuse=handle, .material={0, 0, 1}},
 		{.texpos={0, 0}, .pos={0, 1, 0}, .transform_id=0, .tex_diffuse=handle, .material={0, 0, 1}},
@@ -157,7 +159,7 @@ CCTV::CCTV(Model& model)
 		{.texpos={1, 0}, .pos={1, 1, 0}, .transform_id=0, .tex_diffuse=handle, .material={0, 0, 1}},
 	};
 	m_screen.indices = {0, 1, 3, 0, 3, 2};
-	m_screen.transforms = {model.load_matrix("translation_monitor_1")};
+	m_screen.transforms = {mat};
 	m_screen.bake_transforms();
 
 	gm_screen.bind();
@@ -194,10 +196,48 @@ CCTV::CCTV(CCTV&& o)
 void CCTV::rotate(double dt, float pitch, float yaw)
 {
 	Data::Camera& active = cameras[camera_at];
-	float m = float(M_PI) * dt * 0.5f / active.zoom;
+	float m = float(M_PI) * dt * 0.5f * active.zoom;
 
 	active.pitch = Util::Math::clamp(active.pitch + pitch * m, -M_PI / 4, M_PI / 4);
 	active.yaw = Util::Math::clamp(active.yaw + yaw * m, -M_PI / 4, M_PI / 4);
+}
+
+void CCTV::remesh_slow(Data::Mesh& rmesh)
+{
+	if(!powered)
+	{
+		return;
+	}
+	
+	const Data::Camera& active = cameras[camera_at];
+	std::stringstream ss;
+
+	ss << "- ";
+
+	for(int i = 0; i < cameras.size(); i++)
+	{
+		if(i == camera_at)
+		{
+			ss << "[" << cameras[i].name << "] ";
+		}
+
+		else
+		{
+			ss << " " << cameras[i].name << "  ";
+		}
+	}
+
+	ss << "-\n";
+
+	rmesh.add(Data::Fonts::MONO.load_text(ss.str(), 0.02, {0.5, 0}), glm::translate(mat, {0.5, 0.95, 0}), true);
+	
+	char zoom_chars[] = "          ";
+	zoom_chars[(int)std::round(Util::Math::ramp(active.zoom, 1, 0.25, 0, 9))] = '#';
+
+	ss.str("");
+	ss << "Zoom: [" << zoom_chars << "]";
+
+	rmesh.add(Data::Fonts::MONO.load_text(ss.str(), 0.02), glm::translate(mat, {0.0125, 0.0125, 0}), true);
 }
 
 void CCTV::update(double dt)
@@ -207,21 +247,21 @@ void CCTV::update(double dt)
 	if(m_screen.check_focus())
 		Focus::set(std::make_unique<FocusCCTV>(this));
 	if(m_buttons[0].check_focus_hold())
-		active.zoom = Util::Math::clamp(1.f / (1.f / active.zoom - dt * 0.5f), 1.f, 4.f);
+		active.zoom = Util::Math::clamp(active.zoom - dt * 0.5f, 0.25, 1);
 	if(m_buttons[1].check_focus_hold())
 		rotate(dt, 1, 0);
 	if(m_buttons[2].check_focus_hold())
-		active.zoom = Util::Math::clamp(1.f / (1.f / active.zoom + dt * 0.5f), 1.f, 4.f);
+		active.zoom = Util::Math::clamp(active.zoom + dt * 0.5f, 0.25, 1);
 	if(m_buttons[3].check_focus_hold())
 		rotate(dt, 0, -1);
-	if(m_buttons[4].check_focus())
-		powered = !powered;
+	if(m_buttons[4].check_focus_hold())
+		rotate(dt, -1, 0);
 	if(m_buttons[5].check_focus_hold())
 		rotate(dt, 0, 1);
 	if(m_buttons[6].check_focus())
 		camera_at = (camera_at + cameras.size() - 1) % cameras.size();
-	if(m_buttons[7].check_focus_hold())
-		rotate(dt, -1, 0);
+	if(m_buttons[7].check_focus())
+		powered = !powered;
 	if(m_buttons[8].check_focus())
 		camera_at = (camera_at + 1) % cameras.size();
 }
@@ -239,7 +279,7 @@ void CCTV::render_view()
 	rot = glm::rotate(rot, active.pitch, right);
 
 	glm::mat4 view = glm::lookAt(active.pos, active.pos + glm::mat3(rot) * active.look, active.up);
-	glm::mat4 proj = glm::perspective(active.fov / active.zoom, (float)width / height, 0.1f, 100.0f);
+	glm::mat4 proj = glm::perspective(active.fov * active.zoom, (float)width / height, 0.1f, 100.0f);
 	glm::vec3 brightness = glm::vec3(System::active->grid.get_light_intensity());
 
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);

@@ -1,11 +1,8 @@
-
-#version 460 core
-
-#define MAX_LIGHTS 6
+R"GLSL(
 
 layout (location = 1) in vec3 aPos;
 layout (location = 2) in vec4 aColour;
-layout (location = 6) in int aTransformIndex;
+layout (location = 7) in int aTransformIndex;
 
 layout (binding = 3) readonly buffer TransformBuffer
 {
@@ -31,3 +28,4 @@ void main()
 	should_ignore = int(aColour.a < 1.f);
 }
 
+)GLSL";

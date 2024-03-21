@@ -105,7 +105,7 @@ void Window::create()
 {
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 	glfwWindowHint(GLFW_VISIBLE, false);
@@ -129,17 +129,15 @@ void Window::create()
 		return;
 	}
 
-	if(!glGetTextureHandleARB || !glMakeTextureHandleResidentARB)
+	if(glGetTextureHandleARB && glMakeTextureHandleResidentARB)
 	{
-		std::cerr << "Fatal: Bindless textures not supported\n";
+		Shader::add_define("USE_BINDLESS_TEXTURES");
+		Shader::USE_BINDLESS_TEXTURES = true;
+	}
 
-		if(!glGetTextureHandleARB)
-			std::cerr << "  Missing: glGetTextureHandleARB\n";
-		if(!glMakeTextureHandleResidentARB)
-			std::cerr << "  Missing: glMakeTextureHandleResidentARB\n";
-
-		close();
-		return;
+	else
+	{
+		std::cout << "Warning: Bindless textures are not supported. Using texture atlas instead.\n";
 	}
 
 	glEnable(GL_MULTISAMPLE);
@@ -156,21 +154,9 @@ void Window::create()
 	Mouse::init();
 	Resize::init();
 	Texture::init();
-	Font::init();
+	Fonts::init();
 	UI::init();
-
-	// load all the shaders
-	Shader::Source sources_main[] = {
-		{"../assets/shader/main.vsh", GL_VERTEX_SHADER},
-		{"../assets/shader/main.fsh", GL_FRAGMENT_SHADER},
-	};
-	Shader::Source sources_light[] = {
-		{"../assets/shader/light.vsh", GL_VERTEX_SHADER},
-		{"../assets/shader/light.gsh", GL_GEOMETRY_SHADER},
-		{"../assets/shader/light.fsh", GL_FRAGMENT_SHADER},
-	};
-	Shader::MAIN.load(sources_main, 2);
-	Shader::LIGHT.load(sources_light, 3);
+	Shader::init();
 
 	Shader::MAIN.use();
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -204,6 +190,8 @@ void Window::create()
 	equipment.push_back(new Equipment::Generator(model));
 	equipment.push_back(new Equipment::Pool(model));
 
+	Texture::generate_atlas();
+	
 	remesh_static();
 
 	glfwShowWindow(win);

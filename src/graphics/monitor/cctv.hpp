@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include <glm/matrix.hpp>
+
 #include <vector>
 #include <array>
 
@@ -27,6 +29,7 @@ class CCTV : public Data::MeshGen
 
 public:
 	
+	glm::mat4 mat;
 	std::vector<Data::Camera> cameras;
 	int camera_at = 0;
 	bool powered = false;
@@ -37,6 +40,7 @@ public:
 	~CCTV();
 	
 	void update(double dt) override;
+	void remesh_slow(Data::Mesh& rmesh) override;
 	void rotate(double dt, float pitch, float yaw);
 	void render_view();
 	void render_screen();

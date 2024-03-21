@@ -1,5 +1,4 @@
-
-#version 460 core
+R"GLSL(
 
 in vec3 frag_pos;
 
@@ -11,3 +10,4 @@ void main()
 	gl_FragDepth = distance / far_plane;
 }
 
+)GLSL";

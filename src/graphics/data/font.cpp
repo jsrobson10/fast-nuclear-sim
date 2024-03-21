@@ -8,25 +8,27 @@
 #include <glm/vec2.hpp>
 #include <iostream>
 #include <vector>
+#include <format>
 
+#include "../shader.hpp"
 #include "mesh.hpp"
 #include "arrays.hpp"
 #include "material.hpp"
+#include "texture.hpp"
 #include "font.hpp"
 
 using namespace Sim::Graphics::Data;
 
-struct Character
+Font Fonts::BASE;
+Font Fonts::MONO;
+
+void Fonts::init()
 {
-	uint32_t handle;
-	float advance;
-	glm::vec2 size;
-	glm::vec2 bearing;
-};
+	BASE.init("DroidSans", 64);
+	MONO.init("DroidSansMono", 64);
+}
 
-static Character chars[128];
-
-void Font::init()
+void Font::init(const std::string& name, int size)
 {
 	FT_Library ft;
 	FT_Face face;
@@ -37,21 +39,14 @@ void Font::init()
 		return;
 	}
 
-	if(FT_New_Face(ft, "../assets/font/DroidSans.ttf", 0, &face))
+	if(FT_New_Face(ft, std::format("../assets/font/{}.ttf", name).c_str(), 0, &face))
 	{
 		std::cout << "Error: failed to load freetype font\n";
 		return;
 	}
 
-	int size = 256;
-	float m = 1.0f / size;
-
+	texel_size = 1.0f / size;
 	FT_Set_Pixel_Sizes(face, 0, size);
-
-	GLuint texids[128];
-	std::vector<glm::vec<4, unsigned char>> pixels;
-	
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 	for(int i = 0; i < 128; i++)
 	{
@@ -65,61 +60,59 @@ void Font::init()
 		int offx = face->glyph->bitmap_left;
 		int offy = face->glyph->bitmap_top;
 		
-		Character& c = chars[i];
-		c.advance = face->glyph->advance.x * m / 64.0;
-		c.size = {width * m, height * m};
-		c.bearing = {offx * m, offy * m};
+		Character& c = characters[i];
+		c.advance = face->glyph->advance.x * texel_size / 64.0;
+		c.size = {width * texel_size, height * texel_size};
+		c.bearing = {offx * texel_size, offy * texel_size};
 
 		if(c.size.x == 0 || c.size.y == 0)
 		{
-			c.handle = 0;
 			continue;
 		}
 
-		pixels.resize(width * height);
+		std::vector<uint8_t> buffer(width * height);
 
 		for(int i = 0; i < width * height; i++)
 		{
-			pixels[i] = glm::vec<4, unsigned char>(face->glyph->bitmap.buffer[i]);
+			buffer[i] = face->glyph->bitmap.buffer[i];
 		}
 
-		glCreateTextures(GL_TEXTURE_2D, 1, &texids[i]);
-
-		glTextureStorage2D(texids[i], 1, GL_RGBA8, width, height);
-		glTextureSubImage2D(texids[i], 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, &pixels[0]);
-
-		glTextureParameteri(texids[i], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTextureParameteri(texids[i], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTextureParameteri(texids[i], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTextureParameteri(texids[i], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-		c.handle = glGetTextureHandleARB(texids[i]);
-		glMakeTextureHandleResidentARB(c.handle);
-		chars[i] = c;
+		int swizzleMask[] = {GL_RED, GL_RED, GL_RED, GL_RED};
+		c.handle = Texture::load_mem(buffer.data(), width, height, 1, swizzleMask);
 	}
 
 	FT_Done_FreeType(ft);
 }
 
-Mesh& Mesh::load_text(const char* text, double size)
+Font::Font()
 {
-	std::vector<Arrays::Vertex> vertices;
-	std::vector<unsigned int> indices;
+}
+
+Mesh Font::load_text(const std::string& text, float size) const
+{
+	Mesh m;
+	
+	if(text[0] == '\0')
+	{
+		return m;
+	}
 
 	float x = 0, y = size;
 	unsigned int at = 0;
-
-	if(text[0] == '\0')
+	float t0 = 0;
+	float t1 = 1;
+/*
+	if(!Shader::USE_BINDLESS_TEXTURES)
 	{
-		this->vertices.clear();
-		this->indices.clear();
-		return *this;
-	}
+		t0 += texel_size / 2;
+		t1 -= texel_size / 2;
+	}*/
 
-	for(unsigned int i = 0; text[i] != '\0'; i++)
+
+	for(unsigned int i = 0; i < text.size(); i++)
 	{
 		char c = text[i];
-		Character ch = chars[c];
+		const Character& ch = characters[c];
 
 		if(c == '\n')
 		{
@@ -144,30 +137,25 @@ Mesh& Mesh::load_text(const char* text, double size)
 		float ex = sx + ch.size.x * size;
 		float ey = sy + ch.size.y * size;
 
-		vertices.push_back(Arrays::Vertex{.texpos={0, 0}, .pos={sx, sy, 0}, .tex_diffuse=ch.handle, .material={0, 0, 1}});
-		vertices.push_back(Arrays::Vertex{.texpos={0, 1}, .pos={sx, ey, 0}, .tex_diffuse=ch.handle, .material={0, 0, 1}});
-		vertices.push_back(Arrays::Vertex{.texpos={1, 0}, .pos={ex, sy, 0}, .tex_diffuse=ch.handle, .material={0, 0, 1}});
-		vertices.push_back(Arrays::Vertex{.texpos={1, 1}, .pos={ex, ey, 0}, .tex_diffuse=ch.handle, .material={0, 0, 1}});
-		indices.insert(indices.end(), &index[0], &index[6]);
+		m.vertices.push_back(Arrays::Vertex{.texpos={t0, t0}, .pos={sx, sy, 0}, .tex_diffuse=ch.handle, .material={0, 0, 1}});
+		m.vertices.push_back(Arrays::Vertex{.texpos={t0, t1}, .pos={sx, ey, 0}, .tex_diffuse=ch.handle, .material={0, 0, 1}});
+		m.vertices.push_back(Arrays::Vertex{.texpos={t1, t0}, .pos={ex, sy, 0}, .tex_diffuse=ch.handle, .material={0, 0, 1}});
+		m.vertices.push_back(Arrays::Vertex{.texpos={t1, t1}, .pos={ex, ey, 0}, .tex_diffuse=ch.handle, .material={0, 0, 1}});
+		m.indices.insert(m.indices.end(), &index[0], &index[6]);
 
 		at += 4;
 		x += ch.advance * size;
 	}
 
-	this->vertices = std::move(vertices);
-	this->indices = std::move(indices);
-	this->transforms.clear();
-
-	return *this;
+	return m;
 }
 
-Mesh& Mesh::load_text(const char* text, double size, glm::vec2 align)
+Mesh Font::load_text(const std::string& text, float size, glm::vec2 align) const
 {
 	glm::vec2 max;
-	
-	load_text(text, size);
+	Mesh m = load_text(text, size);
 
-	for(Arrays::Vertex& v : vertices)
+	for(Arrays::Vertex& v : m.vertices)
 	{
 		if(v.pos.x > max.x)
 		{
@@ -182,12 +170,12 @@ Mesh& Mesh::load_text(const char* text, double size, glm::vec2 align)
 
 	align *= max;
 
-	for(Arrays::Vertex& v : vertices)
+	for(Arrays::Vertex& v : m.vertices)
 	{
 		v.pos.x -= align.x;
 		v.pos.y -= align.y;
 	}
 
-	return *this;
+	return m;
 }
 

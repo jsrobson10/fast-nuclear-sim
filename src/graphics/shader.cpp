@@ -8,6 +8,7 @@
 #include <format>
 
 #include "shader.hpp"
+#include "shadersource.hpp"
 #include "window.hpp"
 
 using namespace Sim::Graphics;
@@ -16,40 +17,54 @@ Shader Shader::MAIN;
 Shader Shader::LIGHT;
 Shader* Shader::ACTIVE;
 
-static std::string read_shader(const char* path)
+bool Shader::USE_BINDLESS_TEXTURES = false;
+
+static std::vector<std::string> shader_compiler_flags;
+
+void Shader::add_define(const std::string& flag)
+{
+	shader_compiler_flags.push_back(flag);
+}
+
+void Shader::init()
+{
+	Shader::Source sources_main[] = {
+		{ShaderSource::MAIN_VSH, "main.vsh", GL_VERTEX_SHADER},
+		{ShaderSource::MAIN_FSH, "main.fsh", GL_FRAGMENT_SHADER}
+	};
+
+	Shader::Source sources_light[] = {
+		{ShaderSource::LIGHT_VSH, "light.vsh", GL_VERTEX_SHADER},
+		{ShaderSource::LIGHT_GSH, "light.gsh", GL_GEOMETRY_SHADER},
+		{ShaderSource::LIGHT_FSH, "light.fsh", GL_FRAGMENT_SHADER}
+	};
+
+	Shader::MAIN.load(sources_main, "main", 2);
+	Shader::LIGHT.load(sources_light, "light", 3);
+}
+
+std::string apply_shader_compiler_flags(const char* source)
 {
 	std::stringstream ss;
-	std::ifstream file(path, std::ios::binary);
-	char buff[1024];
+	ss << "#version 430 core\n";
 
-	if(!file.is_open())
+	for(const auto& flag : shader_compiler_flags)
 	{
-		throw std::runtime_error(std::format("Shader Read Error: {0}", path));
+		ss << "#define " << flag << "\n";
 	}
 
-	while(!file.eof())
-	{
-		file.read(buff, 1024);
-		ss.write(buff, file.gcount());
-	}
-
+	ss << source;
 	return ss.str();
 }
 
-static std::string read_shader(const char* base, const char* file)
-{
-	std::string path = std::string(base) + "/" + std::string(file);
-	return read_shader(path.c_str());
-}
-
-Shader::Source::Source(const char* path, GLenum type)
+Shader::Source::Source(const char* data, const char* name, GLenum type)
 {
 	int success;
-	std::string src = read_shader(path);
-	const char* c_src = src.c_str();
+	std::string source = apply_shader_compiler_flags(data);
+	data = source.c_str();
 
 	id = glCreateShader(type);
-	glShaderSource(id, 1, &c_src, nullptr);
+	glShaderSource(id, 1, &data, nullptr);
 	glCompileShader(id);
 	glGetShaderiv(id, GL_COMPILE_STATUS, &success);
 
@@ -57,7 +72,7 @@ Shader::Source::Source(const char* path, GLenum type)
 	{
 		char infoLog[512];
 		glGetShaderInfoLog(id, 512, NULL, infoLog);
-		std::string entry = std::format("Shader Compile Error ({0}): {1}", path, infoLog);
+		std::string entry = std::format("Shader Compile Error ({0}): {1}", name, infoLog);
 		throw std::runtime_error(entry);
 	}
 }
@@ -92,7 +107,7 @@ Shader::~Shader()
 	}
 }
 
-void Shader::load(const Source* sources, int count)
+void Shader::load(const Source* sources, const char* name, int count)
 {
 	int success;
 	prog_id = glCreateProgram();
@@ -109,7 +124,7 @@ void Shader::load(const Source* sources, int count)
 	{
 		char infoLog[512];
 		glGetProgramInfoLog(prog_id, 512, NULL, infoLog);
-		std::string entry = std::format("Shader Link Error: {0}", infoLog);
+		std::string entry = std::format("Shader Link Error {0}: {1}", name, infoLog);
 		throw std::runtime_error(entry);
 	}
 }

@@ -8,6 +8,7 @@
 #include "../input/focus.hpp"
 #include "../../util/streams.hpp"
 #include "../../util/math.hpp"
+#include "../data/font.hpp"
 
 #include <glm/ext/matrix_transform.hpp>
 #include <iostream>
@@ -69,13 +70,11 @@ void Turbine::get_static_transforms(std::vector<glm::mat4>& transforms)
 void Turbine::remesh_static(Mesh& rmesh)
 {
 	std::stringstream ss;
-	Sim::Graphics::Data::Mesh mesh;
 
 	ss << "Turbine\n\n";
 	ss << "Heat\nPressure\nSpeed\n\n";
 
-	mesh.load_text(ss.str().c_str(), 0.04);
-	rmesh.add(mesh, mat, true);
+	rmesh.add(Data::Fonts::BASE.load_text(ss.str(), 0.04), mat, true);
 	
 	rmesh.add(g_dial_phase);
 	rmesh.add(g_dial_voltage);
@@ -87,7 +86,6 @@ void Turbine::remesh_static(Mesh& rmesh)
 void Turbine::remesh_slow(Mesh& rmesh)
 {
 	std::stringstream ss;
-	Sim::Graphics::Data::Mesh mesh;
 	System& sys = *System::active;
 
 	ss << "\n\n";
@@ -95,7 +93,7 @@ void Turbine::remesh_slow(Mesh& rmesh)
 	ss << show( sys.loop.turbine.get_pressure() / 1000 ) << " kPa\n";
 	ss << show( sys.loop.generator.get_rpm() ) << " r/min\n";
 	
-	mesh.load_text(ss.str().c_str(), 0.04);
+	Mesh mesh = Data::Fonts::BASE.load_text(ss.str(), 0.04);
 	rmesh.add(mesh, glm::translate(mat, glm::vec3(0.5, 0, 0)));
 }
 

@@ -1,6 +1,8 @@
+R"GLSL(
 
-#version 460 core
+#ifdef USE_BINDLESS_TEXTURES
 #extension GL_ARB_bindless_texture : require
+#endif
 
 layout (location = 0) in vec2 aTexPos;
 layout (location = 1) in vec3 aPos;
@@ -8,10 +10,26 @@ layout (location = 2) in vec4 aColour;
 layout (location = 3) in vec3 aTangent;
 layout (location = 4) in vec3 aBitangent;
 layout (location = 5) in vec3 aNormal;
-layout (location = 6) in int aTransformIndex;
-layout (location = 7) in sampler2D aTexDiffuse;
-layout (location = 8) in sampler2D aTexNormal;
-layout (location = 9) in vec3 aMaterial;
+layout (location = 6) in vec3 aMaterial;
+layout (location = 7) in int aTransformIndex;
+
+#ifdef USE_BINDLESS_TEXTURES
+
+layout (location = 8) in sampler2D aTexDiffuse;
+layout (location = 9) in sampler2D aTexNormal;
+
+out flat sampler2D frag_tex_diffuse;
+out flat sampler2D frag_tex_normal;
+
+#else
+
+layout (location = 8) in uint aTexDiffuse;
+layout (location = 9) in uint aTexNormal;
+
+out flat uint frag_tex_diffuse;
+out flat uint frag_tex_normal;
+
+#endif
 
 uniform mat4 camera;
 uniform mat4 projection;
@@ -28,9 +46,6 @@ out VS_OUT {
 	flat vec4 colour;
 	flat vec3 material;
 } vout;
-
-out flat sampler2D frag_tex_diffuse;
-out flat sampler2D frag_tex_normal;
 
 mat4 load_model_mat(int index)
 {
@@ -60,3 +75,4 @@ void main()
 	gl_Position = mvp * pos;
 }
 
+)GLSL";

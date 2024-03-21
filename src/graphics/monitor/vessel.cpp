@@ -7,6 +7,7 @@
 #include "../../reactor/control/boron_rod.hpp"
 #include "../../system.hpp"
 #include "../../util/streams.hpp"
+#include "../data/font.hpp"
 
 #include <glm/ext/matrix_transform.hpp>
 #include <sstream>
@@ -23,7 +24,6 @@ Vessel::Vessel(const Model& model)
 void Vessel::remesh_static(Mesh& rmesh)
 {
 	std::stringstream ss;
-	Sim::Graphics::Data::Mesh mesh;
 
 	ss << "Reactor Vessel\n\n";
 	ss << "Heat\n";
@@ -37,14 +37,12 @@ void Vessel::remesh_static(Mesh& rmesh)
 	ss << "Temperature\nMin\nMax\n\n";
 	ss << "Control Rods\nMin\nMax\nSpeed\n";
 
-	mesh.load_text(ss.str().c_str(), 0.04);
-	rmesh.add(mesh, mat, true);
+	rmesh.add(Data::Fonts::BASE.load_text(ss.str(), 0.04), mat, true);
 }
 
 void Vessel::remesh_slow(Mesh& rmesh)
 {
 	std::stringstream ss;
-	Sim::Graphics::Data::Mesh mesh;
 	Sim::System& sys = *System::active;
 
 	double temp_min, temp_max;
@@ -92,7 +90,7 @@ void Vessel::remesh_slow(Mesh& rmesh)
 	if(sys.reactor.rod_speed == 0) ss << " (Stopped)";
 	ss << "\n";
 
-	mesh.load_text(ss.str().c_str(), 0.04);
+	Mesh mesh = Data::Fonts::BASE.load_text(ss.str(), 0.04);
 	rmesh.add(mesh, glm::translate(mat, glm::vec3(0.5, 0, 0)));
 }
 
