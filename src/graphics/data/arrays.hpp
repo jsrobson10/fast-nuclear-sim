@@ -16,6 +16,7 @@ struct Vertex
 	glm::vec4 colour = {1, 1, 1, 1};
 	glm::mat3 tbn = glm::mat3(1);
 	int transform_id = -1;
+	int colour_id = -1;
 	unsigned int tex_diffuse = Texture::handle_white;
 	unsigned int tex_normal = Texture::handle_normal;
 	glm::vec3 material = {0.5, 0, 0};

@@ -31,6 +31,7 @@ struct Mesh
 		PrimitiveItem vertices[N_VERTS];
 	};
 
+	int colour_ids = 0;
 	std::vector<Arrays::Vertex> vertices;
 	std::vector<unsigned int> indices;
 	std::vector<glm::mat4> transforms;

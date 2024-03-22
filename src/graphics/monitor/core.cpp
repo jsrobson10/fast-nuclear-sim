@@ -134,11 +134,6 @@ Core::Core(const Model& model) : Data::MeshGen("core")
 	m_scram = model.load("click_scram");
 }
 
-void Core::remesh_static(Mesh& rmesh)
-{
-	rmesh.add(Data::Fonts::BASE.load_text("Reactor Core", 0.04), mat, true);
-}
-
 void Core::update(double dt)
 {
 	Sim::System& sys = *System::active;
@@ -167,18 +162,18 @@ void Core::update(double dt)
 		sys.reactor.toggle_selected();
 }
 
-void Core::remesh_slow(Mesh& rmesh)
+void Core::remesh_static(Mesh& rmesh)
 {
 	Sim::System& sys = *System::active;
-	Mesh mesh;
+	rmesh.add(Data::Fonts::BASE.load_text("Reactor Core", 0.04), mat, true);
 	
+	int colour_id = 0;
 	double step = sys.reactor.cell_width / sys.vessel.diameter * 0.8;
 	double sx = 0.5 - (sys.reactor.width - 1) * step / 2.0;
 	double sy = 0.5 - (sys.reactor.height - 1) * step / 2.0;
 	
 	glm::mat4 mat_scale = glm::scale(glm::mat4(1), glm::vec3(step * 0.4, step * 0.4, 1));
 	glm::mat4 mat_select = glm::translate(glm::mat4(1), glm::vec3(-0.8, -0.8, -0.001)) * glm::scale(glm::mat4(1), glm::vec3(0.25, 0.25, 1));
-	glm::mat4 mat_cursor = glm::translate(glm::mat4(1), glm::vec3(-0.8, 0.8, -0.001)) * glm::scale(glm::mat4(1), glm::vec3(0.25, 0.25, 1));
 	glm::mat4 mat_spec = glm::translate(glm::mat4(1), glm::vec3(0.8, -0.8, -0.001)) * glm::scale(glm::mat4(1), glm::vec3(0.25, 0.25, 1));
 
 	Data::Mesh::Primitive<4, 6> prim {
@@ -191,6 +186,11 @@ void Core::remesh_slow(Mesh& rmesh)
 			{.texpos={1, 1}, .pos=glm::vec3(glm::vec4( 0.75,  0.75, 0, 1))}, 
 		},
 	};
+	
+	prim.vertex_base.colour = {1, 0, 0, 1};
+	rmesh.add(prim, mat);
+	
+	prim.vertex_base.colour = {1, 1, 1, 1};
 	
 	for(int i = 0; i < sys.reactor.size; i++)
 	{
@@ -207,7 +207,7 @@ void Core::remesh_slow(Mesh& rmesh)
 		}
 
 		glm::mat4 mat = this->mat * glm::translate(glm::mat4(1), glm::vec3(ox, oy, 0)) * mat_scale;
-		glm::vec4 colour_heat = r->get_heat_colour() * glm::vec4(glm::vec3(1), 1);
+		glm::vec4 colour_heat = r->get_heat_colour();
 		glm::vec4 colour_spec = r->get_colour();
 
 		if(colour_heat[3] == 0)
@@ -215,25 +215,68 @@ void Core::remesh_slow(Mesh& rmesh)
 			continue;
 		}
 
-		prim.vertex_base.colour = colour_heat;
-		rmesh.add(prim, mat);
+		prim.vertex_base.colour_id = colour_id++;
+		rmesh.add(prim, mat, true);
+		
+		prim.vertex_base.colour_id = colour_id++;
+		rmesh.add(prim, mat * mat_select, true);
 		
 		if(colour_spec[3] != 0)
 		{
-			prim.vertex_base.colour = colour_spec;
-			rmesh.add(prim, mat * mat_spec);
+			prim.vertex_base.colour_id = colour_id++;
+			rmesh.add(prim, mat * mat_spec, true);
+		}
+	}
+
+	rmesh.colour_ids += colour_id;
+}
+
+void Core::get_static_transforms(std::vector<glm::mat4>& transforms)
+{
+	Sim::System& sys = *System::active;
+	double step = sys.reactor.cell_width / sys.vessel.diameter * 0.8;
+	double sx = 0.5 - (sys.reactor.width - 1) * step / 2.0;
+	double sy = 0.5 - (sys.reactor.height - 1) * step / 2.0;
+
+	glm::mat4 mat_scale = glm::scale(glm::mat4(1), glm::vec3(step * 0.4, step * 0.4, 1));
+	glm::mat4 mat_cursor = glm::translate(glm::mat4(1), glm::vec3(-0.8, 0.8, -0.001)) * glm::scale(glm::mat4(1), glm::vec3(0.25, 0.25, 1));
+
+	if(sys.reactor.cursor >= 0 && sys.reactor.cursor < sys.reactor.size)
+	{
+		int x = sys.reactor.cursor % sys.reactor.width;
+		int y = sys.reactor.cursor / sys.reactor.width;
+		double ox = sx + x * step;
+		double oy = sy + y * step;
+
+		transforms.push_back(glm::translate(glm::mat4(1), glm::vec3(ox, oy, 0)) * mat_scale * mat_cursor);
+	}
+
+	else
+	{
+		transforms.push_back(glm::mat4(0));
+	}
+}
+
+void Core::get_static_colours(std::vector<glm::vec4>& colours)
+{
+	Sim::System& sys = *System::active;
+
+	for(int i = 0; i < sys.reactor.size; i++)
+	{
+		Reactor::Rod* r = sys.reactor.rods[i].get();
+		glm::vec4 spec = r->get_colour();
+
+		if(!r->should_display())
+		{
+			continue;
 		}
 
-		if(sys.reactor.cursor == i)
-		{
-			prim.vertex_base.colour = {1, 0, 0, 1};
-			rmesh.add(prim, mat * mat_cursor);
-		}
+		colours.push_back(r->get_heat_colour());
+		colours.push_back(r->selected ? glm::vec4{1, 1, 0, 1} : glm::vec4{1, 1, 0, 0.25});
 
-		if(r->selected)
+		if(spec[3] != 0)
 		{
-			prim.vertex_base.colour = {1, 1, 0, 1};
-			rmesh.add(prim, mat * mat_select);
+			colours.push_back(spec);
 		}
 	}
 }

@@ -67,6 +67,11 @@ void Mesh::add(const Mesh& o, glm::mat4 mat, bool bake)
 				t_mat = t_mat * o.transforms[t_id];
 				v.transform_id = -1;
 			}
+
+			if(v.colour_id >= 0)
+			{
+				v.colour_id += colour_ids;
+			}
 			
 			v.pos = t_mat * glm::vec4(v.pos, 1);
 			v.tbn = glm::mat3(t_mat) * v.tbn;
@@ -119,6 +124,11 @@ void Mesh::add(const Mesh& o, glm::mat4 mat, bool bake)
 		{
 			v.transform_id = t_new;
 		}
+
+		if(v.colour_id >= 0)
+		{
+			v.colour_id += colour_ids;
+		}
 		
 		vertices.push_back(v);
 	}
@@ -127,6 +137,8 @@ void Mesh::add(const Mesh& o, glm::mat4 mat, bool bake)
 	{
 		indices.push_back(o.indices[i] + off);
 	}
+
+	colour_ids += o.colour_ids;
 }
 
 void Mesh::set_baked(bool b)
@@ -351,8 +363,8 @@ vec3 Mesh::calc_intersect(vec3 pos, vec3 path) const
 
 Mesh Mesh::to_lines() const
 {
-	Mesh m;
-	m.vertices = vertices;
+	Mesh m(*this);
+	m.indices.clear();
 
 	for(int i = 0; i < indices.size(); i += 3)
 	{

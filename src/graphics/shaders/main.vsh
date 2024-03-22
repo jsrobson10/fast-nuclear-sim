@@ -11,7 +11,7 @@ layout (location = 3) in vec3 aTangent;
 layout (location = 4) in vec3 aBitangent;
 layout (location = 5) in vec3 aNormal;
 layout (location = 6) in vec3 aMaterial;
-layout (location = 7) in int aTransformIndex;
+layout (location = 7) in ivec2 aIndex;
 
 #ifdef USE_BINDLESS_TEXTURES
 
@@ -31,13 +31,18 @@ out flat uint frag_tex_normal;
 
 #endif
 
+layout (binding = 7) readonly buffer ColourBuffer
+{
+	vec4 colours[];
+};
+
 layout (binding = 6) readonly buffer StateBuffer
 {
 	mat4 camera;
 	mat4 projection;
 };
 
-layout (std430, binding = 3) readonly buffer TransformBuffer
+layout (binding = 3) readonly buffer TransformBuffer
 {
 	mat4 transforms[];
 };
@@ -63,14 +68,15 @@ float Map(float v, float i_min, float i_max, float o_min, float o_max)
 void main()
 {
 	vec4 pos = vec4(aPos, 1.f);
-	mat4 model = load_model_mat(aTransformIndex);
+	vec4 colour = aIndex[1] < 0 ? vec4(1.f) : colours[aIndex[1]];
+	mat4 model = aIndex[0] < 0 ? mat4(1.f) : transforms[aIndex[0]];
 	mat4 mv = camera * model;
 	mat4 mvp = projection * mv;
 
 	vout.tbn = mat3(model) * mat3(aTangent, aBitangent, aNormal);
 	vout.pos = (model * pos).xyz;
 	vout.tex_pos = aTexPos;
-	vout.colour = aColour;
+	vout.colour = aColour * colour;
 	vout.material = aMaterial.xyz;
 	frag_tex_diffuse = aTexDiffuse;
 	frag_tex_normal = aTexNormal;

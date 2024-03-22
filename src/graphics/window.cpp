@@ -43,11 +43,10 @@ using namespace Sim;
 using namespace Sim::Graphics;
 using namespace Sim::Graphics::Data;
 
-constexpr int SSBO_TRANSFORMS_LEN = 2;
-
 static GLFWwindow* win;
 static bool win_should_close = false;
-static unsigned int ssbo_transforms[SSBO_TRANSFORMS_LEN];
+static unsigned int ssbo_transforms;
+static unsigned int ssbo_colours;
 static unsigned int wait_at = 0;
 
 static int ssbo_transforms_at = 0;
@@ -209,27 +208,8 @@ void Window::create()
 	glUniform1f(Shader::MAIN["far_plane"], 100.0f);
 	glUniform1i(Shader::MAIN["shadows_enabled"], 1);
 
-	// setup the transforms ssbos and their initial values
-	
-	std::vector<glm::mat4> transforms;
-
-	for(auto& monitor : monitors)
-	{
-		monitor->get_static_transforms(transforms);
-	}
-
-	for(auto& equipment : equipment)
-	{
-		equipment->get_static_transforms(transforms);
-	}
-
-	glGenBuffers(SSBO_TRANSFORMS_LEN, ssbo_transforms);
-
-	for(int i = 0; i < SSBO_TRANSFORMS_LEN; i++)
-	{
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_transforms[i]);
-		glBufferData(GL_SHADER_STORAGE_BUFFER, transforms.size() * sizeof(transforms[0]), &transforms[0], GL_DYNAMIC_DRAW);
-	}
+	glGenBuffers(1, &ssbo_transforms);
+	glGenBuffers(1, &ssbo_colours);
 
 	StateBuffer::init();
 }
@@ -262,8 +242,11 @@ void Window::reload()
 
 void Window::update(double dt)
 {
-	Mesh mesh;
-	std::vector<glm::mat4> transforms;
+	static std::vector<glm::mat4> transforms;
+	static std::vector<glm::vec4> colours;
+
+	transforms.clear();
+	colours.clear();
 
 	glfwPollEvents();
 
@@ -271,12 +254,14 @@ void Window::update(double dt)
 	{
 		monitor->update(dt);
 		monitor->get_static_transforms(transforms);
+		monitor->get_static_colours(colours);
 	}
 
 	for(auto& equipment : equipment)
 	{
 		equipment->update(dt);
 		equipment->get_static_transforms(transforms);
+		equipment->get_static_colours(colours);
 	}
 
 	for(int i = 0; i < transforms.size(); i++)
@@ -289,12 +274,13 @@ void Window::update(double dt)
 		std::cerr << "Transforms size mismatch! " << transforms.size() << " != " << g_scene_transforms.size() << "\n";
 		close();
 	}
-	
+
 	UI::update(dt);
 
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_transforms[ssbo_transforms_at]);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, transforms.size() * sizeof(transforms[0]), &transforms[0], GL_STREAM_DRAW);
-	ssbo_transforms_at = (ssbo_transforms_at + 1) % SSBO_TRANSFORMS_LEN;
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_transforms);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, transforms.size() * sizeof(transforms[0]), transforms.data(), GL_STREAM_DRAW);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_colours);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, colours.size() * sizeof(colours[0]), colours.data(), GL_STREAM_DRAW);
 
 	if(wait_at++ % 4 == 0)
 	{
@@ -311,7 +297,8 @@ void Window::render_player()
 
 void Window::bind_scene_ssbo()
 {
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, ssbo_transforms[ssbo_transforms_at]);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, ssbo_transforms);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, ssbo_colours);
 }
 
 void Window::render_scene()

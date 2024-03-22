@@ -21,7 +21,8 @@ public:
 	Core(const Data::Model& model);
 	void update(double dt) override;
 	void remesh_static(Data::Mesh& rmesh) override;
-	void remesh_slow(Data::Mesh& rmesh) override;
+	void get_static_transforms(std::vector<glm::mat4>& transforms) override;
+	void get_static_colours(std::vector<glm::vec4>& colours) override;
 };
 
 };
