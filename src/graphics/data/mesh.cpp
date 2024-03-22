@@ -11,32 +11,28 @@
 
 using namespace Sim::Graphics::Data;
 
-Mesh::Mesh()
+Mesh::Mesh(bool baked) : baked(baked)
 {
 
 }
 
-Mesh& Mesh::set_diffuse_id(unsigned int id)
+void Mesh::set_diffuse_id(unsigned int id)
 {
 	for(unsigned int i = 0; i < vertices.size(); i++)
 	{
 		vertices[i].tex_diffuse = id;
 	}
-
-	return *this;
 }
 
-Mesh& Mesh::set_normal_id(unsigned int id)
+void Mesh::set_normal_id(unsigned int id)
 {
 	for(unsigned int i = 0; i < vertices.size(); i++)
 	{
 		vertices[i].tex_normal = id;
 	}
-
-	return *this;
 }
 
-Mesh& Mesh::set_blank_transform()
+void Mesh::set_blank_transform()
 {
 	transforms = {glm::mat4(1)};
 
@@ -44,29 +40,37 @@ Mesh& Mesh::set_blank_transform()
 	{
 		vertices[i].transform_id = 0;
 	}
-
-	return *this;
 }
 
-Mesh& Mesh::add(const Mesh& o, glm::mat4 mat, bool bake)
+void Mesh::clear()
+{
+	vertices.clear();
+	indices.clear();
+	transforms.clear();
+}
+
+void Mesh::add(const Mesh& o, glm::mat4 mat, bool bake)
 {
 	int off = vertices.size();
-	
-	indices.reserve(indices.size() + o.indices.size());
-	vertices.reserve(vertices.size() + o.vertices.size());
+	bool mat_set = mat != glm::mat4(1);
 
-	if(bake)
+	if(baked || bake)
 	{
 		for(int i = 0; i < o.vertices.size(); i++)
 		{
 			Arrays::Vertex v = o.vertices[i];
 			int t_id = v.transform_id;
-			glm::mat4 t_mat = t_id >= 0 ? transforms[t_id] : glm::mat4(1);
-			t_mat = mat * t_mat;
+			glm::mat4 t_mat = mat;
+			
+			if(t_id >= 0)
+			{
+				t_mat = t_mat * o.transforms[t_id];
+				v.transform_id = -1;
+			}
 			
 			v.pos = t_mat * glm::vec4(v.pos, 1);
 			v.tbn = glm::mat3(t_mat) * v.tbn;
-			v.transform_id = -1;
+
 			vertices.push_back(v);
 		}
 
@@ -75,19 +79,32 @@ Mesh& Mesh::add(const Mesh& o, glm::mat4 mat, bool bake)
 			indices.push_back(o.indices[i] + off);
 		}
 
-		return *this;
+		return;
 	}
 
 	glm::mat3 mat3(mat);
 	int t_off = transforms.size();
 	int t_new = -1;
 
-	if(mat != glm::mat4(1))
+	if(mat_set)
 	{
 		t_new = transforms.size() + o.transforms.size();
+		
+		for(int i = 0; i < o.transforms.size(); i++)
+		{
+			transforms.push_back(o.transforms[i] * mat);
+		}
+
+		if(t_new >= 0)
+		{
+			transforms.push_back(mat);
+		}
 	}
 
-	transforms.reserve(transforms.size() + o.transforms.size() + (t_new >= 0 ? 1 : 0));
+	else
+	{
+		transforms.insert(transforms.end(), o.transforms.begin(), o.transforms.end());
+	}
 
 	for(int i = 0; i < o.vertices.size(); i++)
 	{
@@ -106,26 +123,26 @@ Mesh& Mesh::add(const Mesh& o, glm::mat4 mat, bool bake)
 		vertices.push_back(v);
 	}
 
-	for(int i = 0; i < o.transforms.size(); i++)
-	{
-		transforms.push_back(o.transforms[i] * mat);
-	}
-
 	for(int i = 0; i < o.indices.size(); i++)
 	{
 		indices.push_back(o.indices[i] + off);
 	}
-
-	if(t_new >= 0)
-	{
-		transforms.push_back(mat);
-	}
-
-	return *this;
 }
 
-Mesh& Mesh::bake_transforms()
+void Mesh::set_baked(bool b)
 {
+	if(baked == b)
+	{
+		return;
+	}
+
+	baked = b;
+
+	if(!b || transforms.size() == 0)
+	{
+		return;
+	}
+
 	for(unsigned int i = 0; i < vertices.size(); i++)
 	{
 		int id = vertices[i].transform_id;
@@ -140,8 +157,6 @@ Mesh& Mesh::bake_transforms()
 	}
 
 	transforms.clear();
-
-	return *this;
 }
 
 typedef glm::vec<3, double> vec3;

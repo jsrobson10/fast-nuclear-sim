@@ -142,6 +142,14 @@ void main()
 {
 	vec4 albedo = ReadTexture(frag_tex_diffuse, vin.tex_pos);
 	if(albedo.a == 0.f) discard;
+	
+	float luminance = min(vin.material[2], 1.f);
+
+	if(luminance == 1)
+	{
+		frag_colour = albedo * vin.colour;
+		return;
+	}
 
 	vec3 tangent = ReadTexture(frag_tex_normal, vin.tex_pos).rgb * 2.f - 1.f;
 	vec3 albedo_lin = sRGB_To_LinRGB(albedo.rgb) * vin.colour.rgb;
@@ -149,7 +157,6 @@ void main()
 
 	float roughness = vin.material[0];
 	float metalness = vin.material[1];
-	float luminance = min(vin.material[2], 1.f);
 
 	vec3 N = normalize(vin.tbn * tangent);
 	vec3 V = normalize(camera_pos - vin.pos.xyz);

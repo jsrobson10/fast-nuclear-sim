@@ -50,15 +50,14 @@ static bool win_should_close = false;
 static unsigned int ssbo_transforms[SSBO_TRANSFORMS_LEN];
 static unsigned int wait_at = 0;
 
-static int gm_dynamic_slow_at = 0;
 static int ssbo_transforms_at = 0;
 
-static Mesh g_scene;
+static Mesh g_scene(true);
 static std::vector<glm::mat4> g_scene_transforms;
 
 static GLMesh gm_scene;
+static GLMesh gm_dynamic_slow;
 static GLMesh gm_player;
-static GLMesh gm_dynamic_slow[2];
 
 static std::unique_ptr<GLLights> lights;
 static std::vector<MeshGen*> monitors;
@@ -84,6 +83,7 @@ static void GLAPIENTRY cb_debug_message(GLenum source, GLenum type, GLuint id, G
 void remesh_static()
 {
 	Mesh mesh(g_scene);
+	mesh.set_baked(false);
 
 	for(auto& monitor : monitors)
 	{
@@ -171,10 +171,10 @@ void Window::create()
 	gm_player.bind_ssbo();
 	gm_player.set(m_player, GL_STATIC_DRAW);
 
+	g_scene.add(model.load("scene"));
 	g_scene.add(model.load("cr"));
 	g_scene.add(model.load("cb"));
 	g_scene.add(model.load("hw"));
-	g_scene.bake_transforms();
 
 	Camera::init(model);
 
@@ -236,7 +236,8 @@ void Window::create()
 
 void update_slow()
 {
-	Mesh mesh;
+	static Mesh mesh(true);
+	mesh.clear();
 
 	for(auto& monitor : monitors)
 	{
@@ -248,11 +249,8 @@ void update_slow()
 		equipment->remesh_slow(mesh);
 	}
 
-	mesh.bake_transforms();
-
-	gm_dynamic_slow[gm_dynamic_slow_at].bind();
-	gm_dynamic_slow[gm_dynamic_slow_at].set(mesh, GL_DYNAMIC_DRAW);
-	gm_dynamic_slow_at = (gm_dynamic_slow_at + 1) % 2;
+	gm_dynamic_slow.bind();
+	gm_dynamic_slow.set(mesh, GL_STREAM_DRAW);
 
 	UI::update_slow();
 }
@@ -326,8 +324,8 @@ void Window::render_scene()
 
 void Window::render_dynamic()
 {
-	gm_dynamic_slow[gm_dynamic_slow_at].bind();
-	gm_dynamic_slow[gm_dynamic_slow_at].render();
+	gm_dynamic_slow.bind();
+	gm_dynamic_slow.render();
 }
 
 void Window::render()
@@ -376,7 +374,7 @@ void Window::render()
 
 	UI::render();
 	Focus::render_ui();
-
+	
 	glfwSwapBuffers(win);
 	
 	Shader::LIGHT.use();

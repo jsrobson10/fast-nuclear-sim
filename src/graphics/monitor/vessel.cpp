@@ -16,7 +16,7 @@ using namespace Sim::Graphics::Monitor;
 using namespace Sim::Graphics::Data;
 using namespace Sim::Util::Streams;
 
-Vessel::Vessel(const Model& model)
+Vessel::Vessel(const Model& model) : Data::MeshGen("vessel")
 {
 	mat = model.load_matrix("translation_monitor_2");
 }

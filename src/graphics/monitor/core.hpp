@@ -15,7 +15,7 @@ class Core : public Data::MeshGen
 	Data::Mesh m_buttons[9];
 	Data::Mesh m_joystick;
 	Data::Mesh m_scram;
-	
+
 public:
 
 	Core(const Data::Model& model);

@@ -17,7 +17,7 @@ using namespace Sim::Graphics::Monitor;
 using namespace Sim::Graphics::Data;
 using namespace Sim::Util::Streams;
 
-SecondaryLoop::SecondaryLoop(const Model& model)
+SecondaryLoop::SecondaryLoop(const Model& model) : Data::MeshGen("secondary loop")
 {
 	mat = model.load_matrix("translation_monitor_6");
 

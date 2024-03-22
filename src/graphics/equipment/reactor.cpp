@@ -10,10 +10,11 @@
 using namespace Sim::Graphics::Equipment;
 using namespace Sim::Graphics::Data;
 
-Reactor::Reactor(const Model& model)
+Reactor::Reactor(const Model& model) : MeshGen("reactor")
 {
 	g_control_rod_lift = model.load("visual_control_rod_lift");
 	g_control_rod_base = model.load("visual_control_rod_base");
+	g_control_rod_base.set_baked();
 }
 
 void Reactor::remesh_static(Mesh& rmesh)
@@ -41,24 +42,21 @@ void Reactor::remesh_static(Mesh& rmesh)
 
 		if(r->get_colour()[3] != 0)
 		{
-			Mesh m1, m2;
+			Mesh mesh;
 			glm::mat4 m = glm::translate(glm::mat4(1), glm::vec3(ox, oy, 0)) * mat_scale;
-			m1.add(g_control_rod_base, m);
-			m2.add(g_control_rod_lift, m);
-			m1.bake_transforms();
-			m2.bake_transforms();
-			m2.set_blank_transform();
+			mesh.add(g_control_rod_lift, m, true);
+			mesh.set_blank_transform();
 
-			for(int i = 0; i < m2.vertices.size(); i++)
+			for(int i = 0; i < mesh.vertices.size(); i++)
 			{
 				if(g_control_rod_lift.vertices[i].pos.z == 0)
 				{
-					m2.vertices[i].transform_id = -1;
+					mesh.vertices[i].transform_id = -1;
 				}
 			}
 
-			rmesh.add(m1);
-			rmesh.add(m2);
+			rmesh.add(mesh);
+			rmesh.add(g_control_rod_base, m, true);
 		}
 	}
 }

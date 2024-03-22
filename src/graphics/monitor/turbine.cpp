@@ -18,7 +18,7 @@ using namespace Sim::Graphics::Monitor;
 using namespace Sim::Graphics::Data;
 using namespace Sim::Util::Streams;
 
-Turbine::Turbine(const Model& model)
+Turbine::Turbine(const Model& model) : Data::MeshGen("turbine")
 {
 	mat = model.load_matrix("translation_monitor_5");
 

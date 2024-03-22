@@ -7,7 +7,7 @@
 using namespace Sim::Graphics::Equipment;
 using namespace Sim::Graphics::Data;
 
-Pool::Pool(const Model& model)
+Pool::Pool(const Model& model) : MeshGen("pool")
 {
 	g_pool = model.load("visual_water");
 }

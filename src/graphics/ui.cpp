@@ -20,10 +20,8 @@
 using namespace Sim::Graphics;
 
 static Data::Mesh g_ui;
-static Data::GLMesh gm_dynamic_slow[2];
+static Data::GLMesh gm_dynamic_slow;
 static Widget::Clock w_clock;
-
-static int gm_dynamic_slow_at = 0;
 
 void UI::init()
 {
@@ -34,7 +32,6 @@ void UI::init()
 		{.texpos={1, 0}, .pos={ 1, -1, 0}, .material={0, 0, 1}},
 		{.texpos={1, 1}, .pos={ 1,  1, 0}, .material={0, 0, 1}},
 	};
-	g_ui.bake_transforms();
 }
 
 void UI::update(double dt)
@@ -45,15 +42,13 @@ void UI::update(double dt)
 void UI::update_slow()
 {
 	Data::Mesh mesh;
+	mesh.set_baked();
+	mesh.add(g_ui);
 
 	w_clock.remesh_slow(mesh);
 
-	mesh.add(g_ui);
-	mesh.bake_transforms();
-
-	gm_dynamic_slow[gm_dynamic_slow_at].bind();
-	gm_dynamic_slow[gm_dynamic_slow_at].set(mesh, GL_STREAM_DRAW);
-	gm_dynamic_slow_at = (gm_dynamic_slow_at + 1) % 2;
+	gm_dynamic_slow.bind();
+	gm_dynamic_slow.set(mesh, GL_STREAM_DRAW);
 }
 
 void UI::render()
@@ -66,7 +61,7 @@ void UI::render()
 	glm::mat4 mat_camera = glm::scale(glm::mat4(1), glm::vec3(1.0f / wsize * glm::vec2(1, -1), -1));
 	StateBuffer::set({mat_camera, mat_projection});
 
-	gm_dynamic_slow[gm_dynamic_slow_at].bind();
-	gm_dynamic_slow[gm_dynamic_slow_at].render();
+	gm_dynamic_slow.bind();
+	gm_dynamic_slow.render();
 }
 

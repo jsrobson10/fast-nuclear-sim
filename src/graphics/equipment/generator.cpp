@@ -7,7 +7,7 @@
 using namespace Sim::Graphics::Equipment;
 using namespace Sim::Graphics::Data;
 
-Generator::Generator(const Model& model)
+Generator::Generator(const Model& model) : MeshGen("generator")
 {
 	g_rotor = model.load("visual_generator_rotor");
 }

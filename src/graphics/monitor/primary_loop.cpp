@@ -50,7 +50,7 @@ struct ValveJoystick : public Focus::FocusType
 	}
 };
 
-PrimaryLoop::PrimaryLoop(const Model& model)
+PrimaryLoop::PrimaryLoop(const Model& model) : Data::MeshGen("primary loop")
 {
 	mat = model.load_matrix("translation_monitor_4");
 	
@@ -82,7 +82,6 @@ void PrimaryLoop::remesh_static(Mesh& rmesh)
 	ss << "Level\n";
 
 	rmesh.add(Data::Fonts::BASE.load_text(ss.str(), 0.04), mat, true);
-
 	rmesh.add(g_switch_pump);
 	rmesh.add(g_switch_bypass);
 	rmesh.add(g_switch_inlet);

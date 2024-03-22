@@ -78,7 +78,7 @@ void Font::init(const std::string& name, int size)
 		}
 
 		int swizzleMask[] = {GL_RED, GL_RED, GL_RED, GL_RED};
-		c.handle = Texture::load_mem(buffer.data(), width, height, 1, swizzleMask);
+		c.handle = Texture::load_mem(buffer.data(), width, height, 1, swizzleMask, GL_CLAMP_TO_EDGE);
 	}
 
 	FT_Done_FreeType(ft);

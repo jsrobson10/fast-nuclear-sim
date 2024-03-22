@@ -119,7 +119,8 @@ public:
 };
 
 CCTV::CCTV(Model& model)
-	: height(HEIGHT)
+	: Data::MeshGen("cctv")
+	, height(HEIGHT)
 	, width(HEIGHT * 16 / 9)
 	, cameras(model.cameras)
 {
@@ -133,21 +134,25 @@ CCTV::CCTV(Model& model)
 	m_buttons[7] = model.load("click_cctv_numpad_8");
 	m_buttons[8] = model.load("click_cctv_numpad_9");
 
-	glGenFramebuffers(1, &fbo);
-	glGenTextures(1, &texture);
+	glGenFramebuffers(2, fbos);
+	glGenTextures(2, textures);
 	glGenRenderbuffers(1, &rbo_depth);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	glBindRenderbuffer(GL_RENDERBUFFER, rbo_depth);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo_depth);
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
+
+	for(int i = 0; i < 2; i++)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, fbos[i]);
+		glBindTexture(GL_TEXTURE_2D, textures[i]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textures[i], 0);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo_depth);
+	}
 
 	mat = model.load_matrix("translation_monitor_1");
 	m_screen.vertices = {
@@ -158,7 +163,7 @@ CCTV::CCTV(Model& model)
 	};
 	m_screen.indices = {0, 1, 3, 0, 3, 2};
 	m_screen.transforms = {mat};
-	m_screen.bake_transforms();
+	m_screen.set_baked();
 
 	gm_screen.bind();
 	gm_screen.set(m_screen, GL_STATIC_DRAW);
@@ -170,13 +175,14 @@ CCTV::CCTV(Model& model)
 
 CCTV::~CCTV()
 {
-	if(fbo) glDeleteFramebuffers(1, &fbo);
-	if(texture) glDeleteTextures(1, &texture);
+	if(fbos[0]) glDeleteFramebuffers(2, fbos);
+	if(textures[0]) glDeleteTextures(2, textures);
 	if(rbo_depth) glDeleteRenderbuffers(1, &rbo_depth);
 }
 
 CCTV::CCTV(CCTV&& o)
-	: width(o.width)
+	: Data::MeshGen("cctv")
+	, width(o.width)
 	, height(o.height)
 	, cameras(std::move(o.cameras))
 	, gm_screen(std::move(o.gm_screen))
@@ -184,12 +190,14 @@ CCTV::CCTV(CCTV&& o)
 	, m_buttons(std::move(o.m_buttons))
 	, powered(o.powered)
 {
-	fbo = o.fbo;
-	texture = o.texture;
+	fbos[0] = o.fbos[0];
+	fbos[1] = o.fbos[1];
+	textures[0] = o.textures[0];
+	textures[1] = o.textures[1];
 	rbo_depth = o.rbo_depth;
 
-	o.fbo = 0;
-	o.texture = 0;
+	o.fbos[0] = 0;
+	o.textures[0] = 0;
 	o.rbo_depth = 0;
 }
 
@@ -282,7 +290,7 @@ void CCTV::render_view()
 	glm::mat4 proj = glm::perspective(active.fov * active.zoom, (float)width / height, 0.1f, 100.0f);
 	glm::vec3 brightness = glm::vec3(System::active->grid.get_light_intensity());
 
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbos[(buff_at + 1) % 2]);
 	glViewport(0, 0, width, height);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glFrontFace(GL_CCW);
@@ -294,6 +302,9 @@ void CCTV::render_view()
 	Window::render_scene();
 	Window::render_dynamic();
 	Window::render_player();
+	render_screen();
+
+	buff_at = (buff_at + 1) % 2;
 }
 
 void CCTV::render_screen()
@@ -302,7 +313,7 @@ void CCTV::render_screen()
 		return;
 
 	Shader::CCTV.use();
-	glBindTexture(GL_TEXTURE_2D, texture);
+	glBindTexture(GL_TEXTURE_2D, textures[buff_at]);
 	glBlendFunc(GL_SRC_COLOR, GL_ONE);
 
 	gm_screen.bind();

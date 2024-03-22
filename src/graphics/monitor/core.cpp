@@ -117,7 +117,7 @@ struct CoreJoystick : public Focus::FocusType
 	}
 };
 
-Core::Core(const Model& model)
+Core::Core(const Model& model) : Data::MeshGen("core")
 {
 	mat = model.load_matrix("translation_monitor_3");
 	m_buttons[0] = model.load("click_reactor_numpad_1");
@@ -137,21 +137,6 @@ Core::Core(const Model& model)
 void Core::remesh_static(Mesh& rmesh)
 {
 	rmesh.add(Data::Fonts::BASE.load_text("Reactor Core", 0.04), mat, true);
-}
-
-static Data::Mesh add_dot(glm::mat4 model_mat, glm::vec4 colour)
-{
-	Data::Mesh mesh;
-
-	mesh.indices = {0, 1, 3, 0, 3, 2};
-	mesh.vertices = {
-		{.texpos={0, 0}, .pos=glm::vec3(model_mat * glm::vec4(-0.75, -0.75, 0, 1)), .colour=colour, .material={0, 0, 1}}, 
-		{.texpos={0, 1}, .pos=glm::vec3(model_mat * glm::vec4(-0.75,  0.75, 0, 1)), .colour=colour, .material={0, 0, 1}}, 
-		{.texpos={1, 0}, .pos=glm::vec3(model_mat * glm::vec4( 0.75, -0.75, 0, 1)), .colour=colour, .material={0, 0, 1}}, 
-		{.texpos={1, 1}, .pos=glm::vec3(model_mat * glm::vec4( 0.75,  0.75, 0, 1)), .colour=colour, .material={0, 0, 1}}, 
-	};
-
-	return mesh;
 }
 
 void Core::update(double dt)
@@ -185,7 +170,7 @@ void Core::update(double dt)
 void Core::remesh_slow(Mesh& rmesh)
 {
 	Sim::System& sys = *System::active;
-	Sim::Graphics::Data::Mesh mesh;
+	Mesh mesh;
 	
 	double step = sys.reactor.cell_width / sys.vessel.diameter * 0.8;
 	double sx = 0.5 - (sys.reactor.width - 1) * step / 2.0;
@@ -195,6 +180,17 @@ void Core::remesh_slow(Mesh& rmesh)
 	glm::mat4 mat_select = glm::translate(glm::mat4(1), glm::vec3(-0.8, -0.8, -0.001)) * glm::scale(glm::mat4(1), glm::vec3(0.25, 0.25, 1));
 	glm::mat4 mat_cursor = glm::translate(glm::mat4(1), glm::vec3(-0.8, 0.8, -0.001)) * glm::scale(glm::mat4(1), glm::vec3(0.25, 0.25, 1));
 	glm::mat4 mat_spec = glm::translate(glm::mat4(1), glm::vec3(0.8, -0.8, -0.001)) * glm::scale(glm::mat4(1), glm::vec3(0.25, 0.25, 1));
+
+	Data::Mesh::Primitive<4, 6> prim {
+		.vertex_base = {.material={0, 0, 1}},
+		.indices = {0, 1, 3, 0, 3, 2},
+		.vertices = {
+			{.texpos={0, 0}, .pos=glm::vec3(glm::vec4(-0.75, -0.75, 0, 1))}, 
+			{.texpos={0, 1}, .pos=glm::vec3(glm::vec4(-0.75,  0.75, 0, 1))}, 
+			{.texpos={1, 0}, .pos=glm::vec3(glm::vec4( 0.75, -0.75, 0, 1))}, 
+			{.texpos={1, 1}, .pos=glm::vec3(glm::vec4( 0.75,  0.75, 0, 1))}, 
+		},
+	};
 	
 	for(int i = 0; i < sys.reactor.size; i++)
 	{
@@ -210,7 +206,7 @@ void Core::remesh_slow(Mesh& rmesh)
 			continue;
 		}
 
-		glm::mat4 mat = glm::translate(glm::mat4(1), glm::vec3(ox, oy, 0)) * mat_scale;
+		glm::mat4 mat = this->mat * glm::translate(glm::mat4(1), glm::vec3(ox, oy, 0)) * mat_scale;
 		glm::vec4 colour_heat = r->get_heat_colour() * glm::vec4(glm::vec3(1), 1);
 		glm::vec4 colour_spec = r->get_colour();
 
@@ -219,24 +215,26 @@ void Core::remesh_slow(Mesh& rmesh)
 			continue;
 		}
 
-		mesh.add(add_dot(mat, colour_heat));
+		prim.vertex_base.colour = colour_heat;
+		rmesh.add(prim, mat);
 		
 		if(colour_spec[3] != 0)
 		{
-			mesh.add(add_dot(mat * mat_spec, colour_spec));
+			prim.vertex_base.colour = colour_spec;
+			rmesh.add(prim, mat * mat_spec);
 		}
 
 		if(sys.reactor.cursor == i)
 		{
-			mesh.add(add_dot(mat * mat_cursor, {1, 0, 0, 1}));
+			prim.vertex_base.colour = {1, 0, 0, 1};
+			rmesh.add(prim, mat * mat_cursor);
 		}
 
 		if(r->selected)
 		{
-			mesh.add(add_dot(mat * mat_select, {1, 1, 0, 1}));
+			prim.vertex_base.colour = {1, 1, 0, 1};
+			rmesh.add(prim, mat * mat_select);
 		}
 	}
-	
-	rmesh.add(mesh, mat);
 }
 

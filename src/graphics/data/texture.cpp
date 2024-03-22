@@ -125,7 +125,7 @@ void Texture::generate_atlas()
 	is_done = true;
 }
 
-uint32_t Texture::load_mem(const uint8_t* data, int width, int height, int channels, int* swizzleMask)
+uint32_t Texture::load_mem(const uint8_t* data, int width, int height, int channels, int* swizzleMask, GLenum edgeBehaviour)
 {
 	if(is_done)
 	{
@@ -225,10 +225,10 @@ uint32_t Texture::load_mem(const uint8_t* data, int width, int height, int chann
 	glGenTextures(1, &texid);
 	glBindTexture(GL_TEXTURE_2D, texid);
 	glTexImage2D(GL_TEXTURE_2D, 0, format_in, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, edgeBehaviour);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, edgeBehaviour);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTextureParameteriv(texid, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask);
 	glGenerateMipmap(GL_TEXTURE_2D);
 
