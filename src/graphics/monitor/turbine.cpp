@@ -74,7 +74,7 @@ void Turbine::remesh_static(Mesh& rmesh)
 	ss << "Turbine\n\n";
 	ss << "Heat\nPressure\nSpeed\n\n";
 
-	rmesh.add(Data::Fonts::BASE.load_text(ss.str(), 0.04), mat, true);
+	Data::Fonts::BASE.load_text(rmesh, ss.str(), {.size=0.04, .mat=mat, .bake=true});
 	
 	rmesh.add(g_dial_phase);
 	rmesh.add(g_dial_voltage);
@@ -93,7 +93,6 @@ void Turbine::remesh_slow(Mesh& rmesh)
 	ss << show( sys.loop.turbine.get_pressure() / 1000 ) << " kPa\n";
 	ss << show( sys.loop.generator.get_rpm() ) << " r/min\n";
 	
-	Mesh mesh = Data::Fonts::BASE.load_text(ss.str(), 0.04);
-	rmesh.add(mesh, glm::translate(mat, glm::vec3(0.5, 0, 0)));
+	Data::Fonts::BASE.load_text(rmesh, ss.str(), {.size=0.04, .mat=glm::translate(mat, glm::vec3(0.5, 0, 0)), .bake=true});
 }
 

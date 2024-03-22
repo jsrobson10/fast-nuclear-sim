@@ -219,8 +219,7 @@ void CCTV::remesh_slow(Data::Mesh& rmesh)
 	
 	const Data::Camera& active = cameras[camera_at];
 	std::stringstream ss;
-
-	ss << "- ";
+	ss << " ";
 
 	for(int i = 0; i < cameras.size(); i++)
 	{
@@ -235,9 +234,7 @@ void CCTV::remesh_slow(Data::Mesh& rmesh)
 		}
 	}
 
-	ss << "-\n";
-
-	rmesh.add(Data::Fonts::MONO.load_text(ss.str(), 0.02, {0.5, 0}), glm::translate(mat, {0.5, 0.95, 0}), true);
+	Data::Fonts::MONO.load_text(rmesh, ss.str(), {.size=0.02, .align={0.5, 0}, .mat=glm::translate(mat, {0.5, 0.95, 0}), .bake=true});
 	
 	char zoom_chars[] = "          ";
 	zoom_chars[(int)std::round(Util::Math::ramp(active.zoom, 1, 0.25, 0, 9))] = '#';
@@ -245,7 +242,7 @@ void CCTV::remesh_slow(Data::Mesh& rmesh)
 	ss.str("");
 	ss << "Zoom: [" << zoom_chars << "]";
 
-	rmesh.add(Data::Fonts::MONO.load_text(ss.str(), 0.02), glm::translate(mat, {0.0125, 0.0125, 0}), true);
+	Data::Fonts::MONO.load_text(rmesh, ss.str(), {.size=0.02, .align={0, 1}, .mat=glm::translate(mat, {0.0125, 0.05, 0}), .bake=true});
 }
 
 void CCTV::update(double dt)

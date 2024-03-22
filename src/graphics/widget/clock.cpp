@@ -41,7 +41,6 @@ void Clock::remesh_slow(Mesh& rmesh)
 	ss << std::setfill('0') << std::setw(2) << t_s << "\n";
 	ss << "Day: " << std::floor(at / (3600 * 24)) << "\n";
 
-	Mesh m = Fonts::BASE.load_text(ss.str(), 20);
-	rmesh.add(m, glm::translate(glm::mat4(1), glm::vec3(-wsize + glm::vec2(2, 2), 0)));
+	Fonts::BASE.load_text(rmesh, ss.str(), {.size=20, .mat=glm::translate(glm::mat4(1), glm::vec3(-wsize + glm::vec2(2, 2), 0)), .bake=true});
 }
 

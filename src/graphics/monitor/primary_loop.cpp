@@ -81,7 +81,7 @@ void PrimaryLoop::remesh_static(Mesh& rmesh)
 	ss << "Pressure\n";
 	ss << "Level\n";
 
-	rmesh.add(Data::Fonts::BASE.load_text(ss.str(), 0.04), mat, true);
+	Data::Fonts::BASE.load_text(rmesh, ss.str(), {.size=0.04, .mat=mat, .bake=true});
 	rmesh.add(g_switch_pump);
 	rmesh.add(g_switch_bypass);
 	rmesh.add(g_switch_inlet);
@@ -146,8 +146,7 @@ void PrimaryLoop::remesh_slow(Mesh& rmesh)
 	show_units( ss, sys.loop.condenser.get_pressure() ) << "Pa\n";
 	ss << show( sys.loop.condenser.get_level() / 1000 ) << " / " << show( sys.loop.condenser.get_volume() / 1000 ) << " kL\n";
 
-	Mesh mesh = Data::Fonts::BASE.load_text(ss.str(), 0.04);
-	rmesh.add(mesh, glm::translate(mat, glm::vec3(0.5, 0, 0)));
+	Data::Fonts::BASE.load_text(rmesh, ss.str(), {.size=0.04, .mat=glm::translate(mat, {0.5, 0, 0}), .bake=true});
 }
 
 void PrimaryLoop::get_static_transforms(std::vector<glm::mat4>& transforms)

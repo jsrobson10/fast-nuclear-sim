@@ -51,7 +51,7 @@ void SecondaryLoop::remesh_static(Mesh& rmesh)
 	ss << "Freight Pump\n\n";
 	ss << "Power\nSpeed\nFlow\n\n";
 
-	rmesh.add(Data::Fonts::BASE.load_text(ss.str(), 0.04), mat, true);
+	Data::Fonts::BASE.load_text(rmesh, ss.str(), {.size=0.04, .mat=mat, .bake=true});
 	rmesh.add(g_switch_2);
 	rmesh.add(g_switch_3);
 }
@@ -75,8 +75,7 @@ void SecondaryLoop::remesh_slow(Mesh& rmesh)
 	ss << show( sys.freight_pump.get_rpm() ) << " r/min\n";
 	show_units( ss, sys.freight_pump.get_flow_mass() ) << "g/s\n";
 
-	Mesh mesh = Data::Fonts::BASE.load_text(ss.str().c_str(), 0.04);
-	rmesh.add(mesh, glm::translate(mat, glm::vec3(0.5, 0, 0)));
+	Data::Fonts::BASE.load_text(rmesh, ss.str().c_str(), {.size=0.04, .mat=glm::translate(mat, {0.5, 0, 0}), .bake=true});
 }
 
 void SecondaryLoop::get_static_transforms(std::vector<glm::mat4>& transforms)

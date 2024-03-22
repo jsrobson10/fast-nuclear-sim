@@ -29,24 +29,20 @@ public:
 	Font();
 	
 	void init(const std::string& name, int size);
-	Mesh load_text(const std::string& text, float size, glm::vec2 align) const;
-	Mesh load_text(const std::string& text, float size) const;
 
-	template <class T>
-	void load_text(const char* header, T& item, double size)
+	struct load_text_t
 	{
-		std::stringstream ss;
-		ss << header << item;
-		load_text(ss.str(), size);
-	}
-	
-	template <class T>
-	void load_text(const char* header, T& item, double size, glm::vec2 align)
-	{
-		std::stringstream ss;
-		ss << header << item;
-		load_text(ss.str(), size, align);
-	}
+		float size = 0.04;
+		glm::vec2 align = glm::vec2(0, 0);
+		Arrays::Vertex prim_base = {.material={0, 0, 1}};
+		glm::mat4 mat = glm::mat4(1);
+		bool bake = false;
+	};
+
+	void load_text(Mesh& rmesh, const std::string& text, load_text_t t) const;
+
+	float calc_line_width(const char* text, float size) const;
+	float calc_height(const char* text, float size) const;
 };
 
 namespace Fonts

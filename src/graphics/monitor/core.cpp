@@ -165,7 +165,7 @@ void Core::update(double dt)
 void Core::remesh_static(Mesh& rmesh)
 {
 	Sim::System& sys = *System::active;
-	rmesh.add(Data::Fonts::BASE.load_text("Reactor Core", 0.04), mat, true);
+	Data::Fonts::BASE.load_text(rmesh, "Reactor Core", {.size=0.04, .mat=mat, .bake=true});
 	
 	int colour_id = 0;
 	double step = sys.reactor.cell_width / sys.vessel.diameter * 0.8;

@@ -88,6 +88,106 @@ Font::Font()
 {
 }
 
+float Font::calc_line_width(const char* text, float size) const
+{
+	float x = 0;
+
+	for(int i = 0; text[i] != '\0' && text[i] != '\n'; i++)
+	{
+		char c = text[i];
+		x += characters[c].advance * size;
+	}
+
+	return x;
+}
+
+float Font::calc_height(const char* text, float size) const
+{
+	float y = size;
+
+	for(int i = 0; text[i] != '\0'; i++)
+	{
+		if(text[i] == '\n')
+		{
+			y += size;
+		}
+	}
+
+	return y;
+}
+
+void Font::load_text(Mesh& rmesh, const std::string& text, load_text_t t) const
+{
+	if(text[0] == '\0')
+	{
+		return;
+	}
+
+	float x = 0;
+	float y = t.size;
+	float off_x = 0;
+	float off_y = 0;
+	unsigned int at = 0;
+	float t0 = 0;
+	float t1 = 1;
+
+	if(t.align.x > 0)
+	{
+		off_x = calc_line_width(text.c_str(), t.size) * t.align.x;
+	}
+
+	if(t.align.y > 0)
+	{
+		off_y = calc_height(text.c_str(), t.size) * t.align.y;
+	}
+
+	if(!Shader::USE_BINDLESS_TEXTURES)
+	{
+		t0 += texel_size / 2;
+		t1 -= texel_size / 2;
+	}
+
+	for(int i = 0; i < text.size(); i++)
+	{
+		char c = text[i];
+		const Character& ch = characters[c];
+
+		if(c == '\n')
+		{
+			x = 0;
+			y += t.size;
+			off_x = calc_line_width(text.c_str() + i + 1, t.size) * t.align.x;
+			continue;
+		}
+
+		if(ch.handle == 0)
+		{
+			x += ch.advance * t.size;
+			continue;
+		}
+
+		float sx = x + ch.bearing.x * t.size - off_x;
+		float sy = y - ch.bearing.y * t.size - off_y;
+		float ex = sx + ch.size.x * t.size;
+		float ey = sy + ch.size.y * t.size;
+
+		Mesh::Primitive<4, 6> prim {
+			.vertex_base = t.prim_base,
+			.indices = {0, 1, 3, 0, 3, 2},
+			.vertices = {
+				{.texpos={0, 0}, .pos={sx, sy, 0}},
+				{.texpos={0, 1}, .pos={sx, ey, 0}},
+				{.texpos={1, 0}, .pos={ex, sy, 0}},
+				{.texpos={1, 1}, .pos={ex, ey, 0}},
+			},
+		};
+
+		prim.vertex_base.tex_diffuse = ch.handle;
+		rmesh.add(prim, t.mat, t.bake);
+		x += ch.advance * t.size;
+	}
+}
+/*
 Mesh Font::load_text(const std::string& text, float size) const
 {
 	Mesh m;
@@ -177,4 +277,4 @@ Mesh Font::load_text(const std::string& text, float size, glm::vec2 align) const
 
 	return m;
 }
-
+*/

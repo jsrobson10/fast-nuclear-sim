@@ -118,7 +118,7 @@ void Window::create()
 	win = glfwCreateWindow(800, 600, "FastNuclearSim", nullptr, nullptr);
 
 	glfwMakeContextCurrent(win);
-	glfwSwapInterval(1);
+	glfwSwapInterval(0);
 
 	GLenum err = glewInit();
 

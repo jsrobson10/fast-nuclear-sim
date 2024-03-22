@@ -37,7 +37,7 @@ void Vessel::remesh_static(Mesh& rmesh)
 	ss << "Temperature\nMin\nMax\n\n";
 	ss << "Control Rods\nMin\nMax\nSpeed\n";
 
-	rmesh.add(Data::Fonts::BASE.load_text(ss.str(), 0.04), mat, true);
+	Data::Fonts::BASE.load_text(rmesh, ss.str(), {.size=0.04, .mat=mat, .bake=true});
 }
 
 void Vessel::remesh_slow(Mesh& rmesh)
@@ -90,7 +90,6 @@ void Vessel::remesh_slow(Mesh& rmesh)
 	if(sys.reactor.rod_speed == 0) ss << " (Stopped)";
 	ss << "\n";
 
-	Mesh mesh = Data::Fonts::BASE.load_text(ss.str(), 0.04);
-	rmesh.add(mesh, glm::translate(mat, glm::vec3(0.5, 0, 0)));
+	Data::Fonts::BASE.load_text(rmesh, ss.str(), {.size=0.04, .mat=glm::translate(mat, glm::vec3(0.5, 0, 0)), .bake=true});
 }
 
