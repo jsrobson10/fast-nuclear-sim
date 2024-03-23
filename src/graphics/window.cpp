@@ -34,6 +34,7 @@
 #include "equipment/reactor.hpp"
 #include "equipment/generator.hpp"
 #include "equipment/pool.hpp"
+#include "equipment/pool_pump.hpp"
 #include "../system.hpp"
 #include "../util/streams.hpp"
 #include "statebuffer.hpp"
@@ -46,7 +47,7 @@ using namespace Sim::Graphics::Data;
 static GLFWwindow* win;
 static bool win_should_close = false;
 static unsigned int ssbo_transforms;
-static unsigned int ssbo_colours;
+static unsigned int ssbo_materials;
 static unsigned int wait_at = 0;
 
 static int ssbo_transforms_at = 0;
@@ -109,7 +110,7 @@ void Window::create()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 	glfwWindowHint(GLFW_VISIBLE, false);
-	glfwWindowHint(GLFW_SAMPLES, 16);
+	glfwWindowHint(GLFW_SAMPLES, 4);
 
 #ifdef __APPLE__
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
@@ -118,7 +119,7 @@ void Window::create()
 	win = glfwCreateWindow(800, 600, "FastNuclearSim", nullptr, nullptr);
 
 	glfwMakeContextCurrent(win);
-	glfwSwapInterval(0);
+	glfwSwapInterval(1);
 
 	GLenum err = glewInit();
 
@@ -170,10 +171,9 @@ void Window::create()
 	gm_player.bind_ssbo();
 	gm_player.set(m_player, GL_STATIC_DRAW);
 
-	g_scene.add(model.load("scene"));
-	g_scene.add(model.load("cr"));
-	g_scene.add(model.load("cb"));
-	g_scene.add(model.load("hw"));
+	g_scene.add(model.load("control room"));
+	g_scene.add(model.load("containment building"));
+	g_scene.add(model.load("hallway"));
 
 	Camera::init(model);
 
@@ -189,6 +189,7 @@ void Window::create()
 	equipment.push_back(new Equipment::Reactor(model));
 	equipment.push_back(new Equipment::Generator(model));
 	equipment.push_back(new Equipment::Pool(model));
+	equipment.push_back(new Equipment::PoolPump(model));
 
 	Texture::generate_atlas();
 	
@@ -209,7 +210,7 @@ void Window::create()
 	glUniform1i(Shader::MAIN["shadows_enabled"], 1);
 
 	glGenBuffers(1, &ssbo_transforms);
-	glGenBuffers(1, &ssbo_colours);
+	glGenBuffers(1, &ssbo_materials);
 
 	StateBuffer::init();
 }
@@ -243,10 +244,10 @@ void Window::reload()
 void Window::update(double dt)
 {
 	static std::vector<glm::mat4> transforms;
-	static std::vector<glm::vec4> colours;
+	static std::vector<Data::Material> materials;
 
 	transforms.clear();
-	colours.clear();
+	materials.clear();
 
 	glfwPollEvents();
 
@@ -254,14 +255,14 @@ void Window::update(double dt)
 	{
 		monitor->update(dt);
 		monitor->get_static_transforms(transforms);
-		monitor->get_static_colours(colours);
+		monitor->get_static_materials(materials);
 	}
 
 	for(auto& equipment : equipment)
 	{
 		equipment->update(dt);
 		equipment->get_static_transforms(transforms);
-		equipment->get_static_colours(colours);
+		equipment->get_static_materials(materials);
 	}
 
 	for(int i = 0; i < transforms.size(); i++)
@@ -279,8 +280,8 @@ void Window::update(double dt)
 
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_transforms);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, transforms.size() * sizeof(transforms[0]), transforms.data(), GL_STREAM_DRAW);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_colours);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, colours.size() * sizeof(colours[0]), colours.data(), GL_STREAM_DRAW);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_materials);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, materials.size() * sizeof(materials[0]), materials.data(), GL_STREAM_DRAW);
 
 	if(wait_at++ % 4 == 0)
 	{
@@ -298,7 +299,7 @@ void Window::render_player()
 void Window::bind_scene_ssbo()
 {
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, ssbo_transforms);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, ssbo_colours);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, ssbo_materials);
 }
 
 void Window::render_scene()

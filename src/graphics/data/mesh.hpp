@@ -31,7 +31,7 @@ struct Mesh
 		PrimitiveItem vertices[N_VERTS];
 	};
 
-	int colour_ids = 0;
+	int material_ids = 0;
 	std::vector<Arrays::Vertex> vertices;
 	std::vector<unsigned int> indices;
 	std::vector<glm::mat4> transforms;
@@ -41,6 +41,7 @@ struct Mesh
 	Mesh(bool baked = false);
 
 	void set_baked(bool b = true);
+	void set_material_id(int id = 0);
 	void set_blank_transform();
 	void set_normal_id(unsigned int id);
 	void set_diffuse_id(unsigned int id);

@@ -167,7 +167,7 @@ void Core::remesh_static(Mesh& rmesh)
 	Sim::System& sys = *System::active;
 	Data::Fonts::BASE.load_text(rmesh, "Reactor Core", {.size=0.04, .mat=mat, .bake=true});
 	
-	int colour_id = 0;
+	int material_id = 0;
 	double step = sys.reactor.cell_width / sys.vessel.diameter * 0.8;
 	double sx = 0.5 - (sys.reactor.width - 1) * step / 2.0;
 	double sy = 0.5 - (sys.reactor.height - 1) * step / 2.0;
@@ -215,20 +215,20 @@ void Core::remesh_static(Mesh& rmesh)
 			continue;
 		}
 
-		prim.vertex_base.colour_id = colour_id++;
+		prim.vertex_base.material_id = material_id++;
 		rmesh.add(prim, mat, true);
 		
-		prim.vertex_base.colour_id = colour_id++;
+		prim.vertex_base.material_id = material_id++;
 		rmesh.add(prim, mat * mat_select, true);
 		
 		if(colour_spec[3] != 0)
 		{
-			prim.vertex_base.colour_id = colour_id++;
+			prim.vertex_base.material_id = material_id++;
 			rmesh.add(prim, mat * mat_spec, true);
 		}
 	}
 
-	rmesh.colour_ids += colour_id;
+	rmesh.material_ids += material_id;
 }
 
 void Core::get_static_transforms(std::vector<glm::mat4>& transforms)
@@ -257,7 +257,7 @@ void Core::get_static_transforms(std::vector<glm::mat4>& transforms)
 	}
 }
 
-void Core::get_static_colours(std::vector<glm::vec4>& colours)
+void Core::get_static_materials(std::vector<Data::Material>& materials)
 {
 	Sim::System& sys = *System::active;
 
@@ -271,12 +271,12 @@ void Core::get_static_colours(std::vector<glm::vec4>& colours)
 			continue;
 		}
 
-		colours.push_back(r->get_heat_colour());
-		colours.push_back(r->selected ? glm::vec4{1, 1, 0, 1} : glm::vec4{1, 1, 0, 0.25});
+		materials.push_back({.colour = r->get_heat_colour()});
+		materials.push_back({.colour = r->selected ? glm::vec4{1, 1, 0, 1} : glm::vec4{1, 1, 0, 0.25}});
 
 		if(spec[3] != 0)
 		{
-			colours.push_back(spec);
+			materials.push_back({.colour = spec});
 		}
 	}
 }

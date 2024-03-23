@@ -22,7 +22,7 @@ public:
 	void update(double dt) override;
 	void remesh_static(Data::Mesh& rmesh) override;
 	void get_static_transforms(std::vector<glm::mat4>& transforms) override;
-	void get_static_colours(std::vector<glm::vec4>& colours) override;
+	void get_static_materials(std::vector<Data::Material>& colours) override;
 };
 
 };

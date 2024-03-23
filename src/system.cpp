@@ -16,30 +16,26 @@ using namespace Sim;
 std::unique_ptr<Sim::System> System::active = std::make_unique<Sim::System>();
 
 const char* CORE_LAYOUT[] = {
-	"      C C C C      ",
-	"   C CFCFCFCFC C   ",
-	"  CFCFCFCFCFCFCFC  ",
-	" CFCFCFCFCFCFCFCFC ",
-	"  CFCFCFCFCFCFCFC  ",
-	" CFCFCFCFCFCFCFCFC ",
-	"CFCFCFCFCFCFCFCFCFC",
-	" CFCFCFCFCFCFCFCFC ",
-	"CFCFCFCFCFCFCFCFCFC",
-	" CFCFCFCFCFCFCFCFC ",
-	"CFCFCFCFCFCFCFCFCFC",
-	" CFCFCFCFCFCFCFCFC ",
-	"CFCFCFCFCFCFCFCFCFC",
-	" CFCFCFCFCFCFCFCFC ",
-	"  CFCFCFCFCFCFCFC  ",
-	" CFCFCFCFCFCFCFCFC ",
-	"  CFCFCFCFCFCFCFC  ",
-	"   C CFCFCFCFC C   ",
-	"      C C C C      "
+	"      C C      ",
+	"   C CFCFC C   ",
+	"  CFCFCFCFCFC  ",
+	" CFCFCFCFCFCFC ",
+	"  CFCFCFCFCFC  ",
+	" CFCFCFCFCFCFC ",
+	"CFCFCFCFCFCFCFC",
+	" CFCFCFCFCFCFC ",
+	"CFCFCFCFCFCFCFC",
+	" CFCFCFCFCFCFC ",
+	"  CFCFCFCFCFC  ",
+	" CFCFCFCFCFCFC ",
+	"  CFCFCFCFCFC  ",
+	"   C CFCFC C   ",
+	"      C C      "
 };
 
 System::System() :
 		vessel(Coolant::WATER, 8, 10, 6e6, 5e5, 10),
-		reactor(Reactor::Builder(19, 19, 0.4, 4, Reactor::Fuel::FuelRod(0.5), &vessel, CORE_LAYOUT)),
+		reactor(Reactor::Builder(15, 15, 0.55, 4, Reactor::Fuel::FuelRod(0.5), &vessel, CORE_LAYOUT)),
 		evaporator(Coolant::WATER, 2, 30, 0, 1000),
 		pool(Coolant::WATER, {16, 32, 11.3}, 16, 1e5, 0),
 		sink(Coolant::WATER, 11, 0, 0),

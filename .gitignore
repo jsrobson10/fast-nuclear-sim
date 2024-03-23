@@ -2,3 +2,10 @@
 /build*
 *.blend1
 
+*.fbx
+*.stl
+*.bin
+*.gltf
+*.obj
+*.mtl
+

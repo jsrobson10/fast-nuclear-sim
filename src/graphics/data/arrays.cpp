@@ -60,7 +60,7 @@ std::ostream& Arrays::operator<<(std::ostream& os, const Vertex& v)
 	os << "colour=" << v.colour << ", ";
 	os << "tbn=" << v.tbn << ", ";
 	os << "transform_id=" << v.transform_id << ", ";
-	os << "colour_id=" << v.colour_id << ", ";
+	os << "material_id=" << v.material_id << ", ";
 	os << "tex_diffuse=" << v.tex_diffuse << ", ";
 	os << "tex_normal=" << v.tex_normal << ", ";
 	os << "material=" << v.material;

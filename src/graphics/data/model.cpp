@@ -25,12 +25,12 @@ struct ProcState
 	std::vector<Arrays::Vertex> vertices;
 	std::vector<unsigned int> indices;
 	std::vector<glm::mat4> transforms;
-	const std::vector<Material>& materials;
+	const std::vector<Model::Material>& materials;
 };
 
 static void proc_mesh(ProcState& state, aiMesh* mesh, const aiScene* scene)
 {
-	Material mat = state.materials[mesh->mMaterialIndex];
+	Model::Material mat = state.materials[mesh->mMaterialIndex];
 	unsigned int offset = state.offset;
 	
 	if(!mesh->HasNormals())
@@ -122,19 +122,33 @@ bool starts_with(const char* base, const char* check)
 	return (check[0] == '\0');
 }
 
-static void proc_node(ProcState& state, glm::mat4 mat, aiNode* node, const aiScene* scene, const char* search)
+static void proc_node(ProcState& state, glm::mat4 mat, aiNode* node, const aiScene* scene, const std::string& name, bool found = false)
 {
-	mat = convert_mat(node->mTransformation) * mat;
+	mat = mat * convert_mat(node->mTransformation);
 	
-	if(starts_with(node->mName.C_Str(), search))
+	if(!found && name == node->mName.C_Str())
 	{
+		found = true;
+	}
+
+	if(found)
+	{
+		int count = 0;
+
 		for(size_t i = 0; i < node->mNumMeshes; i++)
 		{
 			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-			proc_mesh(state, mesh, scene);
-		}
+			
+			if(mesh->mNumVertices == 0 || mesh->mNumFaces == 0)
+			{
+				continue;
+			}
 
-		if(node->mNumMeshes > 0)
+			proc_mesh(state, mesh, scene);
+			count++;
+		}
+	
+		if(count > 0)
 		{
 			state.transforms.push_back(mat);
 		}
@@ -142,30 +156,8 @@ static void proc_node(ProcState& state, glm::mat4 mat, aiNode* node, const aiSce
 
 	for(size_t i = 0; i < node->mNumChildren; i++)
 	{
-		proc_node(state, mat, node->mChildren[i], scene, search);
+		proc_node(state, mat, node->mChildren[i], scene, name, found);
 	}
-}
-
-static uint64_t proc_embedded_texture(aiTexture* tex)
-{
-	std::cout << "Loading embedded data: " << tex->mFilename.C_Str() << "\n";
-	
-	if(tex->mHeight == 0)
-	{
-		return Texture::load_mem((unsigned char*)tex->pcData, tex->mWidth);
-	}
-
-	std::vector<glm::vec<4, unsigned char>> pixels;
-	pixels.reserve(tex->mWidth * tex->mHeight);
-
-	// convert image to get RGBA
-	for(int i = 0; i < tex->mWidth * tex->mHeight; i++)
-	{
-		aiTexel t = tex->pcData[i];
-		pixels.push_back({t.r, t.g, t.b, t.a});
-	}
-
-	return Texture::load_mem(&pixels[0][0], tex->mWidth, tex->mHeight, 4);
 }
 
 glm::mat4 get_transforms(const aiNode* node)
@@ -213,15 +205,7 @@ Model::Model(std::string base, std::string filename) : base(base)
 	std::string path = base + "/" + filename;
 	scene = importer.ReadFile(path.c_str(), aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 
-	textures.reserve(scene->mNumTextures);
 	materials.reserve(scene->mNumMaterials);
-
-	for(int i = 0; i < scene->mNumTextures; i++)
-	{
-		aiTexture* tex = scene->mTextures[i];
-		uint64_t handle = proc_embedded_texture(tex);
-		textures.push_back(handle);
-	}
 	
 	for(int i = 0; i < scene->mNumLights; i++)
 	{

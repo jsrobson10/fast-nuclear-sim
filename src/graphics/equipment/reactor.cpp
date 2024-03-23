@@ -3,6 +3,7 @@
 #include "../../system.hpp"
 #include "../../reactor/rod.hpp"
 #include "../../reactor/coolant/vessel.hpp"
+#include "../../util/streams.hpp"
 
 #include <glm/matrix.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -14,7 +15,6 @@ Reactor::Reactor(const Model& model) : MeshGen("reactor")
 {
 	g_control_rod_lift = model.load("visual_control_rod_lift");
 	g_control_rod_base = model.load("visual_control_rod_base");
-	g_control_rod_base.set_baked();
 }
 
 void Reactor::remesh_static(Mesh& rmesh)
@@ -24,7 +24,7 @@ void Reactor::remesh_static(Mesh& rmesh)
 	double t_sx = -(sys.reactor.width - 1) * t_step / 2.0;
 	double t_sy = -(sys.reactor.height - 1) * t_step / 2.0;
 
-	glm::mat4 mat_scale = glm::scale(glm::mat4(1), glm::vec3(t_step / 0.4));
+	glm::mat4 mat_scale = glm::scale(glm::mat4(1), glm::vec3(t_step / 0.5));
 
 	for(int i = 0; i < sys.reactor.size; i++)
 	{

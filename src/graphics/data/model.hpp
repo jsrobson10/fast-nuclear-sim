@@ -4,7 +4,6 @@
 #include "mesh.hpp"
 #include "light.hpp"
 #include "camera.hpp"
-#include "material.hpp"
 
 #include <string>
 #include <vector>
@@ -27,7 +26,17 @@ class Model
 
 public:
 
-	std::vector<uint32_t> textures;
+	struct Material
+	{
+		uint32_t diffuse = Texture::handle_white;
+		uint32_t normal = Texture::handle_normal;
+		glm::vec4 colour = {1, 1, 1, 1};
+		float roughness = 0.5;
+		float metalness = 0;
+		float luminance = 0;
+	};
+
+	std::unordered_map<std::string, aiNode*> nodes;
 	std::vector<Material> materials;
 	std::vector<Camera> cameras;
 	std::vector<Light> lights;

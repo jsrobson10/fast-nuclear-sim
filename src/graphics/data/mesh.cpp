@@ -32,6 +32,14 @@ void Mesh::set_normal_id(unsigned int id)
 	}
 }
 
+void Mesh::set_material_id(int id)
+{
+	for(unsigned int i = 0; i < vertices.size(); i++)
+	{
+		vertices[i].material_id = id;
+	}
+}
+
 void Mesh::set_blank_transform()
 {
 	transforms = {glm::mat4(1)};
@@ -64,13 +72,13 @@ void Mesh::add(const Mesh& o, glm::mat4 mat, bool bake)
 			
 			if(t_id >= 0)
 			{
-				t_mat = t_mat * o.transforms[t_id];
+				t_mat = o.transforms[t_id] * t_mat;
 				v.transform_id = -1;
 			}
 
-			if(v.colour_id >= 0)
+			if(v.material_id >= 0)
 			{
-				v.colour_id += colour_ids;
+				v.material_id += material_ids;
 			}
 			
 			v.pos = t_mat * glm::vec4(v.pos, 1);
@@ -125,9 +133,9 @@ void Mesh::add(const Mesh& o, glm::mat4 mat, bool bake)
 			v.transform_id = t_new;
 		}
 
-		if(v.colour_id >= 0)
+		if(v.material_id >= 0)
 		{
-			v.colour_id += colour_ids;
+			v.material_id += material_ids;
 		}
 		
 		vertices.push_back(v);
@@ -138,7 +146,7 @@ void Mesh::add(const Mesh& o, glm::mat4 mat, bool bake)
 		indices.push_back(o.indices[i] + off);
 	}
 
-	colour_ids += o.colour_ids;
+	material_ids += o.material_ids;
 }
 
 void Mesh::set_baked(bool b)

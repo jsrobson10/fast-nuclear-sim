@@ -31,9 +31,15 @@ out flat uint frag_tex_normal;
 
 #endif
 
-layout (binding = 7) readonly buffer ColourBuffer
+struct MaterialType
 {
-	vec4 colours[];
+	vec4 colour;
+	vec4 material;
+};
+
+layout (binding = 7) readonly buffer MaterialBuffer
+{
+	MaterialType materials[];
 };
 
 layout (binding = 6) readonly buffer StateBuffer
@@ -68,7 +74,7 @@ float Map(float v, float i_min, float i_max, float o_min, float o_max)
 void main()
 {
 	vec4 pos = vec4(aPos, 1.f);
-	vec4 colour = aIndex[1] < 0 ? vec4(1.f) : colours[aIndex[1]];
+	MaterialType material = aIndex[1] < 0 ? MaterialType(vec4(1), vec4(1)) : materials[aIndex[1]];
 	mat4 model = aIndex[0] < 0 ? mat4(1.f) : transforms[aIndex[0]];
 	mat4 mv = camera * model;
 	mat4 mvp = projection * mv;
@@ -76,8 +82,8 @@ void main()
 	vout.tbn = mat3(model) * mat3(aTangent, aBitangent, aNormal);
 	vout.pos = (model * pos).xyz;
 	vout.tex_pos = aTexPos;
-	vout.colour = aColour * colour;
-	vout.material = aMaterial.xyz;
+	vout.colour = aColour * material.colour;
+	vout.material = aMaterial.xyz * material.material.xyz;
 	frag_tex_diffuse = aTexDiffuse;
 	frag_tex_normal = aTexNormal;
 	
