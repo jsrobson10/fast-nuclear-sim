@@ -8,10 +8,14 @@
 namespace Sim::Graphics::Data
 {
 
-struct GLLights
+class GLLights
 {
-	const int size;
+	int size;
 
+	void init_fbo();
+
+public:
+	
 	unsigned int texid, fbo, ssbo;
 
 	std::vector<Light> lights;

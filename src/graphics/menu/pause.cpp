@@ -1,28 +1,29 @@
 
-#include "menu.hpp"
-#include "pause.hpp"
 #include "button.hpp"
+#include "menu.hpp"
+#include "menu_type.hpp"
 #include "../input/focus.hpp"
 #include "../data/font.hpp"
+#include "../window.hpp"
 
 #include <glm/ext/matrix_transform.hpp>
 #include <memory>
 #include <vector>
 
-using namespace Sim::Graphics::Menu;
 using namespace Sim::Graphics;
+using namespace Sim::Graphics::Menu;
 
 struct PauseMenu : public MenuType
 {
 	std::vector<Button> buttons = {
-		{"Resume", {0, 0}, []() {
+		{"Resume", {0, 0}, [](Button& b) {
 			Focus::clear_focus();
 		}},
-		{"Settings", {0, 0.2}, []() {
-			// TODO
+		{"Settings", {0, 0.2}, [](Button& b) {
+			open_settings();
 		}},
-		{"Exit", {0, 0.4}, []() {
-			// TODO
+		{"Exit", {0, 0.4}, [](Button& b) {
+			Window::close();
 		}},
 	};
 
@@ -51,7 +52,7 @@ struct PauseMenu : public MenuType
 	}
 };
 
-void Pause::open()
+void Menu::open_pause()
 {
 	Focus::set(std::make_unique<PauseMenu>());
 }

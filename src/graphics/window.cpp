@@ -38,6 +38,7 @@
 #include "../system.hpp"
 #include "../util/streams.hpp"
 #include "statebuffer.hpp"
+#include "settings.hpp"
 #include "ui.hpp"
 
 using namespace Sim;
@@ -49,6 +50,10 @@ static bool win_should_close = false;
 static unsigned int ssbo_transforms;
 static unsigned int ssbo_materials;
 static unsigned int wait_at = 0;
+
+static unsigned int main_rbo_colour;
+static unsigned int main_rbo_depth;
+static unsigned int main_fbo;
 
 static int ssbo_transforms_at = 0;
 
@@ -102,6 +107,19 @@ void remesh_static()
 	std::cout << "Total triangle count: " << mesh.indices.size() / 3 << "\n";
 }
 
+void Window::reload_rbos()
+{
+	glm::vec<2, int> size = Resize::get_size();
+	int msaa = Settings::get_msaa();
+
+	glBindRenderbuffer(GL_RENDERBUFFER, main_rbo_colour);
+	glRenderbufferStorageMultisample(GL_RENDERBUFFER, msaa, GL_RGBA8, size.x, size.y);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, main_rbo_colour);
+	glBindRenderbuffer(GL_RENDERBUFFER, main_rbo_depth);
+	glRenderbufferStorageMultisample(GL_RENDERBUFFER, msaa, GL_DEPTH_COMPONENT, size.x, size.y);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, main_rbo_depth);
+}
+
 void Window::create()
 {
 	glfwInit();
@@ -110,17 +128,13 @@ void Window::create()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 	glfwWindowHint(GLFW_VISIBLE, false);
-	glfwWindowHint(GLFW_SAMPLES, 4);
-
+	
 #ifdef __APPLE__
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
 #endif
 	
 	win = glfwCreateWindow(800, 600, "FastNuclearSim", nullptr, nullptr);
-
 	glfwMakeContextCurrent(win);
-	glfwSwapInterval(1);
-
 	GLenum err = glewInit();
 
 	if(err != GLEW_OK)
@@ -141,7 +155,18 @@ void Window::create()
 		std::cout << "Info: Bindless textures are not supported. Using texture atlas instead.\n";
 	}
 
-	glEnable(GL_MULTISAMPLE);
+	glGenFramebuffers(1, &main_fbo);
+	glGenRenderbuffers(1, &main_rbo_colour);
+	glGenRenderbuffers(1, &main_rbo_depth);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, main_fbo);
+	glBindRenderbuffer(GL_RENDERBUFFER, main_rbo_colour);
+	glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_RGBA8, 800, 600);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, main_rbo_colour);
+	glBindRenderbuffer(GL_RENDERBUFFER, main_rbo_depth);
+	glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH_COMPONENT, 800, 600);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, main_rbo_depth);
+
 	glEnable(GL_DEBUG_OUTPUT);
 	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 	glEnable(GL_DEPTH_TEST);
@@ -196,6 +221,7 @@ void Window::create()
 	remesh_static();
 
 	glfwShowWindow(win);
+	Settings::load();
 
 	// setup lighting and prerender shadows
 	Shader::LIGHT.use();
@@ -281,7 +307,7 @@ void Window::update(double dt)
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_materials);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, materials.size() * sizeof(materials[0]), materials.data(), GL_STREAM_DRAW);
 
-	if(wait_at++ % 4 == 0)
+	if(wait_at++ % Settings::get_text_refreshes() == 0)
 	{
 		update_slow();
 	}
@@ -345,7 +371,7 @@ void Window::render()
 	glUniform3fv(Shader::MAIN["camera_pos"], 1, &camera_pos[0]);
 	projection_matrix = mat_projection;
 	
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, main_fbo);
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	glViewport(0, 0, size.x, size.y);
 
@@ -354,12 +380,11 @@ void Window::render()
 	render_dynamic();
 	monitor_cctv->render_screen();
 
-	brightness = glm::vec3(1);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glUniform3fv(Shader::MAIN["brightness"], 1, &brightness[0]);
-
+	glUniform3f(Shader::MAIN["brightness"], 1, 1, 1);
 	UI::render();
 	Focus::render_ui();
+
+	glBlitNamedFramebuffer(main_fbo, 0, 0, 0, size.x, size.y, 0, 0, size.x, size.y, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 	
 	glfwSwapBuffers(win);
 	

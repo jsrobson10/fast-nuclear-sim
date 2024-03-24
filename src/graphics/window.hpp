@@ -16,6 +16,7 @@ bool should_close();
 void create();
 void reload();
 void update(double dt);
+void reload_rbos();
 void render();
 void bind_scene_ssbo();
 void render_scene();

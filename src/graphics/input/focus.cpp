@@ -7,7 +7,7 @@
 #include "../window.hpp"
 #include "../camera.hpp"
 #include "../resize.hpp"
-#include "../menu/pause.hpp"
+#include "../menu/menu.hpp"
 #include "mouse.hpp"
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -37,7 +37,7 @@ void Focus::on_keypress(int key, int sc, int action, int mods)
 
 		else
 		{
-			Menu::Pause::open();
+			Menu::open_pause();
 		}
 	}
 

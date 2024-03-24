@@ -16,6 +16,7 @@
 #include "../resize.hpp"
 #include "../../system.hpp"
 #include "../../util/streams.hpp"
+#include "../settings.hpp"
 
 using namespace Sim::Graphics::Widget;
 using namespace Sim::Graphics::Data;
@@ -38,7 +39,11 @@ void Clock::remesh_ui(Mesh& rmesh)
 		int t_m = std::fmod(at / 60, 60);
 		int t_h = std::fmod(at / 3600, 24);
 
-		ss << "FPS: " << (1.0 / dt) << "\n";
+		if(Settings::get_show_fps())
+		{
+			ss << "FPS: " << (1.0 / dt) << "\n";
+		}
+
 		ss << "Time: " << std::setfill('0') << std::setw(2) << t_h << ":";
    		ss << std::setfill('0') << std::setw(2) << t_m << ":";
 		ss << std::setfill('0') << std::setw(2) << t_s << "\n";

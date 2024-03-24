@@ -7,7 +7,9 @@ namespace Sim::Graphics::Resize
 {
 
 void init();
+bool get_fullscreen();
 void toggle_fullscreen();
+void set_fullscreen(bool fullscreen);
 glm::vec<2, int> get_size();
 float get_aspect();
 

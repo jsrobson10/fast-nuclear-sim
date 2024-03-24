@@ -1,5 +1,6 @@
 
 #include "menu.hpp"
+#include "menu_type.hpp"
 #include "../resize.hpp"
 
 #include <iostream>

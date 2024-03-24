@@ -11,7 +11,18 @@ using namespace Sim::Graphics::Menu;
 
 const float FONT_SIZE = 0.06;
 
-Button::Button(const char* text, glm::vec2 pos, std::function<void()> action) : text(text), pos(pos), action(action)
+Button::Button(const std::string& text, glm::vec2 pos, std::function<void(Button&)> action)
+	: pos(pos)
+	, text(text)
+	, action(action)
+{
+}
+
+Button::Button(std::function<std::string(Button&)> get_text, glm::vec2 pos, std::function<void(Button&)> action)
+	: get_text(get_text)
+	, text(get_text(*this))
+	, pos(pos)
+	, action(action)
 {
 }
 
@@ -74,7 +85,12 @@ void Button::update()
 {
 	if(Focus::is_triggered(Focus::Trigger::MENU) && check_hover())
 	{
-		action();
+		action(*this);
+
+		if(get_text)
+		{
+			text = get_text(*this);
+		}
 	}
 }
 

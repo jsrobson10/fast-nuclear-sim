@@ -5,6 +5,7 @@
 #include "gllights.hpp"
 #include "../shader.hpp"
 #include "../window.hpp"
+#include "../settings.hpp"
 #include "texture.hpp"
 
 #include <glm/ext/matrix_transform.hpp>
@@ -14,8 +15,13 @@ using namespace Sim::Graphics::Data;
 
 static glm::mat4 shadow_mats[6];
 
-GLLights::GLLights(std::vector<Light>&& _lights) : lights(_lights), size(1024)
+void GLLights::init_fbo()
 {
+	glGenFramebuffers(1, &fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	
 	glGenTextures(1, &texid);
 	glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, texid);
 	glTexImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, 0, GL_DEPTH_COMPONENT, size, size, 6 * lights.size(), 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
@@ -28,11 +34,13 @@ GLLights::GLLights(std::vector<Light>&& _lights) : lights(_lights), size(1024)
 	glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	glGenFramebuffers(1, &fbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, texid, 0);
-	glDrawBuffer(GL_NONE);
-	glReadBuffer(GL_NONE);
+}
+
+GLLights::GLLights(std::vector<Light>&& _lights) : lights(_lights)
+{
+	size = Settings::get_shadow_size();
+	init_fbo();
 
 	glGenBuffers(1, &ssbo);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
@@ -58,7 +66,17 @@ GLLights::~GLLights()
 
 void GLLights::render()
 {
+	int size_new = Settings::get_shadow_size();
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+	if(size_new != size)
+	{
+		size = size_new;
+		glDeleteFramebuffers(1, &fbo);
+		glDeleteTextures(1, &texid);
+		init_fbo();
+	}
+
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	glViewport(0, 0, size, size);
 

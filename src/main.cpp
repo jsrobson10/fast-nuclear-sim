@@ -14,6 +14,7 @@
 
 #include "graphics/window.hpp"
 #include "graphics/camera.hpp"
+#include "graphics/settings.hpp"
 
 #include "util/time.hpp"
 #include "system.hpp"
@@ -52,5 +53,6 @@ int main()
 	}
 
 	Graphics::Window::destroy();
+	Graphics::Settings::save();
 }
 

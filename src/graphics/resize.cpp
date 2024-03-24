@@ -31,10 +31,25 @@ float Resize::get_aspect()
 
 void Resize::toggle_fullscreen()
 {
-	GLFWwindow* win = Window::get_window();
-	is_fullscreen = !is_fullscreen;
+	set_fullscreen(!is_fullscreen);
+}
 
-	if(is_fullscreen)
+bool Resize::get_fullscreen()
+{
+	return is_fullscreen;
+}
+
+void Resize::set_fullscreen(bool fullscreen)
+{
+	if(fullscreen == is_fullscreen)
+	{
+		return;
+	}
+
+	GLFWwindow* win = Window::get_window();
+	is_fullscreen = fullscreen;
+
+	if(fullscreen)
 	{
 		win_restore_w = win_w;
 		win_restore_h = win_h;
@@ -57,6 +72,7 @@ static void cb_framebuffer_size(GLFWwindow* win, int w, int h)
 	win_h = h;
 
 	glViewport(0, 0, w, h);
+	Window::reload_rbos();
 }
 
 void Resize::init()
