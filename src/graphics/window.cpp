@@ -232,8 +232,6 @@ void update_slow()
 
 	gm_dynamic_slow.bind();
 	gm_dynamic_slow.set(mesh, GL_STREAM_DRAW);
-
-	UI::update_slow();
 }
 
 void Window::reload()

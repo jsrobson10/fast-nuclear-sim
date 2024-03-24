@@ -9,6 +9,7 @@
 
 #include <glm/matrix.hpp>
 
+#include "../input/focus.hpp"
 #include "arrays.hpp"
 #include "light.hpp"
 
@@ -49,8 +50,8 @@ struct Mesh
 	void clear();
 
 	Mesh to_lines() const;
-	bool check_focus(double len = 2.5) const;
-	bool check_focus_hold(double len = 2.5);
+	bool check_focus(Focus::Trigger level = Focus::Trigger::NONE, double len = 2.5) const;
+	bool check_focus_hold(Focus::Trigger level = Focus::Trigger::NONE, double len = 2.5);
 	bool check_intersect(glm::vec<3, double> pos, glm::vec<3, double> path) const;
 	glm::vec<3, double> calc_intersect(glm::vec<3, double> pos, glm::vec<3, double> path) const;
 

@@ -23,7 +23,7 @@ struct ValveJoystick : public Focus::FocusType
 	
 	ValveJoystick(Sim::Coolant::Valve* v) : active(v)
 	{
-		
+		cursor_is_visible = false;
 	}
 
 	virtual ~ValveJoystick()
@@ -42,11 +42,6 @@ struct ValveJoystick : public Focus::FocusType
 		{
 			Focus::clear_focus();
 		}
-	}
-
-	virtual bool cursor_is_visible()
-	{
-		return false;
 	}
 };
 
@@ -91,15 +86,15 @@ void PrimaryLoop::update(double dt)
 {
 	System& sys = *System::active;
 
-	if(m_joystick_turbine_bypass.check_focus())
+	if(m_joystick_turbine_bypass.check_focus(Focus::Trigger::INTERFACE))
 		Focus::set(std::make_unique<ValveJoystick>(&sys.loop.turbine_bypass_valve));
-	if(m_joystick_turbine_inlet.check_focus())
+	if(m_joystick_turbine_inlet.check_focus(Focus::Trigger::INTERFACE))
 		Focus::set(std::make_unique<ValveJoystick>(&sys.loop.turbine_inlet_valve));
-	if(m_switch_pump.check_focus())
+	if(m_switch_pump.check_focus(Focus::Trigger::INTERFACE))
 		sys.loop.primary_pump.powered = !sys.loop.primary_pump.powered;
-	if(m_switch_inlet.check_focus())
+	if(m_switch_inlet.check_focus(Focus::Trigger::INTERFACE))
 		sys.loop.turbine_inlet_valve.toggle_auto();
-	if(m_switch_bypass.check_focus())
+	if(m_switch_bypass.check_focus(Focus::Trigger::INTERFACE))
 		sys.loop.turbine_bypass_valve.toggle_auto();
 }
 

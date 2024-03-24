@@ -38,9 +38,8 @@ struct CoreMonitor : public Focus::FocusType
 {
 	Core* parent;
 
-	CoreMonitor(Core* parent)
+	CoreMonitor(Core* parent) : parent(parent)
 	{
-		this->parent = parent;
 	}
 	
 	virtual void on_keypress(int key, int sc, int action, int mods)
@@ -88,9 +87,9 @@ struct CoreJoystick : public Focus::FocusType
 {
 	Core* parent;
 
-	CoreJoystick(Core* parent)
+	CoreJoystick(Core* parent) : parent(parent)
 	{
-		this->parent = parent;
+		cursor_is_visible = false;
 	}
 	
 	virtual void on_cursor_pos(double x, double y)
@@ -109,11 +108,6 @@ struct CoreJoystick : public Focus::FocusType
 		{
 			Focus::clear_focus();
 		}
-	}
-
-	virtual bool cursor_is_visible()
-	{
-		return false;
 	}
 };
 
@@ -140,25 +134,25 @@ void Core::update(double dt)
 	
 	if(m_monitor.check_focus())
 		Focus::set(std::make_unique<CoreMonitor>(this));
-	if(m_joystick.check_focus())
+	if(m_joystick.check_focus(Focus::Trigger::INTERFACE))
 		Focus::set(std::make_unique<CoreJoystick>(this));
-	if(m_scram.check_focus())
+	if(m_scram.check_focus(Focus::Trigger::INTERFACE))
 		sys.reactor.scram();
-	if(m_buttons[0].check_focus())
+	if(m_buttons[0].check_focus(Focus::Trigger::INTERFACE))
 		set_all(true);
-	if(m_buttons[1].check_focus())
+	if(m_buttons[1].check_focus(Focus::Trigger::INTERFACE))
 		sys.reactor.move_cursor(-sys.reactor.height);
-	if(m_buttons[2].check_focus())
+	if(m_buttons[2].check_focus(Focus::Trigger::INTERFACE))
 		set_all(false);
-	if(m_buttons[3].check_focus())
+	if(m_buttons[3].check_focus(Focus::Trigger::INTERFACE))
 		sys.reactor.move_cursor(-1);
-	if(m_buttons[4].check_focus())
+	if(m_buttons[4].check_focus(Focus::Trigger::INTERFACE))
 		sys.reactor.move_cursor(sys.reactor.height);
-	if(m_buttons[5].check_focus())
+	if(m_buttons[5].check_focus(Focus::Trigger::INTERFACE))
 		sys.reactor.move_cursor(1);
-	if(m_buttons[6].check_focus())
+	if(m_buttons[6].check_focus(Focus::Trigger::INTERFACE))
 		sys.reactor.reset_rod_speed();
-	if(m_buttons[7].check_focus())
+	if(m_buttons[7].check_focus(Focus::Trigger::INTERFACE))
 		sys.reactor.toggle_selected();
 }
 

@@ -34,9 +34,9 @@ void SecondaryLoop::update(double dt)
 {
 	System& sys = *System::active;
 
-	if(m_switch_2.check_focus())
+	if(m_switch_2.check_focus(Focus::Trigger::INTERFACE))
 		sys.loop.secondary_pump.powered = !sys.loop.secondary_pump.powered;
-	if(m_switch_3.check_focus())
+	if(m_switch_3.check_focus(Focus::Trigger::INTERFACE))
 		sys.freight_pump.powered = !sys.freight_pump.powered;
 }
 

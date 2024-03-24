@@ -35,7 +35,7 @@ void Turbine::update(double dt)
 {
 	System& sys = *System::active;
 
-	if(m_switch_breaker.check_focus())
+	if(m_switch_breaker.check_focus(Focus::Trigger::INTERFACE))
 		sys.loop.generator.breaker_closed = !sys.loop.generator.breaker_closed;
 }
 

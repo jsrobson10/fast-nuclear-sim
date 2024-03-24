@@ -10,6 +10,7 @@
 #include "reactor/coolant/heater.hpp"
 #include "graphics/camera.hpp"
 #include "graphics/window.hpp"
+#include "graphics/input/focus.hpp"
 
 using namespace Sim;
 
@@ -62,6 +63,11 @@ System::System(const Json::Value& node) :
 
 void System::update(double dt)
 {
+	if(!Graphics::Focus::should_advance_time())
+	{
+		return;
+	}
+
 	dt *= speed;
 	clock += dt;
 	

@@ -20,7 +20,7 @@
 using namespace Sim::Graphics;
 
 static Data::Mesh g_ui;
-static Data::GLMesh gm_dynamic_slow;
+static Data::GLMesh gm_dynamic;
 static Widget::Clock w_clock;
 
 void UI::init()
@@ -36,32 +36,34 @@ void UI::init()
 
 void UI::update(double dt)
 {
+	Data::Mesh mesh(true);
+	glm::vec2 wsize(Resize::get_size() / 2);
+	glm::mat4 mat_scale = glm::scale(glm::mat4(1), glm::vec3(1.f / wsize.y, 1.f / wsize.y, 1));
+
+	if(!Focus::is_focused())
+	{
+		mesh.add(g_ui, mat_scale);
+	}
+
 	w_clock.update(dt);
-}
+	w_clock.remesh_ui(mesh);
 
-void UI::update_slow()
-{
-	Data::Mesh mesh;
-	mesh.set_baked();
-	mesh.add(g_ui);
+	Focus::remesh_ui(mesh);
 
-	w_clock.remesh_slow(mesh);
-
-	gm_dynamic_slow.bind();
-	gm_dynamic_slow.set(mesh, GL_STREAM_DRAW);
+	gm_dynamic.bind();
+	gm_dynamic.set(mesh, GL_STREAM_DRAW);
 }
 
 void UI::render()
 {
 	glClear(GL_DEPTH_BUFFER_BIT);
 
-	glm::vec2 wsize(Resize::get_size() / 2);
+	glm::mat4 mat_view = glm::scale(glm::mat4(1), glm::vec3(1.0f / Resize::get_aspect(), -1, -1));
+	StateBuffer::set({mat_view, glm::mat4(1)});
 	
-	glm::mat4 mat_projection = glm::mat4(1);
-	glm::mat4 mat_camera = glm::scale(glm::mat4(1), glm::vec3(1.0f / wsize * glm::vec2(1, -1), -1));
-	StateBuffer::set({mat_camera, mat_projection});
+	gm_dynamic.bind();
+	gm_dynamic.render();
 
-	gm_dynamic_slow.bind();
-	gm_dynamic_slow.render();
+	Focus::render_ui();
 }
 

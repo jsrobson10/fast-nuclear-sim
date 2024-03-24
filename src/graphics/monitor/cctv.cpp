@@ -36,9 +36,8 @@ class FocusCCTV : public Focus::FocusType
 
 public:
 
-	FocusCCTV(CCTV* parent)
+	FocusCCTV(CCTV* parent) : parent(parent)
 	{
-		this->parent = parent;
 	}
 
 	virtual void update(double dt)
@@ -251,23 +250,23 @@ void CCTV::update(double dt)
 
 	if(m_screen.check_focus())
 		Focus::set(std::make_unique<FocusCCTV>(this));
-	if(m_buttons[0].check_focus_hold())
+	if(m_buttons[0].check_focus_hold(Focus::Trigger::INTERFACE))
 		active.zoom = Util::Math::clamp(active.zoom - dt * 0.5f, 0.25, 1);
-	if(m_buttons[1].check_focus_hold())
+	if(m_buttons[1].check_focus_hold(Focus::Trigger::INTERFACE))
 		rotate(dt, 1, 0);
-	if(m_buttons[2].check_focus_hold())
+	if(m_buttons[2].check_focus_hold(Focus::Trigger::INTERFACE))
 		active.zoom = Util::Math::clamp(active.zoom + dt * 0.5f, 0.25, 1);
-	if(m_buttons[3].check_focus_hold())
+	if(m_buttons[3].check_focus_hold(Focus::Trigger::INTERFACE))
 		rotate(dt, 0, -1);
-	if(m_buttons[4].check_focus_hold())
+	if(m_buttons[4].check_focus_hold(Focus::Trigger::INTERFACE))
 		rotate(dt, -1, 0);
-	if(m_buttons[5].check_focus_hold())
+	if(m_buttons[5].check_focus_hold(Focus::Trigger::INTERFACE))
 		rotate(dt, 0, 1);
-	if(m_buttons[6].check_focus())
+	if(m_buttons[6].check_focus(Focus::Trigger::INTERFACE))
 		camera_at = (camera_at + cameras.size() - 1) % cameras.size();
-	if(m_buttons[7].check_focus())
+	if(m_buttons[7].check_focus(Focus::Trigger::INTERFACE))
 		powered = !powered;
-	if(m_buttons[8].check_focus())
+	if(m_buttons[8].check_focus(Focus::Trigger::INTERFACE))
 		camera_at = (camera_at + 1) % cameras.size();
 }
 

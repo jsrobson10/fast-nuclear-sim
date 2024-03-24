@@ -36,7 +36,7 @@ public:
 		glm::vec2 align = glm::vec2(0, 0);
 		Arrays::Vertex prim_base = {.material={0, 0, 1}};
 		glm::mat4 mat = glm::mat4(1);
-		bool bake = false;
+		bool bake = true;
 	};
 
 	void load_text(Mesh& rmesh, const std::string& text, load_text_t t) const;

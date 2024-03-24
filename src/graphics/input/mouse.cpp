@@ -7,13 +7,32 @@
 #include "../window.hpp"
 #include "../camera.hpp"
 
+#include <memory>
+
 using namespace Sim::Graphics;
 
 static double xpos = 0, ypos = 0;
 
+struct FocusMouse : public Focus::FocusType
+{
+	FocusMouse()
+	{
+		cursor_is_visible = true;
+		min_trigger_level = Focus::Trigger::NONE;
+	}
+
+	void on_mouse_button(int button, int action, int mods) override
+	{
+		if(button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
+		{
+			Focus::clear_focus();
+		}
+	}
+};
+
 static void cb_cursor_pos(GLFWwindow* win, double x, double y)
 {
-	if(Focus::is_mouse_locked())
+	if(Focus::is_focused())
 	{
 		Focus::on_cursor_pos(x - xpos, y - ypos);
 	}
@@ -29,6 +48,11 @@ static void cb_cursor_pos(GLFWwindow* win, double x, double y)
 
 void cb_mouse_button(GLFWwindow* window, int button, int action, int mods)
 {
+	if(button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS && !Focus::is_focused())
+	{
+		return Focus::set(std::make_unique<FocusMouse>());
+	}
+	
 	Focus::on_mouse_button(button, action, mods);
 }
 

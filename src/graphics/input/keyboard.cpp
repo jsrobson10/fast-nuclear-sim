@@ -67,7 +67,7 @@ static void cb_charcode(GLFWwindow* win, unsigned int code)
 
 bool Keyboard::is_pressed(int key)
 {
-	if(Focus::is_mouse_locked())
+	if(Focus::is_focused())
 	{
 		return false;
 	}

@@ -7,6 +7,7 @@
 #include "../window.hpp"
 #include "../camera.hpp"
 #include "../resize.hpp"
+#include "../menu/pause.hpp"
 #include "mouse.hpp"
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -22,7 +23,6 @@ static glm::vec<3, double> trigger_far;
 static std::vector<std::unique_ptr<Focus::FocusType>> stack;
 static std::unique_ptr<Focus::FocusType> state = nullptr;
 static bool mouse_visible = false;
-static bool mouse_locked = false;
 static bool triggered = false;
 static bool triggered_release = false;
 
@@ -30,14 +30,14 @@ void Focus::on_keypress(int key, int sc, int action, int mods)
 {
 	if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 	{
-		if(is_mouse_locked())
+		if(is_focused())
 		{
-			clear_mouse_locked();
+			clear_focus();
 		}
 
 		else
 		{
-			mouse_locked = true;
+			Menu::Pause::open();
 		}
 	}
 
@@ -58,7 +58,7 @@ void Focus::on_mouse_button(int button, int action, int mods)
 	{
 		bool t = false;
 
-		if(is_mouse_locked() && mouse_visible)
+		if(is_focused() && mouse_visible)
 		{
 			double mx, my;
 			Mouse::get(mx, my);
@@ -119,9 +119,9 @@ void Focus::update(double dt)
 	triggered = false;
 	triggered_release = false;
 
-	bool c = is_mouse_locked();
+	bool c = is_focused();
 
-	if(state && !state->cursor_is_visible())
+	if(state && !state->cursor_is_visible)
 	{
 		c = false;
 	}
@@ -144,6 +144,22 @@ void Focus::update(double dt)
 	if(state)
 	{
 		state->update(dt);
+	}
+}
+
+void Focus::remesh_ui(Data::Mesh& rmesh)
+{
+	if(state)
+	{
+		state->remesh_ui(rmesh);
+	}
+}
+
+void Focus::remesh(Data::Mesh& rmesh)
+{
+	if(state)
+	{
+		state->remesh(rmesh);
 	}
 }
 
@@ -179,20 +195,9 @@ void Focus::clear_focus()
 	}
 }
 
-bool Focus::is_mouse_locked()
-{
-	return is_focused() || mouse_locked;
-}
-
-void Focus::clear_mouse_locked()
-{
-	mouse_locked = false;
-	clear_focus();
-}
-
 void Focus::set(std::unique_ptr<FocusType> f)
 {
-	if(state != nullptr)
+	if(state != nullptr && state->will_restore_later)
 	{
 		stack.push_back(std::move(state));
 	}
@@ -200,13 +205,23 @@ void Focus::set(std::unique_ptr<FocusType> f)
 	state = std::move(f);
 }
 
-bool Focus::is_triggered()
+bool Focus::is_triggered(Trigger level)
 {
+	if(state && state->min_trigger_level > level)
+	{
+		return false;
+	}
+
 	return triggered;
 }
 
 bool Focus::is_triggered_release()
 {
 	return triggered_release;
+}
+
+bool Focus::should_advance_time()
+{
+	return state ? state->will_advance_time : true;
 }
 

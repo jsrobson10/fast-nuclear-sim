@@ -221,9 +221,9 @@ bool ray_intersects_triangle(vec3 ray_origin,
         return false;
 }
 
-bool Mesh::check_focus(double len) const
+bool Mesh::check_focus(Focus::Trigger level, double len) const
 {
-	if(!Focus::is_triggered())
+	if(!Focus::is_triggered(level))
 	{
 		return false;
 	}
@@ -234,9 +234,9 @@ bool Mesh::check_focus(double len) const
 	return check_intersect(near, glm::normalize(far - near) * len);
 }
 
-bool Mesh::check_focus_hold(double len)
+bool Mesh::check_focus_hold(Focus::Trigger level, double len)
 {
-	if(!Focus::is_triggered() && (!focus || Focus::is_triggered_release()))
+	if(!Focus::is_triggered(level) && (!focus || Focus::is_triggered_release()))
 	{
 		return focus = false;
 	}
