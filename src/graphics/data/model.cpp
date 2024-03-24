@@ -28,6 +28,15 @@ struct ProcState
 	const std::vector<Model::Material>& materials;
 };
 
+glm::vec3 linrgb_to_srgb(glm::vec3 c)
+{
+	glm::bvec3 th = glm::lessThan(c, glm::vec3(0.0031308f));
+	glm::vec3 high = glm::pow(c, glm::vec3(1.0f / 2.4f)) * glm::vec3(1.055f) - glm::vec3(0.055f);
+	glm::vec3 low = c * glm::vec3(12.92f);
+
+	return glm::mix(high, low, glm::vec3(th));
+}
+
 static void proc_mesh(ProcState& state, aiMesh* mesh, const aiScene* scene)
 {
 	Model::Material mat = state.materials[mesh->mMaterialIndex];
@@ -258,11 +267,7 @@ Model::Model(std::string base, std::string filename) : base(base)
 
 		glm::vec4 cb = {ai_cb[0], ai_cb[1], ai_cb[2], ai_cb[3]};
 		glm::vec4 em = {ai_em[0], ai_em[1], ai_em[2], ai_em[3]};
-
-		if(em.x > 0 || em.y > 0 || em.z > 0)
-		{
-			cb = em;
-		}
+		glm::vec4 colour = (em.x > 0 || em.y > 0 || em.z > 0) ? em : cb;
 
 		ai_mat->Get(AI_MATKEY_ROUGHNESS_FACTOR, matv[0]);
 		ai_mat->Get(AI_MATKEY_METALLIC_FACTOR, matv[1]);
@@ -274,7 +279,7 @@ Model::Model(std::string base, std::string filename) : base(base)
 		Material mat = {
 			.diffuse = handle_diffuse,
 			.normal = handle_normal,
-			.colour = cb,
+			.colour = colour,
 			.roughness = matv[0],
 			.metalness = matv[1],
 			.luminance = matv[2],

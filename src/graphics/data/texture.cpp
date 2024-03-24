@@ -30,11 +30,10 @@ void Texture::init()
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 	unsigned char pixels_white[] = {255};
-	unsigned char pixels_normal[] = {128, 255};
+	unsigned char pixels_normal[] = {128, 128, 255};
 	int swizzle_white[] = {GL_RED, GL_RED, GL_RED, GL_RED};
-	int swizzle_normal[] = {GL_RED, GL_RED, GL_GREEN, GL_GREEN};
 	handle_white = load_mem(pixels_white, 1, 1, 1, swizzle_white);
-	handle_normal = load_mem(pixels_normal, 1, 1, 2, swizzle_normal);
+	handle_normal = load_mem(pixels_normal, 1, 1, 3);
 }
 
 void Texture::generate_atlas()

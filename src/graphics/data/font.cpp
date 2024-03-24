@@ -77,7 +77,7 @@ void Font::init(const std::string& name, int size)
 			buffer[i] = face->glyph->bitmap.buffer[i];
 		}
 
-		int swizzleMask[] = {GL_RED, GL_RED, GL_RED, GL_RED};
+		int swizzleMask[] = {GL_ONE, GL_ONE, GL_ONE, GL_RED};
 		c.handle = Texture::load_mem(buffer.data(), width, height, 1, swizzleMask, GL_CLAMP_TO_EDGE);
 	}
 

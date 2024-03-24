@@ -14,7 +14,10 @@ struct Vertex
 	glm::vec2 texpos = {0, 0};
 	glm::vec3 pos = {0, 0, 0};
 	glm::vec4 colour = {1, 1, 1, 1};
-	glm::mat3 tbn = glm::mat3(1);
+	glm::mat3 tbn = glm::mat3(
+		{1, 0, 0},
+		{0, 1, 0},
+		{0, 0, -1});
 	int transform_id = -1;
 	int material_id = -1;
 	unsigned int tex_diffuse = Texture::handle_white;

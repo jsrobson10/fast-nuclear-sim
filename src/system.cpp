@@ -37,7 +37,7 @@ System::System() :
 		vessel(Coolant::WATER, 8, 10, 6e6, 5e5, 10),
 		reactor(Reactor::Builder(15, 15, 0.55, 4, Reactor::Fuel::FuelRod(0.5), &vessel, CORE_LAYOUT)),
 		evaporator(Coolant::WATER, 2, 30, 0, 1000),
-		pool(Coolant::WATER, {16, 32, 11.3}, 16, 1e5, 0),
+		pool(Coolant::WATER, {16, 32, 11.3}, 16, 1e5, 16 * 32 * 11.3 * 1000),
 		sink(Coolant::WATER, 11, 0, 0),
 		grid(),
 		freight_pump(&sink, &evaporator, 1e5, 1, 1e4, 0.1, 10, Coolant::Pump::mode_t::DST, 1e6),

@@ -76,7 +76,7 @@ struct Mesh
 		{
 			v.transform_id = transform_id;
 			v.pos = glm::vec3(mat * glm::vec4(prim.vertices[i].pos, 1));
-			v.tbn = glm::mat3(mat) * v.tbn;
+			v.tbn = glm::mat3(mat) * prim.vertex_base.tbn;
 			v.texpos = prim.vertices[i].texpos;
 			vertices.push_back(v);
 		}

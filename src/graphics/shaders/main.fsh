@@ -138,31 +138,41 @@ vec3 sRGB_To_LinRGB(vec3 c)
 	return mix(high, low, th);
 }
 
+vec4 LinRGBA_To_sRGBA(vec4 c)
+{
+	return vec4(LinRGB_To_sRGB(c.rgb), c.a);
+}
+
+vec4 sRGBA_To_LinRGBA(vec4 c)
+{
+	return vec4(sRGB_To_LinRGB(c.rgb), c.a);
+}
+
 void main()
 {
-	vec4 albedo = ReadTexture(frag_tex_diffuse, vin.tex_pos);
-	if(albedo.a == 0.f) discard;
+	vec4 albedo = sRGBA_To_LinRGBA(ReadTexture(frag_tex_diffuse, vin.tex_pos)) * vin.colour;
 	
-	float luminance = min(vin.material[2], 1.f);
-
-	if(luminance == 1)
+	if(albedo.a == 0)
 	{
-		frag_colour = albedo * vin.colour;
+		discard;
+	}
+
+	if(vin.material[2] >= 1)
+	{
+		frag_colour = LinRGBA_To_sRGBA(albedo);
 		return;
 	}
 
+	float luminance = min(vin.material[2], 1.f);
 	vec3 tangent = ReadTexture(frag_tex_normal, vin.tex_pos).rgb * 2.f - 1.f;
-	vec3 albedo_lin = sRGB_To_LinRGB(albedo.rgb) * vin.colour.rgb;
-	albedo *= vin.colour;
-
 	float roughness = vin.material[0];
 	float metalness = vin.material[1];
 
 	vec3 N = normalize(vin.tbn * tangent);
 	vec3 V = normalize(camera_pos - vin.pos.xyz);
 
-	vec3 F0 = mix(vec3(0.04f), albedo_lin, metalness);
-	vec3 ambient = vec3(Map(dot(N, vec3(0.f, 0.f, 1.f)), -1.f, 1.f, 0.2f, 0.25f)) * albedo_lin * brightness;
+	vec3 F0 = mix(vec3(0.04f), albedo.rgb, metalness);
+	vec3 ambient = vec3(Map(dot(N, vec3(0.f, 0.f, 1.f)), -1.f, 1.f, 0.2f, 0.25f)) * albedo.rgb * brightness;
 	vec3 Lo = vec3(0.f);
 
 	for(int i = 0; i < lights_count; i++)
@@ -211,11 +221,10 @@ void main()
 
 		// add to outgoing radiance Lo
 		float NdotL = max(dot(N, L), 0.f);
-		Lo += (kD * albedo_lin / PI + specular) * radiance * NdotL * light_m;
+		Lo += (kD * albedo.rgb / PI + specular) * radiance * NdotL * light_m;
 	}
 	
 	vec3 light = LinRGB_To_sRGB(ambient + Lo);
-
 	light = mix(light, albedo.rgb, luminance);
 	frag_colour = vec4(light, albedo.a);
 }
