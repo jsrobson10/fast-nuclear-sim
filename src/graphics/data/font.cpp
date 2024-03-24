@@ -103,17 +103,27 @@ float Font::calc_line_width(const char* text, float size) const
 
 float Font::calc_height(const char* text, float size) const
 {
-	float y = size;
+	float y = 0;
+	float off = 0;
+	bool at_top = true;
 
 	for(int i = 0; text[i] != '\0'; i++)
 	{
-		if(text[i] == '\n')
+		char c = text[i];
+
+		if(c == '\n')
 		{
 			y += size;
+			at_top = false;
+		}
+
+		else if(at_top)
+		{
+			off = std::max(off, characters[c].bearing.y * size);
 		}
 	}
 
-	return y;
+	return y + size * 2 - off;
 }
 
 void Font::load_text(Mesh& rmesh, const std::string& text, load_text_t t) const

@@ -116,9 +116,6 @@ glm::vec<3, double> Focus::get_trigger_far()
 
 void Focus::update(double dt)
 {
-	triggered = false;
-	triggered_release = false;
-
 	bool c = is_focused();
 
 	if(state && !state->cursor_is_visible)
@@ -145,6 +142,9 @@ void Focus::update(double dt)
 	{
 		state->update(dt);
 	}
+	
+	triggered = false;
+	triggered_release = false;
 }
 
 void Focus::remesh_ui(Data::Mesh& rmesh)

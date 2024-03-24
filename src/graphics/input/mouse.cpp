@@ -6,6 +6,7 @@
 #include "mouse.hpp"
 #include "../window.hpp"
 #include "../camera.hpp"
+#include "../resize.hpp"
 
 #include <memory>
 
@@ -65,6 +66,17 @@ void Mouse::get(double& x, double& y)
 glm::vec2 Mouse::get()
 {
 	return {xpos, ypos};
+}
+
+glm::vec2 Mouse::get_normalized()
+{
+	glm::vec2 pos(xpos, ypos);
+	glm::vec2 size = Resize::get_size();
+
+	return glm::vec2(
+		(pos.x / size.x * 2 - 1) * size.x / size.y,
+		pos.y / size.y * 2 - 1
+	);
 }
 
 void Mouse::show_cursor()
