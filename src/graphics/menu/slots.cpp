@@ -62,7 +62,6 @@ struct SlotsMenuWarning : public MenuType
 	}
 };
 
-
 struct SlotsMenu : public MenuType
 {
 	std::vector<Button> buttons;
@@ -92,6 +91,7 @@ struct SlotsMenu : public MenuType
 			else
 			{
 				status = "Empty";
+				exists = false;
 			}
 
 			buttons.push_back({

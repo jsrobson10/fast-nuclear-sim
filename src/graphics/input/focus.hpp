@@ -25,6 +25,8 @@ namespace Data
 #include "../data/mesh.hpp"
 
 #include <glm/matrix.hpp>
+
+#include <exception>
 #include <memory>
 
 namespace Sim::Graphics::Focus

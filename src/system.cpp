@@ -15,7 +15,7 @@
 
 using namespace Sim;
 
-std::unique_ptr<Sim::System> System::active = std::make_unique<Sim::System>();
+std::unique_ptr<Sim::System> System::active = std::make_unique<Sim::System>("");
 
 const char* CORE_LAYOUT[] = {
 	"      C C      ",
@@ -35,29 +35,31 @@ const char* CORE_LAYOUT[] = {
 	"      C C      "
 };
 
-System::System() :
-		vessel(Coolant::WATER, 8, 10, 6e6, 5e5, 10),
-		reactor(Reactor::Builder(15, 15, 0.55, 4, Reactor::Fuel::FuelRod(0.5), &vessel, CORE_LAYOUT)),
-		evaporator(Coolant::WATER, 2, 30, 0, 1000),
-		pool(Coolant::WATER, {16, 32, 11.3}, 16, 1e5, 16 * 32 * 11.3 * 1000),
-		sink(Coolant::WATER, 11, 0, 0),
-		grid(),
-		freight_pump(&sink, &evaporator, 1e5, 1, 1e4, 0.1, 10, Coolant::Pump::mode_t::DST, 1e6),
-		loop(&vessel, &evaporator, &grid)
+System::System(const std::string& path)
+	: vessel(Coolant::WATER, 8, 10, 6e6, 5e5, 10)
+	, reactor(Reactor::Builder(15, 15, 0.55, 4, Reactor::Fuel::FuelRod(0.5), &vessel, CORE_LAYOUT))
+	, evaporator(Coolant::WATER, 2, 30, 0, 1000)
+	, pool(Coolant::WATER, {16, 32, 11.3}, 16, 1e5, 16 * 32 * 11.3 * 1000)
+	, sink(Coolant::WATER, 11, 0, 0)
+	, grid()
+	, freight_pump(&sink, &evaporator, 1e5, 1, 1e4, 0.1, 10, Coolant::Pump::mode_t::DST, 1e6)
+	, loop(&vessel, &evaporator, &grid)
+	, path(path)
 {
 	
 }
 
-System::System(const Json::Value& node) :
-		clock(node["clock"].asDouble()),
-		vessel(node["vessel"]),
-		reactor(node["reactor"], &vessel),
-		grid(node["grid"]),
-		evaporator(node["evaporator"]),
-		pool(node["pool"]),
-		sink(evaporator.fluid, 11, 0, 0),
-		freight_pump(node["pump"]["freight"], &sink, &evaporator),
-		loop(node, &vessel, &evaporator, &grid)
+System::System(const Json::Value& node, const std::string& path)
+	: clock(node["clock"].asDouble())
+	, vessel(node["vessel"])
+	, reactor(node["reactor"], &vessel)
+	, grid(node["grid"])
+	, evaporator(node["evaporator"])
+	, pool(node["pool"])
+	, sink(evaporator.fluid, 11, 0, 0)
+	, freight_pump(node["pump"]["freight"], &sink, &evaporator)
+	, loop(node, &vessel, &evaporator, &grid)
+	, path(path)
 {
 	
 }
@@ -125,8 +127,7 @@ void System::load(const std::string& path)
 	savefile.close();
 
 	Graphics::Camera::load(root["camera"]);
-	std::unique_ptr<System> sys = std::make_unique<System>(root);
-	sys->path = path;
+	std::unique_ptr<System> sys = std::make_unique<System>(root, path);
 
 	active = std::move(sys);
 	Graphics::Window::reload();

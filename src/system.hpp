@@ -31,8 +31,8 @@ struct System
 	double speed = 1;
 	double clock = 3600 * 12;
 
-	System();
-	System(const Json::Value& node);
+	System(const std::string& path);
+	System(const Json::Value& node, const std::string& path);
 	System(const System& o) = delete;
 	System(System&& o) = delete;
 

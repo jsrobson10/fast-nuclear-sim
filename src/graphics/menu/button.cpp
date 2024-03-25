@@ -78,7 +78,6 @@ void Button::remesh_ui(Data::Mesh& rmesh)
 		.align={0.5, 0.5},
 		.mat=glm::translate(glm::mat4(1), glm::vec3(p0, p1, 0.01)),
 	});
-	
 };
 
 void Button::update()

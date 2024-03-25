@@ -22,9 +22,11 @@ static glm::vec<3, double> trigger_far;
 
 static std::vector<std::unique_ptr<Focus::FocusType>> stack;
 static std::unique_ptr<Focus::FocusType> state = nullptr;
+static std::unique_ptr<Focus::FocusType> to_delete = nullptr;
 static bool mouse_visible = false;
 static bool triggered = false;
 static bool triggered_release = false;
+static bool in_update = false;
 
 void Focus::on_keypress(int key, int sc, int action, int mods)
 {
@@ -140,7 +142,14 @@ void Focus::update(double dt)
 
 	if(state)
 	{
+		in_update = true;
 		state->update(dt);
+		in_update = false;
+
+		if(to_delete)
+		{
+			to_delete = nullptr;
+		}
 	}
 	
 	triggered = false;
@@ -186,6 +195,11 @@ bool Focus::is_focused()
 
 void Focus::clear_all()
 {
+	if(in_update)
+	{
+		to_delete = std::move(state);
+	}
+
 	state = nullptr;
 	stack.clear();
 }
@@ -195,6 +209,11 @@ void Focus::clear_focus()
 	if(!state || !state->can_unfocus)
 	{
 		return;
+	}
+
+	if(in_update)
+	{
+		to_delete = std::move(state);
 	}
 
 	state = nullptr;
@@ -208,9 +227,17 @@ void Focus::clear_focus()
 
 void Focus::set(std::unique_ptr<FocusType> f)
 {
-	if(state != nullptr && state->will_restore_later)
+	if(state != nullptr)
 	{
-		stack.push_back(std::move(state));
+		if(state->will_restore_later)
+		{
+			stack.push_back(std::move(state));
+		}
+
+		else if(in_update)
+		{
+			to_delete = std::move(state);
+		}
 	}
 	
 	state = std::move(f);

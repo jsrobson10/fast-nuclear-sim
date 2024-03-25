@@ -22,8 +22,7 @@ struct NewGameMenu : public MenuType
 
 void Menu::open_new_game(const std::string& path)
 {
-	System::active = std::make_unique<System>();
-	System::active->path = path;
+	System::active = std::make_unique<System>(path);
 	Focus::clear_all();
 	Camera::reset();
 }
