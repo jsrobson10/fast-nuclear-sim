@@ -61,8 +61,8 @@ void Texture::generate_atlas()
 
 	int total_area = 0;
 	int min_size = 1;
-	int padding = 2;
-	int offset = 1;
+	int padding = 0;
+	int offset = 0;
 
 	for(const AtlasQueueItem& a : texture_atlas_queue)
 	{
@@ -109,7 +109,7 @@ void Texture::generate_atlas()
 			}
 			
 			const AtlasQueueItem& src = texture_atlas_queue[it->id];
-			atlas.draw(src.atlas, it->x + offset, it->y + offset, zpos, true);
+			atlas.draw(src.atlas, it->x + offset, it->y + offset, zpos, false);
 
 			uvs[it->id] = {
 				{(it->x + offset + 0.5f) / size, (it->y + offset + 0.5f) / size},
