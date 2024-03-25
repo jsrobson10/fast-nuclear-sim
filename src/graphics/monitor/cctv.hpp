@@ -19,13 +19,13 @@ class CCTV : public Data::MeshGen
 	Data::Mesh m_screen;
 	std::array<Data::Mesh, 9> m_buttons;
 
+	int size;
 	unsigned int fbos[2];
 	unsigned int textures[2];
 	unsigned int rbo_depth;
 	int buff_at = 0;
 
-	const int width;
-	const int height;
+	void generate_fbos();
 
 public:
 	

@@ -24,8 +24,10 @@ struct SettingsMenu : public MenuType
 {
 	int msaa_max;
 	int texture_max;
+	int cctv_size = Settings::get_cctv_size();
 	int shadow_size = Settings::get_shadow_size();
-	bool fullscreen = Resize::get_fullscreen();
+
+	static constexpr double x_off = 0.5;
 
 	std::vector<Button> buttons = {
 		{"Back", {0, 0.75}, [](Button& b) {
@@ -33,23 +35,28 @@ struct SettingsMenu : public MenuType
 		}},
 		{[](Button& b) {
 			return std::format("Fullscreen: {}", Resize::get_fullscreen() ? "On" : "Off");
-		}, {-0.75, -0.5}, [](Button& b) {
+		}, {-x_off, -0.3}, [](Button& b) {
 			Resize::toggle_fullscreen();
 		}},
 		{[](Button& b) {
 			return std::format("Vsync: {}", Settings::get_vsync() ? "On" : "Off");
-		}, {-0.75, -0.3}, [](Button& b) {
+		}, {-x_off, -0.1}, [](Button& b) {
 			Settings::set_vsync(!Settings::get_vsync());
 		}},
 		{[](Button& b) {
 			return std::format("Show FPS: {}", Settings::get_show_fps() ? "On" : "Off");
-		}, {-0.75, -0.1}, [](Button& b) {
+		}, {-x_off, 0.1}, [](Button& b) {
 			Settings::set_show_fps(!Settings::get_show_fps());
+		}},
+		{[](Button& b) {
+			return std::format("Show Debug: {}", Settings::get_show_debug() ? "On" : "Off");
+		}, {-x_off, 0.3}, [](Button& b) {
+			Settings::set_show_debug(!Settings::get_show_debug());
 		}},
 		{[](Button& b) {
 			int msaa = Settings::get_msaa();
 			return msaa > 1 ? std::format("MSAA: {}", msaa) : "MSAA: Off";
-		}, {-0.75, 0.1}, [this](Button& b) {
+		}, {x_off, -0.3}, [this](Button& b) {
 
 			int msaa = Settings::get_msaa() * 2;
 
@@ -62,7 +69,7 @@ struct SettingsMenu : public MenuType
 		}},
 		{[this](Button& b) {
 			return std::format("Shadows: {0}x{0}", shadow_size);
-		}, {-0.75, 0.3}, [this](Button& b) {
+		}, {x_off, -0.1}, [this](Button& b) {
 			shadow_size *= 2;
 
 			if(shadow_size > std::min(texture_max, 4096))
@@ -70,9 +77,19 @@ struct SettingsMenu : public MenuType
 				shadow_size = 256;
 			}
 		}},
+		{[this](Button& b) {
+			return std::format("CCTV Size: {0}x{1}", cctv_size, cctv_size * 9 / 16);
+		}, {x_off, 0.1}, [this](Button& b) {
+			cctv_size *= 2;
+
+			if(cctv_size > std::min(texture_max, 8192))
+			{
+				cctv_size = 256;
+			}
+		}},
 		{[](Button& b) {
 			return std::format("Text Refresh Rate: {}:1", Settings::get_text_refreshes());
-		}, {-0.75, 0.5}, [](Button& b) {
+		}, {x_off, 0.3}, [](Button& b) {
 			int rate = Settings::get_text_refreshes() / 2;
 
 			if(rate < 1)
@@ -93,6 +110,7 @@ struct SettingsMenu : public MenuType
 	~SettingsMenu()
 	{
 		Settings::set_shadow_size(shadow_size);
+		Settings::set_cctv_size(cctv_size);
 		Settings::save();
 	}
 
@@ -114,14 +132,6 @@ struct SettingsMenu : public MenuType
 
 	void update(double dt) override
 	{
-		bool fullscreen = Resize::get_fullscreen();
-
-		if(fullscreen != this->fullscreen)
-		{
-			this->fullscreen = fullscreen;
-			buttons[1].text = buttons[1].get_text(buttons[1]);
-		}
-
 		for(Button& b : buttons)
 		{
 			b.update();

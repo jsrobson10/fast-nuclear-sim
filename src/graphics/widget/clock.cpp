@@ -17,6 +17,7 @@
 #include "../../system.hpp"
 #include "../../util/streams.hpp"
 #include "../settings.hpp"
+#include "../camera.hpp"
 
 using namespace Sim::Graphics::Widget;
 using namespace Sim::Graphics::Data;
@@ -48,6 +49,13 @@ void Clock::remesh_ui(Mesh& rmesh)
    		ss << std::setfill('0') << std::setw(2) << t_m << ":";
 		ss << std::setfill('0') << std::setw(2) << t_s << "\n";
 		ss << "Day: " << std::floor(at / (3600 * 24)) << "\n";
+
+		if(Settings::get_show_debug())
+		{
+			ss << "\nDebug: " << "\n";
+			ss << "  " << "Position: " << Camera::get_pos() << "\n";
+			ss << "  " << "Rotation: " << Camera::get_pitch() << ", " << Camera::get_yaw() << "\n";
+		}
 
 		text = ss.str();
 	}

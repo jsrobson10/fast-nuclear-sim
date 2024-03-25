@@ -16,7 +16,7 @@
 using namespace Sim::Graphics;
 
 static bool on_ground = false;
-static double yaw = 0, pitch = 0;
+static double yaw = 0, pitch = 90;
 static glm::vec<3, double> pos(0, 0, 2);
 static glm::vec<3, double> velocity(0);
 static Data::Mesh collision_scene;
@@ -54,11 +54,11 @@ void Camera::load(const Json::Value& node)
 
 void Camera::rotate(double y, double p)
 {
-	yaw += y * 0.05;
 	pitch -= p * 0.05;
-
 	if(pitch < 0) pitch = 0;
 	if(pitch > 180) pitch = 180;
+
+	yaw = Util::Math::mod(yaw + y * 0.05, 360);
 }
 
 void Camera::move(double xoff, double yoff, double zoff)
