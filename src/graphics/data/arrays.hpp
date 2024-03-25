@@ -27,7 +27,6 @@ struct Vertex
 	constexpr bool operator==(const Vertex&) const = default;
 
 	friend std::ostream& operator<<(std::ostream& os, const Vertex& v);
-
 };
 
 void vertex_attrib_pointers();

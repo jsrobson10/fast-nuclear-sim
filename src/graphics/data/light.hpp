@@ -23,5 +23,7 @@ struct Light
 
 };
 
+static_assert(sizeof(Light) == 32);
+
 };
 

@@ -15,5 +15,7 @@ struct Material
 	float padding = 0;
 };
 
+static_assert(sizeof(Material) == 32);
+
 };
 

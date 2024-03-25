@@ -15,5 +15,7 @@ struct StateBuffer
 	static void set(const StateBuffer& sb);
 };
 
+static_assert(sizeof(StateBuffer) == 128);
+
 };
 
