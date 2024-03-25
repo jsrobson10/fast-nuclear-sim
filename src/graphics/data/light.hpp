@@ -21,7 +21,7 @@ struct Light
 	
 	constexpr bool operator==(const Light&) const = default;
 
-} __attribute__((packed));
+};
 
 };
 

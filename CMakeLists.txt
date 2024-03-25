@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.25)
 project(FastNuclearSim VERSION 1.0)
 
 set(CMAKE_CXX_STANDARD 26)
-set(CMAKE_CXX_FLAGS "-g -Wno-reorder-init-list")
+set(CMAKE_CXX_FLAGS "-g")
 
 if(NOT DEBUG_SET)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")

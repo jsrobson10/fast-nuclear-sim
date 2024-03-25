@@ -384,7 +384,9 @@ void Window::render()
 	UI::render();
 	Focus::render_ui();
 
-	glBlitNamedFramebuffer(main_fbo, 0, 0, 0, size.x, size.y, 0, 0, size.x, size.y, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, main_fbo);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+	glBlitFramebuffer(0, 0, size.x, size.y, 0, 0, size.x, size.y, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 	
 	glfwSwapBuffers(win);
 	

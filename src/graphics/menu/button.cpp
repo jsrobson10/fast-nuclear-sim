@@ -20,7 +20,6 @@ Button::Button(const std::string& text, glm::vec2 pos, std::function<void(Button
 
 Button::Button(std::function<std::string(Button&)> get_text, glm::vec2 pos, std::function<void(Button&)> action)
 	: get_text(get_text)
-	, text(get_text(*this))
 	, pos(pos)
 	, action(action)
 {
@@ -71,14 +70,15 @@ void Button::remesh_ui(Data::Mesh& rmesh)
 			{.pos = {p0+o0, p1+o1, 0}},
 		},
 	};
-
-	Data::Fonts::BASE.load_text(rmesh, text, {
-		.size=FONT_SIZE,
-		.mat=glm::translate(glm::mat4(1), glm::vec3(p0, p1, 0)),
-		.align={0.5, 0.5},
-	});
 	
 	rmesh.add(prim);
+
+	Data::Fonts::BASE.load_text(rmesh, get_text ? get_text(*this) : text, {
+		.size=FONT_SIZE,
+		.align={0.5, 0.5},
+		.mat=glm::translate(glm::mat4(1), glm::vec3(p0, p1, 0.01)),
+	});
+	
 };
 
 void Button::update()
@@ -86,11 +86,6 @@ void Button::update()
 	if(Focus::is_triggered(Focus::Trigger::MENU) && check_hover())
 	{
 		action(*this);
-
-		if(get_text)
-		{
-			text = get_text(*this);
-		}
 	}
 }
 

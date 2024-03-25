@@ -24,6 +24,7 @@ struct SettingsMenu : public MenuType
 {
 	int msaa_max;
 	int texture_max;
+	int shadow_size = Settings::get_shadow_size();
 	bool fullscreen = Resize::get_fullscreen();
 
 	std::vector<Button> buttons = {
@@ -59,17 +60,15 @@ struct SettingsMenu : public MenuType
 
 			Settings::set_msaa(msaa);
 		}},
-		{[](Button& b) {
-			return std::format("Shadows: {0}x{0}", Settings::get_shadow_size());
+		{[this](Button& b) {
+			return std::format("Shadows: {0}x{0}", shadow_size);
 		}, {-0.75, 0.3}, [this](Button& b) {
-			int size = Settings::get_shadow_size() * 2;
+			shadow_size *= 2;
 
-			if(size > std::min(texture_max, 4096))
+			if(shadow_size > std::min(texture_max, 4096))
 			{
-				size = 256;
+				shadow_size = 256;
 			}
-
-			Settings::set_shadow_size(size);
 		}},
 		{[](Button& b) {
 			return std::format("Text Refresh Rate: {}:1", Settings::get_text_refreshes());
@@ -93,6 +92,7 @@ struct SettingsMenu : public MenuType
 
 	~SettingsMenu()
 	{
+		Settings::set_shadow_size(shadow_size);
 		Settings::save();
 	}
 
