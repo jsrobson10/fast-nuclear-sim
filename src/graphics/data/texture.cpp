@@ -214,7 +214,7 @@ uint32_t Texture::load_mem(const uint8_t* data, int width, int height, int chann
 		
 		texture_atlas_queue.push_back({
 			std::move(atlas),
-			(uint8_t)(edgeBehaviour == GL_CLAMP_TO_EDGE ? 1 : 0)
+			edgeBehaviour == GL_CLAMP_TO_EDGE ? 1 : 0
 		});
 
 		return texture_atlas_queue.size() - 1;
