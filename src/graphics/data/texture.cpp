@@ -16,11 +16,26 @@
 
 using namespace Sim::Graphics::Data;
 
+struct AtlasPart
+{
+	glm::vec2 uv0;
+	glm::vec2 uv1;
+	int zpos;
+	int edges; // 0 = repeat, 1 = clamp
+	int padding[2];
+};
+
+struct AtlasQueueItem
+{
+	Atlas<4> atlas;
+	int edges;
+};
+
 static bool is_done = false;
 static uint32_t atlas_texid;
 static uint32_t atlas_uv_ssbo;
 static std::unordered_map<std::string, uint32_t> loaded;
-static std::vector<Atlas<4>> texture_atlas_queue;
+static std::vector<AtlasQueueItem> texture_atlas_queue;
 
 uint32_t Texture::handle_white;
 uint32_t Texture::handle_normal;
@@ -45,73 +60,78 @@ void Texture::generate_atlas()
 	}
 
 	int total_area = 0;
+	int min_size = 1;
 	int padding = 2;
 	int offset = 1;
 
-	for(const Atlas<4>& atlas : texture_atlas_queue)
+	for(const AtlasQueueItem& a : texture_atlas_queue)
 	{
-		total_area += (atlas.width + padding) * (atlas.height + padding);
+		int w = a.atlas.width + padding;
+		int h = a.atlas.height + padding;
+		if(w > min_size) min_size = w;
+		if(h > min_size) min_size = h;
+		total_area += w * h;
 	}
 
-	int size = std::pow(2, std::ceil(std::log2(std::sqrt(total_area))));
+	// find a good approximate size for the atlas that can hold all the textures
+	int size = std::pow(2, std::ceil(std::log2(std::max((double)min_size, std::pow(total_area, 1.0/3.0)))));
 
 	std::vector<stbrp_rect> rects;
-	std::vector<glm::mat2> uvs;
-
+	std::vector<AtlasPart> uvs(texture_atlas_queue.size());
 	rects.reserve(texture_atlas_queue.size());
-	uvs.reserve(texture_atlas_queue.size());
 
 	for(int i = 0; i < texture_atlas_queue.size(); i++)
 	{
-		const Atlas<4>& atlas = texture_atlas_queue[i];
+		const AtlasQueueItem& a = texture_atlas_queue[i];
 		stbrp_rect rect;
 		rect.id = i;
-		rect.w = atlas.width + padding;
-		rect.h = atlas.height + padding;
+		rect.w = a.atlas.width + padding;
+		rect.h = a.atlas.height + padding;
 		rects.push_back(rect);
 	}
 
 	stbrp_context context;
 	std::vector<stbrp_node> nodes(size);
+	Atlas<4> atlas(size, size);
+	int zpos;
 
-	for(;;)
+	for(zpos = 0; rects.size() > 0; zpos++)
 	{
 		stbrp_init_target(&context, size, size, nodes.data(), nodes.size());
+		stbrp_pack_rects(&context, rects.data(), rects.size());
 
-		if(stbrp_pack_rects(&context, rects.data(), rects.size()) == 1)
+		for(auto it = rects.begin(); it != rects.end();)
 		{
-			break;
+			if(!it->was_packed)
+			{
+				it++;
+				continue;
+			}
+			
+			const AtlasQueueItem& src = texture_atlas_queue[it->id];
+			atlas.draw(src.atlas, it->x + offset, it->y + offset, zpos, true);
+
+			uvs[it->id] = {
+				{(it->x + offset + 0.5f) / size, (it->y + offset + 0.5f) / size},
+				{(it->x + offset + src.atlas.width - 0.5f) / size, (it->y + offset + src.atlas.height - 0.5f) / size},
+				zpos, src.edges
+			};
+
+			it = rects.erase(it);
 		}
-
-		size *= 2;
-		nodes.resize(size);
-		std::cout << "Error: failed to pack textures, trying again with size " << size << "\n";
 	}
 
-	Atlas<4> atlas(size, size);
-
-	for(const stbrp_rect& rect : rects)
-	{
-		const Atlas<4>& src = texture_atlas_queue[rect.id];
-		atlas.draw(src, rect.x + offset, rect.y + offset, true);
-
-		uvs.emplace_back(glm::mat2(
-			(rect.x + offset + 0.5f) / size, (rect.y + offset + 0.5f) / size,
-			(rect.x + offset + src.width - 0.5f) / size, (rect.y + offset + src.height - 0.5f) / size
-		));
-	}
-
-	std::cout << "Finished stitching " << size << "x" << size << " texture atlas\n";
+	std::cout << "Finished stitching " << size << "x" << size << "x" << zpos << " texture atlas\n";
 
 	glGenTextures(1, &atlas_texid);
 	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, atlas_texid);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, size, size, 0, GL_RGBA, GL_UNSIGNED_BYTE, atlas.data.data());
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glGenerateMipmap(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, atlas_texid);
+	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, size, size, zpos, 0, GL_RGBA, GL_UNSIGNED_BYTE, atlas.data.data());
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
 	glActiveTexture(GL_TEXTURE0);
 
 	glGenBuffers(1, &atlas_uv_ssbo);
@@ -190,7 +210,11 @@ uint32_t Texture::load_mem(const uint8_t* data, int width, int height, int chann
 			atlas.data[i] = pixel;
 		}
 		
-		texture_atlas_queue.push_back(std::move(atlas));
+		texture_atlas_queue.push_back({
+			std::move(atlas),
+			edgeBehaviour == GL_CLAMP_TO_EDGE ? 1 : 0
+		});
+
 		return texture_atlas_queue.size() - 1;
 	}
 

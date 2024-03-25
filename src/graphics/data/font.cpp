@@ -138,8 +138,6 @@ void Font::load_text(Mesh& rmesh, const std::string& text, load_text_t t) const
 	float off_x = 0;
 	float off_y = 0;
 	unsigned int at = 0;
-	float t0 = 0;
-	float t1 = 1;
 
 	if(t.align.x > 0)
 	{
@@ -149,12 +147,6 @@ void Font::load_text(Mesh& rmesh, const std::string& text, load_text_t t) const
 	if(t.align.y > 0)
 	{
 		off_y = calc_height(text.c_str(), t.size) * t.align.y;
-	}
-
-	if(!Shader::USE_BINDLESS_TEXTURES)
-	{
-		t0 += texel_size / 2;
-		t1 -= texel_size / 2;
 	}
 
 	for(int i = 0; i < text.size(); i++)

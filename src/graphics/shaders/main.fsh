@@ -37,12 +37,14 @@ in flat sampler2D frag_tex_normal;
 in flat uint frag_tex_diffuse;
 in flat uint frag_tex_normal;
 
-uniform sampler2D tex_atlas;
+uniform sampler2DArray tex_atlas;
 
 struct AtlasPart
 {
-	vec2 uv_min;
-	vec2 uv_max;
+	vec2 uv0;
+	vec2 uv1;
+	int zpos;
+	int edges; // 0 = repeat, 1 = clamp
 };
 
 layout(std140, binding = 5) readonly buffer AtlasBuffer
@@ -53,8 +55,8 @@ layout(std140, binding = 5) readonly buffer AtlasBuffer
 vec4 ReadTexture(uint tex, vec2 uv)
 {
 	AtlasPart a = atlas[tex];
-	uv = mod(uv, 1.f) * (a.uv_max - a.uv_min) + a.uv_min;
-	return texture(tex_atlas, uv);
+	uv = (a.edges == 0 ? fract(uv) : clamp(uv, 0.f, 1.f)) * (a.uv1 - a.uv0) + a.uv0;
+	return texture(tex_atlas, vec3(uv, a.zpos));
 }
 
 #endif
