@@ -184,8 +184,19 @@ bool Focus::is_focused()
 	return (state != nullptr);
 }
 
+void Focus::clear_all()
+{
+	state = nullptr;
+	stack.clear();
+}
+
 void Focus::clear_focus()
 {
+	if(!state || !state->can_unfocus)
+	{
+		return;
+	}
+
 	state = nullptr;
 
 	if(stack.size() != 0)

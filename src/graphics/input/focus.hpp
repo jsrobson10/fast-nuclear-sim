@@ -32,6 +32,7 @@ namespace Sim::Graphics::Focus
 
 struct FocusType
 {
+	bool can_unfocus = true;
 	bool cursor_is_visible = true;
 	bool will_restore_later = true;
 	bool will_advance_time = true;
@@ -51,6 +52,7 @@ struct FocusType
 
 bool is_focused();
 void clear_focus();
+void clear_all();
 bool is_triggered(Trigger level = Trigger::NONE);
 bool is_triggered_release();
 bool should_advance_time();

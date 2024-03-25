@@ -43,12 +43,6 @@ static void cb_keypress(GLFWwindow* win, int key, int sc, int action, int mods)
 		case GLFW_KEY_5:
 			Sim::System::active->speed = 3600; // 1 h/s
 			break;
-		case GLFW_KEY_O:
-			Sim::System::save();
-			break;
-		case GLFW_KEY_L:
-			Sim::System::load();
-			break;
 		}
 	}
 

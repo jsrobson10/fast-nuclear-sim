@@ -49,6 +49,7 @@ public:
 	Mesh load(const char* name) const;
 	Mesh load(const char* name, glm::mat4 mat) const;
 	glm::mat4 load_matrix(const char* name) const;
+	Camera extract_camera(const char* name);
 };
 
 };

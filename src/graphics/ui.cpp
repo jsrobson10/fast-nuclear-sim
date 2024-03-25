@@ -14,6 +14,7 @@
 #include "statebuffer.hpp"
 #include "resize.hpp"
 #include "shader.hpp"
+#include "camera.hpp"
 
 #include "widget/clock.hpp"
 
@@ -40,13 +41,16 @@ void UI::update(double dt)
 	glm::vec2 wsize(Resize::get_size() / 2);
 	glm::mat4 mat_scale = glm::scale(glm::mat4(1), glm::vec3(1.f / wsize.y, 1.f / wsize.y, 1));
 
-	if(!Focus::is_focused())
+	if(!Camera::is_in_main_menu())
 	{
-		mesh.add(g_ui, mat_scale);
-	}
+		if(!Focus::is_focused())
+		{
+			mesh.add(g_ui, mat_scale);
+		}
 
-	w_clock.update(dt);
-	w_clock.remesh_ui(mesh);
+		w_clock.update(dt);
+		w_clock.remesh_ui(mesh);
+	}
 
 	Focus::remesh_ui(mesh);
 

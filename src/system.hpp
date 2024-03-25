@@ -17,6 +17,8 @@ struct System
 {
 	static std::unique_ptr<System> active;
 
+	std::string path;
+
 	Electric::Grid grid;
 	Reactor::Reactor reactor;
 	Reactor::Coolant::Vessel vessel;
@@ -36,10 +38,8 @@ struct System
 
 	void update(double dt);
 
-	static void save(const char* path);
-	static void load(const char* path);
 	static void save();
-	static void load();
+	static void load(const std::string& path);
 
 	operator Json::Value() const;
 };

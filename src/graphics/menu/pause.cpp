@@ -10,6 +10,7 @@
 #include <memory>
 #include <vector>
 
+using namespace Sim;
 using namespace Sim::Graphics;
 using namespace Sim::Graphics::Menu;
 
@@ -22,8 +23,10 @@ struct PauseMenu : public MenuType
 		{"Settings", {0, 0.2}, [](Button& b) {
 			open_settings();
 		}},
-		{"Exit", {0, 0.4}, [](Button& b) {
-			Window::close();
+		{"Quit", {0, 0.4}, [](Button& b) {
+			System::save();
+			Focus::clear_all();
+			open_main();
 		}},
 	};
 

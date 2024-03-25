@@ -48,12 +48,14 @@ void Clock::remesh_ui(Mesh& rmesh)
 		ss << "Time: " << std::setfill('0') << std::setw(2) << t_h << ":";
    		ss << std::setfill('0') << std::setw(2) << t_m << ":";
 		ss << std::setfill('0') << std::setw(2) << t_s << "\n";
-		ss << "Day: " << std::floor(at / (3600 * 24)) << "\n";
+		ss << "Day: " << std::floor(at / (3600 * 24) + 1) << "\n";
 
 		if(Settings::get_show_debug())
 		{
 			ss << "\nDebug: " << "\n";
 			ss << "  " << "Position: " << Camera::get_pos() << "\n";
+			ss << "  " << "Velocity: " << Camera::get_velocity() << "\n";
+			ss << "  " << "Normal: " << Camera::get_normal() << "\n";
 			ss << "  " << "Rotation: " << Camera::get_pitch() << ", " << Camera::get_yaw() << "\n";
 		}
 

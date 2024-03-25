@@ -39,6 +39,7 @@
 #include "../util/streams.hpp"
 #include "statebuffer.hpp"
 #include "settings.hpp"
+#include "menu/menu.hpp"
 #include "ui.hpp"
 
 using namespace Sim;
@@ -241,6 +242,7 @@ void Window::create()
 	glGenBuffers(1, &ssbo_materials);
 
 	StateBuffer::init();
+	Menu::open_main();
 }
 
 void update_slow()
@@ -357,7 +359,7 @@ void Window::render()
 	glUniform1i(Shader::MAIN["shadow_maps"], 0);
 	
 	glm::vec3 brightness = glm::vec3(System::active->grid.get_light_intensity());
-	glm::mat4 mat_projection = glm::perspective(glm::radians(90.0f), Resize::get_aspect(), 0.01f, 100.f);
+	glm::mat4 mat_projection = glm::perspective(Camera::get_fov(), Resize::get_aspect(), 0.01f, 100.f);
 	glUniform3fv(Shader::MAIN["brightness"], 1, &brightness[0]);
 
 	glm::mat4 mat_player = glm::mat4(1);

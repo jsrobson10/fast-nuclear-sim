@@ -2,6 +2,7 @@
 #include "system.hpp"
 
 #include <fstream>
+#include <filesystem>
 
 #include "reactor/builder.hpp"
 #include "reactor/control/boron_rod.hpp"
@@ -94,8 +95,15 @@ System::operator Json::Value() const
 	return node;
 }
 
-void System::save(const char* path)
+void System::save()
 {
+	// make sure the directory exists, if not create it
+	std::filesystem::path dir = std::filesystem::path(active->path).parent_path();
+	if(!std::filesystem::exists(dir))
+	{
+		std::filesystem::create_directories(dir);
+	}
+
 	Json::Value root(*active);
 	root["camera"] = Graphics::Camera::serialize();
 
@@ -104,12 +112,12 @@ void System::save(const char* path)
 	builder["indentation"] = "";
 
 	std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
-	std::ofstream savefile(path);
+	std::ofstream savefile(active->path);
 	writer->write(root, &savefile);
 	savefile.close();
 }
 
-void System::load(const char* path)
+void System::load(const std::string& path)
 {
 	Json::Value root;
 	std::ifstream savefile(path);
@@ -118,18 +126,9 @@ void System::load(const char* path)
 
 	Graphics::Camera::load(root["camera"]);
 	std::unique_ptr<System> sys = std::make_unique<System>(root);
+	sys->path = path;
+
 	active = std::move(sys);
-
 	Graphics::Window::reload();
-}
-
-void System::save()
-{
-	save("savefile.json");
-}
-
-void System::load()
-{
-	load("savefile.json");
 }
 

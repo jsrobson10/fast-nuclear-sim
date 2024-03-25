@@ -209,6 +209,23 @@ static uint32_t proc_texture(
 	return Texture::load(path_base + "/" + filename);
 }
 
+Camera Model::extract_camera(const char* name)
+{
+	for(auto it = cameras.begin(); it != cameras.end();)
+	{
+		if(it->name == name)
+		{
+			Camera camera = *it;
+			cameras.erase(it);
+			return camera;
+		}
+
+		it++;
+	}
+
+	throw std::runtime_error("Camera not found");
+}
+
 Model::Model(std::string base, std::string filename) : base(base)
 {
 	std::string path = base + "/" + filename;
