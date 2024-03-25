@@ -155,6 +155,8 @@ void Window::create()
 		std::cout << "Info: Bindless textures are not supported. Using texture atlas instead.\n";
 	}
 
+	glfwSwapInterval(Settings::get_vsync() ? 1 : 0);
+
 	glGenFramebuffers(1, &main_fbo);
 	glGenRenderbuffers(1, &main_rbo_colour);
 	glGenRenderbuffers(1, &main_rbo_depth);
@@ -221,7 +223,7 @@ void Window::create()
 	remesh_static();
 
 	glfwShowWindow(win);
-	Settings::load();
+	Resize::check_fullscreen();
 
 	// setup lighting and prerender shadows
 	Shader::LIGHT.use();

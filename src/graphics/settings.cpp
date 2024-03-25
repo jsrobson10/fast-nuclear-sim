@@ -40,13 +40,13 @@ void Settings::load()
 	savefile >> root;
 	savefile.close();
 
-	set_vsync(root["vsync"].asBool());
-	set_msaa(check(root["msaa"].asInt(), 1));
-	set_shadow_size(check(root["shadow_size"].asInt(), 1024));
-	set_text_refreshes(check(root["text_refreshes"].asInt(), 4));
-	set_show_fps(root["show_fps"].asBool());
-	set_show_debug(root["show_debug"].asBool());
-	set_cctv_size(check(root["cctv_size"].asInt(), 512));
+	vsync = root["vsync"].asBool();
+	msaa = check(root["msaa"].asInt(), 1);
+	shadow_size = check(root["shadow_size"].asInt(), 1024);
+	text_refreshes = check(root["text_refreshes"].asInt(), 4);
+	show_fps = root["show_fps"].asBool();
+	show_debug = root["show_debug"].asBool();
+	cctv_size = check(root["cctv_size"].asInt(), 512);
 	Resize::set_fullscreen(root["fullscreen"].asBool());
 }
 

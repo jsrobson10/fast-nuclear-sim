@@ -4,12 +4,14 @@
 
 #include "resize.hpp"
 #include "window.hpp"
+#include "settings.hpp"
 
 using namespace Sim::Graphics;
 using namespace Sim::Graphics::Resize;
 using namespace Sim::Graphics::Window;
 
 static bool is_fullscreen = false;
+static bool will_be_fullscreen = false;
 
 static int win_w = 800;
 static int win_h = 600;
@@ -41,12 +43,19 @@ bool Resize::get_fullscreen()
 
 void Resize::set_fullscreen(bool fullscreen)
 {
+	GLFWwindow* win = Window::get_window();
+
+	if(!win)
+	{
+		will_be_fullscreen = fullscreen;
+		return;
+	}
+
 	if(fullscreen == is_fullscreen)
 	{
 		return;
 	}
 
-	GLFWwindow* win = Window::get_window();
 	is_fullscreen = fullscreen;
 
 	if(fullscreen)
@@ -64,10 +73,15 @@ void Resize::set_fullscreen(bool fullscreen)
 	{
 		glfwSetWindowMonitor(win, nullptr, win_restore_x, win_restore_y, win_restore_w, win_restore_h, 0);
 	}
+
+	glfwSwapInterval(Settings::get_vsync() ? 1 : 0);
 }
 
 static void cb_framebuffer_size(GLFWwindow* win, int w, int h)
 {
+	if(w < 1) w = 1;
+	if(h < 1) h = 1;
+
 	win_w = w;
 	win_h = h;
 
@@ -79,5 +93,14 @@ void Resize::init()
 {
 	GLFWwindow* win = Window::get_window();
 	glfwSetFramebufferSizeCallback(win, cb_framebuffer_size);
+
+}
+
+void Resize::check_fullscreen()
+{
+	if(will_be_fullscreen)
+	{
+		set_fullscreen(true);
+	}
 }
 

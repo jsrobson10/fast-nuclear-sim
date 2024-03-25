@@ -27,10 +27,8 @@ int main()
 #ifndef _WIN32
 	feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
 #endif
-	
-//	Tests::run();
-//	return 0;
 
+	Graphics::Settings::load();
 	Graphics::Window::create();
 
 	long clock = Util::Time::get_now();
