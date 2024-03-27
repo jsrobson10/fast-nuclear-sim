@@ -31,9 +31,9 @@ Generator::Generator(const Json::Value& node, Turbine* turbine, Grid* grid) :
 void Generator::update(double dt)
 {
 	double energy_input = turbine->extract_energy();
-	double energy_friction = get_rpm() / 60 * dt * friction;
+	double energy_friction = get_rpm() / 30 * dt * friction;
 	double work = Util::Math::j_to_ms2(energy_input - energy_friction, mass);
-	phase = std::fmod(phase + Util::Math::map( get_rpm(), 0, 3600, 0, 120 * M_PI ) * dt, 4 * M_PI);
+	phase = std::fmod(phase + Util::Math::map( get_rpm(), 0, 1800, 0, 120 * M_PI ) * dt, 4 * M_PI);
 
 	// do energy transfer stuff here
 	if(breaker_closed)
@@ -41,13 +41,13 @@ void Generator::update(double dt)
 		double a = get_phase_diff();
 		double dist_extra = 0.1;
 	
-		if(is_stable || (a < 1e-5 && std::abs(get_rpm() - 60 * grid->frequency) < 1e-3))
+		if(is_stable || (a < 1e-5 && std::abs(get_rpm() - 30 * grid->frequency) < 1e-3))
 		{
 			is_stable = true;
 			energy_generated = (energy_input - energy_friction) / dt;
 			grid->pull_energy(energy_friction - energy_input);
 			phase -= a;
-			set_rpm(grid->frequency * 60);
+			set_rpm(grid->frequency * 30);
 			return;
 		}
 	
@@ -79,7 +79,7 @@ void Generator::update(double dt)
 			point.y, point.x,
 		};
 
-		double eddy = (get_rpm() - 60 * grid->frequency) * dt * 1e5;
+		double eddy = (get_rpm() - 30 * grid->frequency) * dt * 1e5;
 
 		// calc the amount of actual work (in change in m/s) done
 
@@ -123,7 +123,7 @@ double Generator::get_phase_diff() const
 
 double Generator::get_frequency() const
 {
-	return get_rpm() / 60;
+	return get_rpm() / 30;
 }
 
 double Generator::get_power() const

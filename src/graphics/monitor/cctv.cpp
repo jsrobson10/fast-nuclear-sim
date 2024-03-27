@@ -88,7 +88,11 @@ public:
 			case GLFW_KEY_KP_9:
 				zoom -= 1;
 				break;
+			default:
+				return;
 			}
+		
+			parent->a_button.play(key - GLFW_KEY_KP_1);
 		}
 
 		else if(action == GLFW_RELEASE)
@@ -115,6 +119,7 @@ public:
 				break;
 			}
 		}
+
 	}
 };
 
@@ -144,6 +149,11 @@ void CCTV::generate_fbos()
 CCTV::CCTV(Model& model)
 	: Data::MeshGen("cctv")
 	, cameras(model.cameras)
+	, a_button(model, {
+		"click_cctv_numpad_7", "click_cctv_numpad_8", "click_cctv_numpad_9",
+		"click_cctv_numpad_4", "click_cctv_numpad_5", "click_cctv_numpad_6",
+		"click_cctv_numpad_1", "click_cctv_numpad_2", "click_cctv_numpad_3"},
+		{"click_1.ogg", "click_2.ogg"})
 {
 	size = Settings::get_cctv_size();
 
@@ -193,6 +203,7 @@ CCTV::CCTV(CCTV&& o)
 	, m_buttons(std::move(o.m_buttons))
 	, powered(o.powered)
 	, size(o.size)
+	, a_button(std::move(o.a_button))
 {
 	fbos[0] = o.fbos[0];
 	fbos[1] = o.fbos[1];
@@ -255,6 +266,18 @@ void CCTV::update(double dt)
 
 	if(m_screen.check_focus())
 		Focus::set(std::make_unique<FocusCCTV>(this));
+	if(m_buttons[0].check_focus(Focus::Trigger::INTERFACE))
+		a_button.play(6);
+	if(m_buttons[1].check_focus(Focus::Trigger::INTERFACE))
+		a_button.play(7);
+	if(m_buttons[2].check_focus(Focus::Trigger::INTERFACE))
+		a_button.play(8);
+	if(m_buttons[3].check_focus(Focus::Trigger::INTERFACE))
+		a_button.play(3);
+	if(m_buttons[4].check_focus(Focus::Trigger::INTERFACE))
+		a_button.play(4);
+	if(m_buttons[5].check_focus(Focus::Trigger::INTERFACE))
+		a_button.play(5);
 	if(m_buttons[0].check_focus_hold(Focus::Trigger::INTERFACE))
 		active.zoom = Util::Math::clamp(active.zoom - dt * 0.5f, 0.25, 1);
 	if(m_buttons[1].check_focus_hold(Focus::Trigger::INTERFACE))
@@ -267,12 +290,18 @@ void CCTV::update(double dt)
 		rotate(dt, -1, 0);
 	if(m_buttons[5].check_focus_hold(Focus::Trigger::INTERFACE))
 		rotate(dt, 0, 1);
-	if(m_buttons[6].check_focus(Focus::Trigger::INTERFACE))
+	if(m_buttons[6].check_focus(Focus::Trigger::INTERFACE)) {
 		camera_at = (camera_at + cameras.size() - 1) % cameras.size();
-	if(m_buttons[7].check_focus(Focus::Trigger::INTERFACE))
+		a_button.play(0);
+	}
+	if(m_buttons[7].check_focus(Focus::Trigger::INTERFACE)) {
 		powered = !powered;
-	if(m_buttons[8].check_focus(Focus::Trigger::INTERFACE))
+		a_button.play(1);
+	}
+	if(m_buttons[8].check_focus(Focus::Trigger::INTERFACE)) {
 		camera_at = (camera_at + 1) % cameras.size();
+		a_button.play(2);
+	}
 }
 
 void CCTV::render_view()

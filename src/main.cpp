@@ -15,6 +15,8 @@
 #include "graphics/window.hpp"
 #include "graphics/camera.hpp"
 #include "graphics/settings.hpp"
+#include "audio/device.hpp"
+#include "audio/sound_engine.hpp"
 
 #include "util/time.hpp"
 #include "system.hpp"
@@ -22,13 +24,14 @@
 
 using namespace Sim;
 
-int main()
+int main(int argc, char** argv)
 {
 #ifndef _WIN32
-	feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
+	feenableexcept(FE_DIVBYZERO | FE_INVALID);
 #endif
 
 	Graphics::Settings::load();
+	Audio::Device::init(argc, argv);
 	Graphics::Window::create();
 
 	long clock = Util::Time::get_now();
@@ -48,6 +51,7 @@ int main()
 		Graphics::Window::update(dt);
 		Graphics::Focus::update(dt);
 		Graphics::Window::render();
+		Audio::SoundEngine::update();
 	}
 
 	Graphics::Window::destroy();

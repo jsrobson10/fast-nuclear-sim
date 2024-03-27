@@ -3,6 +3,7 @@
 
 #include "../data/model.hpp"
 #include "../data/meshgen.hpp"
+#include "../../audio/player.hpp"
 
 namespace Sim::Graphics::Monitor
 {
@@ -10,6 +11,7 @@ namespace Sim::Graphics::Monitor
 class SecondaryLoop : public Data::MeshGen
 {
 	glm::mat4 mat;
+	Audio::Player<2, 2> a_click;
 
 	Data::Mesh g_switch_2;
 	Data::Mesh g_switch_3;

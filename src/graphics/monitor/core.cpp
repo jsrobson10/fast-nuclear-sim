@@ -77,9 +77,13 @@ struct CoreMonitor : public Focus::FocusType
 		case GLFW_KEY_KP_2:
 			sys.reactor.toggle_selected();
 			break;
+		case GLFW_KEY_KP_3:
+			break;
 		default:
 			return;
 		}
+
+		parent->a_button.play(key - GLFW_KEY_KP_1);
 	}
 };
 
@@ -111,7 +115,13 @@ struct CoreJoystick : public Focus::FocusType
 	}
 };
 
-Core::Core(const Model& model) : Data::MeshGen("core")
+Core::Core(const Model& model)
+	: Data::MeshGen("core")
+	, a_button(model, {
+		"click_reactor_numpad_7", "click_reactor_numpad_8", "click_reactor_numpad_9",
+		"click_reactor_numpad_4", "click_reactor_numpad_5", "click_reactor_numpad_6",
+		"click_reactor_numpad_1", "click_reactor_numpad_2", "click_reactor_numpad_3"},
+		{"click_1.ogg", "click_2.ogg"})
 {
 	mat = model.load_matrix("translation_monitor_3");
 	m_buttons[0] = model.load("click_reactor_numpad_1");
@@ -138,22 +148,41 @@ void Core::update(double dt)
 		Focus::set(std::make_unique<CoreJoystick>(this));
 	if(m_scram.check_focus(Focus::Trigger::INTERFACE))
 		sys.reactor.scram();
-	if(m_buttons[0].check_focus(Focus::Trigger::INTERFACE))
+	if(m_buttons[0].check_focus(Focus::Trigger::INTERFACE)) {
 		set_all(true);
-	if(m_buttons[1].check_focus(Focus::Trigger::INTERFACE))
+		a_button.play(6);
+	}
+	if(m_buttons[1].check_focus(Focus::Trigger::INTERFACE)) {
 		sys.reactor.move_cursor(-sys.reactor.height);
-	if(m_buttons[2].check_focus(Focus::Trigger::INTERFACE))
+		a_button.play(7);
+	}
+	if(m_buttons[2].check_focus(Focus::Trigger::INTERFACE)) {
 		set_all(false);
-	if(m_buttons[3].check_focus(Focus::Trigger::INTERFACE))
+		a_button.play(8);
+	}
+	if(m_buttons[3].check_focus(Focus::Trigger::INTERFACE)) {
 		sys.reactor.move_cursor(-1);
-	if(m_buttons[4].check_focus(Focus::Trigger::INTERFACE))
+		a_button.play(3);
+	}
+	if(m_buttons[4].check_focus(Focus::Trigger::INTERFACE)) {
 		sys.reactor.move_cursor(sys.reactor.height);
-	if(m_buttons[5].check_focus(Focus::Trigger::INTERFACE))
+		a_button.play(4);
+	}
+	if(m_buttons[5].check_focus(Focus::Trigger::INTERFACE)) {
 		sys.reactor.move_cursor(1);
-	if(m_buttons[6].check_focus(Focus::Trigger::INTERFACE))
+		a_button.play(5);
+	}
+	if(m_buttons[6].check_focus(Focus::Trigger::INTERFACE)) {
 		sys.reactor.reset_rod_speed();
-	if(m_buttons[7].check_focus(Focus::Trigger::INTERFACE))
+		a_button.play(0);
+	}
+	if(m_buttons[7].check_focus(Focus::Trigger::INTERFACE)) {
 		sys.reactor.toggle_selected();
+		a_button.play(1);
+	}
+	if(m_buttons[8].check_focus(Focus::Trigger::INTERFACE)) {
+		a_button.play(2);
+	}
 }
 
 void Core::remesh_static(Mesh& rmesh)

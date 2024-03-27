@@ -20,3 +20,7 @@ make
 - AssImp
 - JsonCpp
 
+# Attribution
+
+- [Walking Sounds](https://opengameart.org/content/rock-walk-step-sound-yo-frankie)
+

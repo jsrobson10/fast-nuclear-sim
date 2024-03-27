@@ -25,7 +25,6 @@ void load(const Json::Value& node);
 void init(Data::Model& model);
 void rotate(double pitch, double yaw);
 void move(double x, double y, double z);
-void set_pos(glm::vec<3, double> pos);
 void set_in_main_menu(bool b);
 bool is_in_main_menu();
 void update(double dt);

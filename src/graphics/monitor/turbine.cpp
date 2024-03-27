@@ -18,7 +18,9 @@ using namespace Sim::Graphics::Monitor;
 using namespace Sim::Graphics::Data;
 using namespace Sim::Util::Streams;
 
-Turbine::Turbine(const Model& model) : Data::MeshGen("turbine")
+Turbine::Turbine(const Model& model)
+	: Data::MeshGen("turbine")
+	, a_click(model, {"visual_breaker_switch"}, {"click_1.ogg", "click_2.ogg"})
 {
 	mat = model.load_matrix("translation_monitor_5");
 
@@ -35,20 +37,22 @@ void Turbine::update(double dt)
 {
 	System& sys = *System::active;
 
-	if(m_switch_breaker.check_focus(Focus::Trigger::INTERFACE))
+	if(m_switch_breaker.check_focus(Focus::Trigger::INTERFACE)) {
 		sys.loop.generator.breaker_closed = !sys.loop.generator.breaker_closed;
+		a_click.play(0);
+	}
 }
 
 void Turbine::get_static_transforms(std::vector<glm::mat4>& transforms)
 {
 	System& sys = *System::active;
-	double rpm = sys.loop.generator.get_rpm();
+	double freq = sys.loop.generator.get_frequency();
 	glm::mat4 mat_phase(1);
 	glm::mat4 mat_voltage(1);
 	glm::mat4 mat_power(1);
 	glm::mat4 mat_frequency(1);
 
-	if(rpm > 3570 && rpm < 3630)
+	if(freq > 59 && freq < 61)
 	{
 		mat_phase = glm::rotate(mat_phase, float(sys.loop.generator.get_phase_diff()), glm::vec3(0, 1, 0));
 	}

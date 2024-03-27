@@ -175,7 +175,7 @@ glm::mat4 get_transforms(const aiNode* node)
 
 	while(node->mParent != nullptr)
 	{
-		mat = mat * convert_mat(node->mTransformation);
+		mat = convert_mat(node->mTransformation) * mat;
 		node = node->mParent;
 	}
 

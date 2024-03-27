@@ -1,4 +1,5 @@
 
+#include <AL/alut.h>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
@@ -6,10 +7,15 @@
 #include "data/mesh.hpp"
 #include "input/keyboard.hpp"
 #include "../util/math.hpp"
+#include "../util/random.hpp"
 #include "input/focus.hpp"
+#include "../audio/source.hpp"
+#include "../audio/clip.hpp"
 
 #include <cmath>
+#include <format>
 #include <iostream>
+
 #include <glm/matrix.hpp>
 #include <glm/vec3.hpp>
 #include <glm/ext/matrix_transform.hpp>
@@ -19,8 +25,10 @@ using namespace Sim::Graphics;
 static bool in_main_menu = true;
 static bool on_ground = false;
 static double yaw = 0, pitch = 90;
-static glm::vec<3, double> pos(0, 0, 2);
+static double steps_counter = 0;
+static glm::vec<3, double> pos;
 static glm::vec<3, double> velocity(0);
+static glm::vec<3, double> spawn_pos;
 static Data::Mesh collision_scene;
 static Data::Camera camera_main_menu;
 static glm::mat4 camera_mat;
@@ -31,7 +39,7 @@ void Camera::reset()
 	on_ground = false;
 	yaw = 0;
 	pitch = 90;
-	pos = glm::vec<3, double>(0, 0, 2);
+	pos = spawn_pos;
 	velocity = glm::vec<3, double>(0);
 }
 
@@ -43,11 +51,6 @@ bool Camera::is_in_main_menu()
 void Camera::set_in_main_menu(bool b)
 {
 	in_main_menu = b;
-}
-
-void Camera::set_pos(glm::vec<3, double> p)
-{
-	pos = p;
 }
 
 glm::vec<3, double> Camera::get_velocity()
@@ -117,10 +120,20 @@ glm::vec<3, double> Camera::get_pos_base()
 	return pos - glm::vec<3, double>(0, 0, 1.5);
 }
 
+static unsigned int sounds_step_stone[8];
+
 void Camera::init(Data::Model& model)
 {
 	collision_scene = model.load("collision");
 	camera_main_menu = model.extract_camera("MainMenu");
+	spawn_pos = glm::vec<3, double>(model.load_matrix("visual_player") * glm::vec4(0, 0, 1.8, 1));
+	pos = spawn_pos;
+
+	// preload sounds
+	for(int i = 0; i < 8; i++)
+	{
+		sounds_step_stone[i] = Audio::Clip::load(std::format("jute-dh-steps/stepstone_{}.ogg", i + 1));
+	}
 }
 
 void Camera::update(double dt)
@@ -170,6 +183,7 @@ void Camera::update(double dt)
 		velocity2 = collision_scene.calc_intersect(pos + glm::vec<3, double>(0, 0, -1.5), velocity2) / dt;
 
 		pos += velocity2 * dt;
+		steps_counter += glm::length(velocity2) * dt;
 		on_ground = ((velocity * dt / dt).z != velocity2.z);
 		velocity = velocity2 * std::pow(0.5, dt / (on_ground ? 0.05 : 10));
 	}
@@ -189,6 +203,22 @@ void Camera::update(double dt)
 		camera_mat = glm::rotate(camera_mat, (float)glm::radians(-pitch), glm::vec3(1, 0, 0));
 		camera_mat = glm::rotate(camera_mat, (float)glm::radians(yaw), glm::vec3(0, 0, 1));
 		camera_mat = glm::translate(camera_mat, glm::vec3(-pos.x, -pos.y, -pos.z));
+	}
+
+	if(steps_counter > 1)
+	{
+		steps_counter -= 1;
+
+		if(on_ground)
+		{
+			Audio::Source source(sounds_step_stone[Util::Random::randint(0, 7)]);
+			source.pos = glm::vec4{0, 0, -1.5, 1};
+			source.pitch = 3;
+			source.gain = 0.25;
+			source.relative = true;
+			source.process();
+			source.play();
+		}
 	}
 }
 

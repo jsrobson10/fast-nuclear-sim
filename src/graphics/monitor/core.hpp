@@ -3,6 +3,7 @@
 
 #include "../data/model.hpp"
 #include "../data/meshgen.hpp"
+#include "../../audio/player.hpp"
 
 namespace Sim::Graphics::Monitor
 {
@@ -17,6 +18,8 @@ class Core : public Data::MeshGen
 	Data::Mesh m_scram;
 
 public:
+	
+	Audio::Player<9, 2> a_button;
 
 	Core(const Data::Model& model);
 	void update(double dt) override;

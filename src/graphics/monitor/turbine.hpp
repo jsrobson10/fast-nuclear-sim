@@ -4,6 +4,7 @@
 #include "../data/model.hpp"
 #include "../data/glmesh.hpp"
 #include "../data/meshgen.hpp"
+#include "../../audio/player.hpp"
 
 namespace Sim::Graphics::Monitor
 {
@@ -11,6 +12,7 @@ namespace Sim::Graphics::Monitor
 class Turbine : public Data::MeshGen
 {
 	glm::mat4 mat;
+	Audio::Player<1, 2> a_click;
 
 	Data::Mesh g_dial_phase;
 	Data::Mesh g_dial_voltage;

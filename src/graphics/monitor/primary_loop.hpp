@@ -3,6 +3,7 @@
 
 #include "../data/model.hpp"
 #include "../data/meshgen.hpp"
+#include "../../audio/player.hpp"
 
 namespace Sim::Graphics::Monitor
 {
@@ -10,6 +11,7 @@ namespace Sim::Graphics::Monitor
 class PrimaryLoop : public Data::MeshGen
 {
 	glm::mat4 mat;
+	Audio::Player<3, 2> a_click;
 
 	Data::Mesh m_joystick_turbine_bypass;
 	Data::Mesh m_joystick_turbine_inlet;

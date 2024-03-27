@@ -45,7 +45,9 @@ struct ValveJoystick : public Focus::FocusType
 	}
 };
 
-PrimaryLoop::PrimaryLoop(const Model& model) : Data::MeshGen("primary loop")
+PrimaryLoop::PrimaryLoop(const Model& model)
+	: Data::MeshGen("primary loop")
+	, a_click(model, {"visual_pump_switch_1", "visual_inlet_switch", "visual_bypass_switch"}, {"click_1.ogg", "click_2.ogg"})
 {
 	mat = model.load_matrix("translation_monitor_4");
 	
@@ -90,12 +92,18 @@ void PrimaryLoop::update(double dt)
 		Focus::set(std::make_unique<ValveJoystick>(&sys.loop.turbine_bypass_valve));
 	if(m_joystick_turbine_inlet.check_focus(Focus::Trigger::INTERFACE))
 		Focus::set(std::make_unique<ValveJoystick>(&sys.loop.turbine_inlet_valve));
-	if(m_switch_pump.check_focus(Focus::Trigger::INTERFACE))
+	if(m_switch_pump.check_focus(Focus::Trigger::INTERFACE)) {
 		sys.loop.primary_pump.powered = !sys.loop.primary_pump.powered;
-	if(m_switch_inlet.check_focus(Focus::Trigger::INTERFACE))
+		a_click.play(0);
+	}
+	if(m_switch_inlet.check_focus(Focus::Trigger::INTERFACE)) {
 		sys.loop.turbine_inlet_valve.toggle_auto();
-	if(m_switch_bypass.check_focus(Focus::Trigger::INTERFACE))
+		a_click.play(1);
+	}
+	if(m_switch_bypass.check_focus(Focus::Trigger::INTERFACE)) {
 		sys.loop.turbine_bypass_valve.toggle_auto();
+		a_click.play(2);
+	}
 }
 
 void PrimaryLoop::remesh_slow(Mesh& rmesh)

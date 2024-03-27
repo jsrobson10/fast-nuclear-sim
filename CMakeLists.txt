@@ -17,9 +17,9 @@ file(GLOB_RECURSE SOURCES src/*.cpp)
 add_executable(FastNuclearSim ${SOURCES})
 
 if(WIN32)
-	set(libs stdc++ m brotlidec assimp-5 glew32 opengl32 glfw3 freetype jsoncpp zlibstatic)
+	set(libs stdc++ m brotlidec assimp-5 glew32 opengl32 glfw3 freetype jsoncpp zlibstatic OpenAL32 vorbisfile alut)
 else()
-	set(libs stdc++ m GLEW glfw GL freetype assimp jsoncpp)
+	set(libs stdc++ m GLEW glfw GL freetype assimp jsoncpp openal vorbisfile alut)
 endif()
 
 message("Using libs ${libs}")

@@ -17,7 +17,9 @@ using namespace Sim::Graphics::Monitor;
 using namespace Sim::Graphics::Data;
 using namespace Sim::Util::Streams;
 
-SecondaryLoop::SecondaryLoop(const Model& model) : Data::MeshGen("secondary loop")
+SecondaryLoop::SecondaryLoop(const Model& model)
+	: Data::MeshGen("secondary loop")
+	, a_click(model, {"visual_pump_switch_2", "visual_pump_switch_3"}, {"click_1.ogg", "click_2.ogg"})
 {
 	mat = model.load_matrix("translation_monitor_6");
 
@@ -34,10 +36,14 @@ void SecondaryLoop::update(double dt)
 {
 	System& sys = *System::active;
 
-	if(m_switch_2.check_focus(Focus::Trigger::INTERFACE))
+	if(m_switch_2.check_focus(Focus::Trigger::INTERFACE)) {
 		sys.loop.secondary_pump.powered = !sys.loop.secondary_pump.powered;
-	if(m_switch_3.check_focus(Focus::Trigger::INTERFACE))
+		a_click.play(0);
+	}
+	if(m_switch_3.check_focus(Focus::Trigger::INTERFACE)) {
 		sys.freight_pump.powered = !sys.freight_pump.powered;
+		a_click.play(1);
+	}
 }
 
 void SecondaryLoop::remesh_static(Mesh& rmesh)

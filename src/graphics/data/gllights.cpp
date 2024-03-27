@@ -39,12 +39,12 @@ void GLLights::init_fbo()
 
 GLLights::GLLights(std::vector<Light>&& _lights) : lights(_lights)
 {
-	size = Settings::get_shadow_size();
-	init_fbo();
-
 	glGenBuffers(1, &ssbo);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Light) * lights.size(), lights.data(), GL_STATIC_COPY);
+
+	size = Settings::get_shadow_size();
+	init_fbo();
 }
 
 GLLights::GLLights(GLLights&& o) : lights(o.lights), size(o.size)
@@ -67,7 +67,6 @@ GLLights::~GLLights()
 void GLLights::render()
 {
 	int size_new = Settings::get_shadow_size();
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
 	if(size_new != size)
 	{
@@ -76,7 +75,8 @@ void GLLights::render()
 		glDeleteTextures(1, &texid);
 		init_fbo();
 	}
-
+	
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	glViewport(0, 0, size, size);
 

@@ -16,7 +16,7 @@ class GLLights
 
 public:
 	
-	unsigned int texid, fbo, ssbo;
+	unsigned int texid = 0, fbo = 0, ssbo = 0;
 
 	std::vector<Light> lights;
 

@@ -3,6 +3,7 @@
 
 using namespace Sim::Coolant;
 
+//Pump::Pump(FluidHolder* src, FluidHolder* dst, double mass, double radius, double power, double l_per_rev, double friction, mode_t mode, double target) :
 
 Loop::Loop(Reactor::Coolant::Vessel* vessel, Evaporator* evaporator, Electric::Grid* grid) :
 		condenser(WATER, 6, 4, 3e6, 30000),
@@ -11,8 +12,8 @@ Loop::Loop(Reactor::Coolant::Vessel* vessel, Evaporator* evaporator, Electric::G
 		condenser_secondary(&condenser, evaporator),
 		turbine_inlet_valve(vessel, &turbine, 0, 0.5),
 		turbine_bypass_valve(vessel, &condenser, 0, 0.5),
-		primary_pump(&condenser, vessel, 1e5, 1, 1e5, 0.1, 10, Pump::mode_t::SRC, 35000),
-		secondary_pump(evaporator, &condenser_secondary, 1e5, 1, 1e4, 0.1, 1, Pump::mode_t::NONE, 0)
+		primary_pump(&condenser, vessel, 1e5, 1, 1e6, 0.1, 10000, Pump::mode_t::SRC, 35000),
+		secondary_pump(evaporator, &condenser_secondary, 1e5, 1, 1e6, 0.1, 10000, Pump::mode_t::NONE, 0)
 {
 
 }

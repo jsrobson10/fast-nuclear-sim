@@ -9,15 +9,16 @@
 #include "../data/meshgen.hpp"
 #include "../data/camera.hpp"
 #include "../data/glmesh.hpp"
+#include "../../audio/player.hpp"
 
 namespace Sim::Graphics::Monitor
 {
 
 class CCTV : public Data::MeshGen
 {
+	std::array<Data::Mesh, 9> m_buttons;
 	Data::GLMesh gm_screen;
 	Data::Mesh m_screen;
-	std::array<Data::Mesh, 9> m_buttons;
 
 	int size;
 	unsigned int fbos[2];
@@ -31,6 +32,7 @@ public:
 	
 	glm::mat4 mat;
 	std::vector<Data::Camera> cameras;
+	Audio::Player<9, 2> a_button;
 	int camera_at = 0;
 	bool powered = false;
 

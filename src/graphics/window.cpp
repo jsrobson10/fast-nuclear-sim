@@ -37,6 +37,7 @@
 #include "equipment/pool_pump.hpp"
 #include "../system.hpp"
 #include "../util/streams.hpp"
+#include "../audio/sound_engine.hpp"
 #include "statebuffer.hpp"
 #include "settings.hpp"
 #include "menu/menu.hpp"
@@ -112,6 +113,8 @@ void Window::reload_rbos()
 {
 	glm::vec<2, int> size = Resize::get_size();
 	int msaa = Settings::get_msaa();
+	
+	glBindFramebuffer(GL_FRAMEBUFFER, main_fbo);
 
 	glBindRenderbuffer(GL_RENDERBUFFER, main_rbo_colour);
 	glRenderbufferStorageMultisample(GL_RENDERBUFFER, msaa, GL_RGBA8, size.x, size.y);
@@ -199,9 +202,9 @@ void Window::create()
 	gm_player.bind_ssbo();
 	gm_player.set(m_player, GL_STATIC_DRAW);
 
-	g_scene.add(model.load("control room"));
-	g_scene.add(model.load("containment building"));
-	g_scene.add(model.load("hallway"));
+	g_scene.add(model.load("control room render"));
+	g_scene.add(model.load("containment building render"));
+	g_scene.add(model.load("hallway render"));
 
 	Camera::init(model);
 
@@ -258,6 +261,11 @@ void update_slow()
 	for(auto& equipment : equipment)
 	{
 		equipment->remesh_slow(mesh);
+	}
+
+	if(Settings::get_show_debug())
+	{
+		Audio::SoundEngine::remesh_debug(mesh);
 	}
 
 	gm_dynamic_slow.bind();
@@ -346,6 +354,10 @@ void Window::render_dynamic()
 
 void Window::render()
 {
+	Shader::LIGHT.use();
+	glFrontFace(GL_CW);
+	lights->render();
+
 	glFrontFace(GL_CCW);
 
 	glm::vec<2, int> size = Resize::get_size();
@@ -393,10 +405,6 @@ void Window::render()
 	glBlitFramebuffer(0, 0, size.x, size.y, 0, 0, size.x, size.y, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 	
 	glfwSwapBuffers(win);
-	
-	Shader::LIGHT.use();
-	glFrontFace(GL_CW);
-	lights->render();
 }
 
 bool Window::should_close()

@@ -42,7 +42,7 @@ System::System(const std::string& path)
 	, pool(Coolant::WATER, {16, 32, 11.3}, 16, 1e5, 16 * 32 * 11.3 * 1000)
 	, sink(Coolant::WATER, 11, 0, 0)
 	, grid()
-	, freight_pump(&sink, &evaporator, 1e5, 1, 1e4, 0.1, 10, Coolant::Pump::mode_t::DST, 1e6)
+	, freight_pump(&sink, &evaporator, 1e5, 1, 1e4, 0.1, 1000, Coolant::Pump::mode_t::DST, 1e6)
 	, loop(&vessel, &evaporator, &grid)
 	, path(path)
 {
